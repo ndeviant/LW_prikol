@@ -13,7 +13,7 @@ def find_icon_on_screen(screenshot_path, icon_path, threshold=0.8, scale_range=(
         debug (bool): If True, enables debug mode to display intermediate results.
 
     Returns:
-        (int, int) or None: The (x, y) coordinates of the top-left corner of the matched region with the smallest y coordinate, or None if no match is found.
+        (int, int) or None: The (x, y) coordinates of the center of the matched region, or None if no match is found.
     """
     try:
         # Load images
@@ -63,16 +63,22 @@ def find_icon_on_screen(screenshot_path, icon_path, threshold=0.8, scale_range=(
             # Select the match with the smallest y coordinate
             best_match = min(all_matches, key=lambda m: m['y'])
 
+            # Calculate the center of the matched region
+            center_x = best_match['x'] + best_match['w'] // 2
+            center_y = best_match['y'] + best_match['h'] // 2
+
             if debug:
-                print(f"Best match at (x={best_match['x']}, y={best_match['y']}) with scale {best_match['scale']} and score {best_match['score']}")
+                print(f"Best match at center (x={center_x}, y={center_y}) with scale {best_match['scale']} and score {best_match['score']}")
                 top_left = (best_match['x'], best_match['y'])
                 bottom_right = (top_left[0] + best_match['w'], top_left[1] + best_match['h'])
                 cv2.rectangle(screenshot, top_left, bottom_right, (0, 255, 0), 2)
-                cv2.imshow('Best Match', screenshot)
+                # Draw a circle at the center of the detected match
+                cv2.circle(screenshot, (center_x, center_y), 5, (255, 0, 0), -1)
+                cv2.imshow('Best Match with Center', screenshot)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
-            return (best_match['x'], best_match['y'])
+            return (center_x, center_y)
         else:
             if debug:
                 print("No matches found.")

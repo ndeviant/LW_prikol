@@ -21,8 +21,9 @@ def main():
     icons = load_config_section('Icons')
     #secretary_positions = load_config_section('SecretaryPositions')
     secretary_positions = load_config_section('SecretaryPositions2')
+    options = load_config_section('Options')
 
-    sleep_interval = 7
+    sleep_interval = int(options['sleep'])
     list_position = ['85%', '85%']
     close_position = ['88.5%', '12.5%']
 
