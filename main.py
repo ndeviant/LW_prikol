@@ -20,13 +20,11 @@ def main():
 
     icons = load_config_section('Icons')
     #secretary_positions = load_config_section('SecretaryPositions')
-    secretary_positions = load_config_section('SecretaryPositions2')
+    secretary_positions = load_config_section('SecretaryPositionsAlt')
     options = load_config_section('Options')
+    button_positions = load_config_section('ButtonPositions')
 
     sleep_interval = int(options['sleep'])
-    list_position = ['85%', '85%']
-    close_position = ['88.5%', '12.5%']
-
     while True:
         for name, secretary_position in secretary_positions.items():
             print(f"{get_timestamp()} Checking {name}")
@@ -36,7 +34,7 @@ def main():
             random_sleep(sleep_interval)
 
             # Open the Position List
-            click_at_location(list_position[0], list_position[1], device_id)
+            click_at_location(button_positions['list'][0], button_positions['list'][1], device_id)
             random_sleep(sleep_interval)
 
             # Initialize counter for the number of accepts
@@ -49,7 +47,7 @@ def main():
                 icon_position = find_icon_on_screen(
                     screenshot_path,
                     icons['accept'],
-                    threshold=0.65,
+                    threshold=float(options['image_match_threshold']),
                     scale_range=(0.7, 1.3),
                     debug=False  # Enable debugging
                 )
@@ -69,11 +67,11 @@ def main():
                 print(f"\tAccepted {accept_counter} people for {name}.")
 
             # Close the list
-            click_at_location(close_position[0], close_position[1], device_id)
+            click_at_location(button_positions['close'][0], button_positions['close'][1], device_id)
             random_sleep(sleep_interval)
 
             # Close the position menu
-            click_at_location(close_position[0], close_position[1], device_id)
+            click_at_location(button_positions['close'][0], button_positions['close'][1], device_id)
             random_sleep(sleep_interval)
 
         random_sleep(5)  # Add random sleep to main loop
