@@ -19,8 +19,8 @@ def main():
     print(f"Using device: {device_id}")
 
     icons = load_config_section('Icons')
-    #secretary_positions = load_config_section('SecretaryPositions')
-    secretary_positions = load_config_section('SecretaryPositionsAlt')
+    secretary_positions = load_config_section('SecretaryPositions')
+    #secretary_positions = load_config_section('SecretaryPositionsAlt')
     options = load_config_section('Options')
     button_positions = load_config_section('ButtonPositions')
 
