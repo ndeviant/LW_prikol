@@ -1,7 +1,33 @@
 import time
 from utils.adb_utils import capture_screenshot
 from utils.image_processing import find_icon_on_screen
+from utils.adb_utils import (
+    capture_screenshot,
+    click_at_location,
+    swipe_down,
+)
+from utils.utils import random_sleep
 
+
+def open_position_menu(device_id, secretary_position, button_positions, sleep_interval):
+    """Opens the position menu and position list for the given secretary."""
+    click_at_location(secretary_position[0], secretary_position[1], device_id)
+    random_sleep(sleep_interval)
+    click_at_location(button_positions['list'][0], button_positions['list'][1], device_id)
+    random_sleep(sleep_interval)
+
+def close_position_menu(device_id, button_positions, sleep_interval):
+    """Closes the position menu and position list."""
+    click_at_location(button_positions['close'][0], button_positions['close'][1], device_id)
+    random_sleep(sleep_interval)
+    click_at_location(button_positions['close'][0], button_positions['close'][1], device_id)
+    random_sleep(sleep_interval)
+
+def swipe_to_top(device_id, center_x, center_y, swipe_distance, sleep_interval, times=3):
+    """Swipes down multiple times to ensure reaching the top of the list."""
+    for _ in range(times):
+        swipe_down(device_id, center_x, center_y, swipe_distance)
+        random_sleep(1, 0.4)
 
 def is_home_screen(device_id, target_icon, threshold=0.75, debug=False):
     """

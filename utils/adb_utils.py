@@ -1,4 +1,5 @@
 import os
+import random
 import tempfile
 import subprocess
 import re
@@ -176,3 +177,30 @@ def convert_percentage_to_pixels(x_percentage, y_percentage, device_id):
     y_pixel = int(screen_height * (float(y_percentage.strip('%')) / 100))
     
     return x_pixel, y_pixel
+
+def swipe_down(device_id, start_x, start_y, distance_y, duration=300):
+    """
+    Swipes down from (start_x, start_y) by a specified distance, with human-like randomness.
+
+    Args:
+        device_id (str): The ID of the device.
+        start_x (int): The x-coordinate to start the swipe.
+        start_y (int): The y-coordinate to start the swipe.
+        distance_y (int): The distance to swipe down.
+        duration (int): The swipe duration in milliseconds.
+    """
+    # Add small randomness to the starting coordinates
+    random_start_x = start_x + random.randint(-5, 5)
+    random_start_y = start_y + random.randint(-5, 5)
+
+    # Randomize the swipe distance slightly
+    random_distance_y = distance_y + random.randint(-10, 10)
+    random_end_y = random_start_y + random_distance_y
+
+    # Randomize the duration slightly
+    random_duration = duration + random.randint(-50, 50)
+
+    # Execute the swipe command with randomness
+    os.system(
+        f"adb -s {device_id} shell input swipe {random_start_x} {random_start_y} {random_start_x} {random_end_y} {random_duration}"
+    )
