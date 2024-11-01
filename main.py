@@ -1,11 +1,14 @@
 
+import random
 from utils.adb_utils import (
     capture_screenshot,
     click_at_location,
     get_connected_devices,
+    get_screen_size,
     select_device,
 )
 from utils.config_utils import load_config_section
+from utils.game_utils import swipe_to_top
 from utils.image_processing import find_icon_on_screen
 from utils.utils import get_timestamp, random_sleep
 
@@ -19,11 +22,12 @@ def main():
     print(f"Using device: {device_id}")
 
     icons = load_config_section('Icons')
-    secretary_positions = load_config_section('SecretaryPositions')
     #secretary_positions = load_config_section('SecretaryPositionsAlt')
     options = load_config_section('Options')
+    secretaryKey = 'SecretaryPositionsAlt' if options['alternate_positon'] == 'true' else 'SecretaryPositions'
+    secretary_positions = load_config_section(secretaryKey)
     button_positions = load_config_section('ButtonPositions')
-
+    
     sleep_interval = int(options['sleep'])
     while True:
         for name, secretary_position in secretary_positions.items():
@@ -36,6 +40,20 @@ def main():
             # Open the Position List
             click_at_location(button_positions['list'][0], button_positions['list'][1], device_id)
             random_sleep(sleep_interval)
+
+            # Swipe to top of list
+            screen_width, screen_height = get_screen_size(device_id)
+            center_x, center_y = screen_width // 2, screen_height // 2
+            swipe_distance = int(screen_height * 0.3)
+            
+            swipe_to_top(
+                device_id, 
+                center_x, 
+                center_y, 
+                random.uniform(0.75 * swipe_distance, 1.25 * swipe_distance),
+                sleep_interval,
+                10)
+
 
             # Initialize counter for the number of accepts
             accept_counter = 0
