@@ -1,206 +1,137 @@
-import os
-import random
-import tempfile
+# utils/adb_utils.py
+
 import subprocess
-import re
+import logging
 
-def capture_screenshot(device_id, filename="screenshot.png"):
-    """
-    Captures a screenshot using ADB from a specific device and saves it to a file in the system temp directory.
-    
-    Args:
-        device_id (str): The ID of the target device.
-        filename (str): The file to save the screenshot to (filename only, will save to the system's temp folder).
-    
-    Returns:
-        str: The path to the saved screenshot in the temp folder.
-    """
-    temp_dir = tempfile.gettempdir()  # Use the system's temporary directory
-    path = os.path.join(temp_dir, filename)  # Construct the full path for the screenshot
-    
-    try:
-        os.system(f"adb -s {device_id} exec-out screencap -p > {path}")
-        return path
-    except Exception as e:
-        print(f"Error capturing screenshot: {e}")
-        return None
-
-def get_screen_size(device_id):
-    """
-    Retrieves the real-time screen size (width, height) of the device using ADB.
-    
-    Args:
-        device_id (str): The ID of the target device.
-        
-    Returns:
-        tuple: Screen width and height in pixels.
-    """
-    try:
-        # Using 'adb dumpsys display' to get the actual screen size
-        result = subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'dumpsys', 'display'],
-            stdout=subprocess.PIPE
-        )
-        output = result.stdout.decode('utf-8')
-
-        # Look for the line that contains the logical frame or physical frame size
-        viewport_match = re.search(r'logicalFrame=Rect\(\d+, \d+ - (\d+), (\d+)\)', output)
-        if viewport_match:
-            width = int(viewport_match.group(1))
-            height = int(viewport_match.group(2))
-            return width, height
-
-        # As a fallback, try searching for deviceWidth and deviceHeight
-        device_size_match = re.search(r'deviceWidth=(\d+), deviceHeight=(\d+)', output)
-        if device_size_match:
-            width = int(device_size_match.group(1))
-            height = int(device_size_match.group(2))
-            return width, height
-
-        print("Error: Could not find screen size in dumpsys output.")
-        return None, None
-
-    except Exception as e:
-        print(f"Error getting screen size: {e}")
-        return None, None
-
-def click_at_location(x, y, device_id):
-    """
-    Simulates a tap on the screen using ADB at the given (x, y) coordinates.
-    If x or y are given as percentages (e.g., '50%'), they will be converted to absolute pixel values.
-    
-    Args:
-        x (str or int): X-coordinate to tap. Can be an int (absolute pixels) or str ('50%').
-        y (str or int): Y-coordinate to tap. Can be an int (absolute pixels) or str ('50%').
-        device_id (str): The ID of the target device.
-    """
-    try:
-        # Get screen size
-        screen_width, screen_height = get_screen_size(device_id)
-        
-        if screen_width is None or screen_height is None:
-            print("Could not retrieve screen size. Aborting click action.")
-            return
-        
-        # Convert percentage to absolute pixels if x or y are given as strings
-        if isinstance(x, str) and x.endswith('%'):
-            x = int(screen_width * (float(x.strip('%')) / 100))
-        if isinstance(y, str) and y.endswith('%'):
-            y = int(screen_height * (float(y.strip('%')) / 100))
-
-        # Execute ADB tap command
-        os.system(f"adb -s {device_id} shell input tap {x} {y}")
-
-    except Exception as e:
-        print(f"Error clicking at location ({x}, {y}): {e}")
+logger = logging.getLogger(__name__)
 
 def get_connected_devices():
     """
-    Returns a list of connected device IDs from `adb devices`.
+    Returns a list of connected device IDs using ADB.
     """
     try:
-        result = subprocess.run(['adb', 'devices'], stdout=subprocess.PIPE)
-        lines = result.stdout.decode('utf-8').strip().split('\n')[1:]  # Skip the header line
-        
-        devices = [line.split()[0] for line in lines if 'device' in line]
-        
-        if len(devices) == 0:
-            print("No devices found. Ensure that an emulator or device is running and connected.")
-        else:
-            print(f"Connected devices: {devices}")
-
+        result = subprocess.run(
+            ['adb', 'devices'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        lines = result.stdout.strip().split('\n')
+        devices = [
+            line.split('\t')[0] for line in lines[1:] if '\tdevice' in line
+        ]
+        logger.info(f"Connected devices: {devices}")
         return devices
-    except Exception as e:
-        print(f"Error retrieving connected devices: {e}")
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"ADB command failed: {e}")
         return []
 
 def select_device(devices):
     """
-    Selects the first emulator or device, or prompts the user to choose if multiple are available.
-    
-    Args:
-        devices (list): List of connected device IDs.
-        
-    Returns:
-        str: The selected device ID.
+    Selects a device from the list of connected devices.
+    For simplicity, we select the first device.
     """
-    if len(devices) == 1:
-        return devices[0]  # If only one device is connected, return it
+    if devices:
+        return devices[0]
     else:
-        print("Multiple devices detected. Please choose a device:")
-        for i, device in enumerate(devices):
-            print(f"{i}: {device}")
-        choice = int(input("Enter the number of the device to use: "))
-        return devices[choice]
+        raise Exception("No devices to select from.")
 
-def send_event(event, device_id):
+def get_current_running_app(device_id):
     """
-    Sends a key event to the specified device using ADB.
-    
-    Args:
-        event (str): The name of the event to send. Supported events: 'back', 'home', 'recents', 'power', 'volume_up', 'volume_down'.
-        device_id (str): The ID of the target device.
+    Returns the package name of the currently running app on the device.
     """
-    key_events = {
-        'back': 4,  # KEYCODE_BACK
-        'home': 3,  # KEYCODE_HOME
-        'recents': 187,  # KEYCODE_APP_SWITCH
-        'power': 26,  # KEYCODE_POWER
-        'volume_up': 24,  # KEYCODE_VOLUME_UP
-        'volume_down': 25  # KEYCODE_VOLUME_DOWN
-    }
+    try:
+        result = subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'dumpsys', 'window', 'windows'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        for line in result.stdout.splitlines():
+            if 'mCurrentFocus' in line or 'mFocusedApp' in line:
+                package_name = line.split('/')[0].split()[-1]
+                logger.debug(f"Current running app: {package_name}")
+                return package_name
+        return None
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"Failed to get current running app: {e}")
+        return None
 
-    if event in key_events:
-        keycode = key_events[event]
-        try:
-            os.system(f"adb -s {device_id} shell input keyevent {keycode}")
-        except Exception as e:
-            print(f"Error sending {event} event to device {device_id}: {e}")
-    else:
-        print(f"Unsupported event: {event}. Supported events: {list(key_events.keys())}")
-
-def convert_percentage_to_pixels(x_percentage, y_percentage, device_id):
+def capture_screenshot(device_id, filename='screenshot.png'):
     """
-    Converts percentage values for x and y into pixel values based on screen size.
-    
-    Args:
-        x_percentage (str): X-coordinate as a percentage string (e.g., '5%').
-        y_percentage (str): Y-coordinate as a percentage string (e.g., '5%').
-        device_id (str): The ID of the device.
-        
-    Returns:
-        tuple: The (x, y) coordinates in pixels.
+    Captures a screenshot from the device and saves it locally.
     """
-    screen_width, screen_height = get_screen_size(device_id)
-    
-    x_pixel = int(screen_width * (float(x_percentage.strip('%')) / 100))
-    y_pixel = int(screen_height * (float(y_percentage.strip('%')) / 100))
-    
-    return x_pixel, y_pixel
+    try:
+        subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'screencap', '-p', f'/sdcard/{filename}'],
+            check=True
+        )
+        subprocess.run(
+            ['adb', '-s', device_id, 'pull', f'/sdcard/{filename}', filename],
+            check=True
+        )
+        logger.debug(f"Screenshot saved as {filename}")
+        return filename
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"Failed to capture screenshot: {e}")
+        return None
 
-def swipe_down(device_id, start_x, start_y, distance_y, duration=300):
+def click_at_location(x, y, device_id):
     """
-    Swipes down from (start_x, start_y) by a specified distance, with human-like randomness.
-
-    Args:
-        device_id (str): The ID of the device.
-        start_x (int): The x-coordinate to start the swipe.
-        start_y (int): The y-coordinate to start the swipe.
-        distance_y (int): The distance to swipe down.
-        duration (int): The swipe duration in milliseconds.
+    Simulates a tap at the specified coordinates on the device screen.
     """
-    # Add small randomness to the starting coordinates
-    random_start_x = start_x + random.randint(-5, 5)
-    random_start_y = start_y + random.randint(-5, 5)
+    try:
+        subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'input', 'tap', str(x), str(y)],
+            check=True
+        )
+        logger.debug(f"Clicked at location ({x}, {y})")
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"Failed to click at location ({x}, {y}): {e}")
 
-    # Randomize the swipe distance slightly
-    random_distance_y = distance_y + random.randint(-10, 10)
-    random_end_y = random_start_y + random_distance_y
+def launch_package(device_id, package_name):
+    """
+    Launches the specified app package on the device.
+    """
+    try:
+        subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'],
+            check=True
+        )
+        logger.info(f"Launched package {package_name}")
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"Failed to launch package {package_name}: {e}")
 
-    # Randomize the duration slightly
-    random_duration = duration + random.randint(-50, 50)
+def get_screen_size(device_id):
+    """
+    Returns the screen size (width, height) of the device.
+    """
+    try:
+        result = subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'wm', 'size'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        size_str = result.stdout.strip().split(':')[1].strip()
+        width, height = map(int, size_str.split('x'))
+        logger.debug(f"Screen size: {width}x{height}")
+        return width, height
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"Failed to get screen size: {e}")
+        return None, None
 
-    # Execute the swipe command with randomness
-    os.system(
-        f"adb -s {device_id} shell input swipe {random_start_x} {random_start_y} {random_start_x} {random_end_y} {random_duration}"
-    )
+def swipe_down(device_id, start_x, start_y, distance, duration=500):
+    """
+    Swipes down on the device screen from the specified start point by the given distance.
+    """
+    end_y = start_y + distance
+    try:
+        subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'input', 'swipe',
+             str(start_x), str(start_y), str(start_x), str(end_y), str(duration)],
+            check=True
+        )
+        logger.debug(f"Swiped down from ({start_x}, {start_y}) to ({start_x}, {end_y})")
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"Failed to swipe down: {e}")

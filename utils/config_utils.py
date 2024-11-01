@@ -1,28 +1,35 @@
-import configparser
+# utils/config_utils.py
 
-def load_config_section(section, config_path="config.ini"):
+import json
+import logging
+import os
+
+logger = logging.getLogger(__name__)
+
+def load_config():
     """
-    Loads a specified section from the config file.
-
-    Args:
-        section (str): The section to load from the config file.
-        config_path (str): The path to the config file (default is 'config.ini').
-
-    Returns:
-        dict: A dictionary containing the key-value pairs from the section.
+    Loads the entire configuration from a JSON file.
     """
-    # Disable interpolation by using 'RawConfigParser'
-    config = configparser.RawConfigParser()
-    config.read(config_path)
+    config_file = 'config.json'  # Adjust the path to your config file
+    if not os.path.exists(config_file):
+        logger.error(f"Configuration file {config_file} not found.")
+        return {}
+    try:
+        with open(config_file, 'r') as f:
+            config = json.load(f)
+            logger.debug(f"Loaded configuration from {config_file}.")
+            return config
+    except json.JSONDecodeError as e:
+        logger.exception(f"Error parsing JSON configuration: {e}")
+        return {}
 
-    if section not in config:
-        raise ValueError(f"Section '{section}' not found in {config_path}")
-
-    section_data = {key: value.strip() for key, value in config.items(section)}
-
-    # Parse comma-separated values into lists where needed
-    for key, value in section_data.items():
-        if ',' in value:  # Handle screen positions or comma-separated values
-            section_data[key] = [item.strip() for item in value.split(',')]
-    
-    return section_data
+def load_config_section(config, section):
+    """
+    Loads a specific section from the configuration dictionary.
+    """
+    if section in config:
+        logger.debug(f"Loaded section '{section}' from config.")
+        return config[section]
+    else:
+        logger.warning(f"Section '{section}' not found in config.")
+        return {}

@@ -1,98 +1,83 @@
+# main.py
 
-import random
-from utils.adb_utils import (
-    capture_screenshot,
-    click_at_location,
-    get_connected_devices,
-    get_screen_size,
-    select_device,
+import logging
+from logging_config import applicant_logger
+
+from utils.adb_utils import get_connected_devices, select_device, get_screen_size
+from utils.config_utils import load_config, load_config_section
+from utils.game_utils import (
+    check_game_status,
+    handle_applicants,
+    launch_secretary_screen,
 )
-from utils.config_utils import load_config_section
-from utils.game_utils import swipe_to_top
-from utils.image_processing import find_icon_on_screen
-from utils.utils import get_timestamp, random_sleep
+from utils.utils import check_time_passed, random_sleep, convert_percentage_positions
 
+# Get the logger for this module
+logger = logging.getLogger(__name__)
 
 def main():
+    logger.info("Starting application...")
     devices = get_connected_devices()
-    if len(devices) == 0:
+    if not devices:
+        logger.error("No devices connected.")
         raise Exception("No devices connected.")
 
     device_id = select_device(devices)
-    print(f"Using device: {device_id}")
+    logger.info(f"Using device: {device_id}")
 
-    icons = load_config_section('Icons')
-    #secretary_positions = load_config_section('SecretaryPositionsAlt')
-    options = load_config_section('Options')
-    secretaryKey = 'SecretaryPositionsAlt' if options['alternate_positon'] == 'true' else 'SecretaryPositions'
-    secretary_positions = load_config_section(secretaryKey)
-    button_positions = load_config_section('ButtonPositions')
+    # Load the entire configuration
+    config = load_config()
+
+    # Load configuration sections
+    templates = load_config_section(config, 'templates')
+    options = load_config_section(config, 'options')
+    positions = load_config_section(config, 'positions')
+
+    # Get screen size
+    screen_width, screen_height = get_screen_size(device_id)
+
+    # Determine which secretary positions to use
+    alternate_position = options.get('alternatePosition', False)
+    secretary_key = 'secretaryPositionsAlt' if alternate_position else 'secretaryPositions'
+    secretary_positions = positions.get(secretary_key, {})
+    button_positions = positions.get('buttonPositions', {})
+
+    # Convert positions from percentages to pixels
+    secretary_positions = convert_percentage_positions(secretary_positions, screen_width, screen_height)
+    button_positions = convert_percentage_positions(button_positions, screen_width, screen_height)
     
-    sleep_interval = int(options['sleep'])
+    print(secretary_positions)
+    raise('stop')
+
+    last_status_check = None
+
     while True:
-        for name, secretary_position in secretary_positions.items():
-            print(f"{get_timestamp()} Checking {name}")
+        try:
+            # Check game and secretary screen status every 10 minutes
+            needs_status_check, last_status_check = check_time_passed(last_status_check, 10)
+            if needs_status_check:
+                is_secretary_screen = check_game_status(device_id, options, templates)
+                if not is_secretary_screen:
+                    logger.info("Launching secretary screen.")
+                    launch_secretary_screen(device_id, options, templates)
 
-            # Open the Position Menu
-            click_at_location(secretary_position[0], secretary_position[1], device_id)
-            random_sleep(sleep_interval)
-
-            # Open the Position List
-            click_at_location(button_positions['list'][0], button_positions['list'][1], device_id)
-            random_sleep(sleep_interval)
-
-            # Swipe to top of list
-            screen_width, screen_height = get_screen_size(device_id)
-            center_x, center_y = screen_width // 2, screen_height // 2
-            swipe_distance = int(screen_height * 0.3)
-            
-            swipe_to_top(
-                device_id, 
-                center_x, 
-                center_y, 
-                random.uniform(0.75 * swipe_distance, 1.25 * swipe_distance),
-                sleep_interval,
-                10)
-
-
-            # Initialize counter for the number of accepts
-            accept_counter = 0
-            max_accepts = 5  # Maximum number of accepts per position
-
-            # Capture a screenshot and attempt to find the icon
-            while accept_counter < max_accepts:
-                screenshot_path = capture_screenshot(device_id)
-                icon_position = find_icon_on_screen(
-                    screenshot_path,
-                    icons['accept'],
-                    threshold=float(options['image_match_threshold']),
-                    scale_range=(0.7, 1.3),
-                    debug=False  # Enable debugging
+            # Handle each position in the secretary positions list
+            for name, secretary_position in secretary_positions.items():
+                accepted = handle_applicants(
+                    device_id,
+                    secretary_position,
+                    button_positions,
+                    options,
+                    templates
                 )
+                if accepted > 0:
+                    applicant_logger.info(
+                        f"Accepted {accepted} applicants for {name}."
+                    )
+            random_sleep(options.get('sleep', 5))  # Main loop delay
+        except Exception as e:
+            logger.exception(f"An error occurred: {e}")
+            random_sleep(5)  # Delay before retrying
 
-                if icon_position:
-                    # Perform the click action
-                    click_at_location(icon_position[0], icon_position[1], device_id)
-                    accept_counter += 1  # Increment the counter
-                    random_sleep(sleep_interval)
-                else:
-                    break  # Exit the loop when no more icons are found
-
-                # Optional sleep before rechecking
-                random_sleep(sleep_interval)
-
-            if accept_counter > 0:
-                print(f"\tAccepted {accept_counter} people for {name}.")
-
-            # Close the list
-            click_at_location(button_positions['close'][0], button_positions['close'][1], device_id)
-            random_sleep(sleep_interval)
-
-            # Close the position menu
-            click_at_location(button_positions['close'][0], button_positions['close'][1], device_id)
-            random_sleep(sleep_interval)
-
-        random_sleep(5)  # Add random sleep to main loop
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
