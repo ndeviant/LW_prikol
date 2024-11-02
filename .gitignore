@@ -3,3 +3,4 @@ venv/
 info.txt
 tmp/*
 logs/*
+!logs/.gitkeep
