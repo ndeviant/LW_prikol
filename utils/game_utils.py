@@ -9,10 +9,12 @@ from .adb_utils import (
     capture_screenshot,
     click_at_location,
     get_current_running_app,
+    get_screen_size,
     launch_package,
+    send_back_press,
     swipe_down,
 )
-from .image_processing import find_icon_on_screen
+from .image_processing import find_on_screen
 from .utils import random_sleep
 from logging_config import applicant_logger  # For logging applicant acceptances
 
@@ -27,7 +29,7 @@ def check_game_status(device_id, options, templates):
     if is_game_running:
         status_logger.debug(f"Game is running on device {device_id}.")
         screenshot_path = capture_screenshot(device_id)
-        template_position = find_icon_on_screen(
+        template_position = find_on_screen(
             screenshot_path,
             templates['firstLady'],
             threshold=float(options.get('imageMatchThreshold', 0.8)),
@@ -41,18 +43,89 @@ def check_game_status(device_id, options, templates):
         status_logger.info(f"Game is not running on device {device_id}.")
     return False
 
-def launch_secretary_screen(device_id, options, templates):
+def clear_notifications(device_id, templates, sleep_timer=3, max_attempts=10):
+    """
+    Sends back press events to clear notifications until the home screen is visible.
+    
+    Parameters:
+        device_id (str): The device ID.
+        templates (dict): Dictionary of image templates for screen elements.
+        sleep_timer (int): Time in seconds to sleep between actions.
+        max_attempts (int): Maximum number of back press attempts before stopping.
+    
+    Returns:
+        bool: True if notifications were cleared successfully, False if max attempts were reached.
+    """
+    attempts = 0
+    
+    while attempts < max_attempts:
+        status_logger.info("Sending back press event to clear notifications.")
+        
+        # Press back and wait briefly
+        send_back_press(device_id)
+        random_sleep(sleep_timer)
+        
+        # Capture a screenshot and check for the quit button
+        screen_shot = capture_screenshot(device_id)
+        quit_button = find_on_screen(screen_shot, templates['quit'])
+        
+        # If the quit button is found, exit the loop
+        if quit_button is not None:
+            status_logger.info("Quit button found, clearing the last notification.")
+            send_back_press(device_id)  # Final back press to confirm navigation
+            random_sleep(sleep_timer)
+            return True  # Notifications cleared successfully
+        
+        attempts += 1
+        status_logger.info(f"Back press attempt {attempts} of {max_attempts}.")
+
+    status_logger.warning("Reached max attempts to clear notifications; continuing with caution.")
+    return False  # Max attempts reached without clearing notifications
+
+
+def launch_secretary_screen(device_id, options, templates, button_positions):
     """
     Launches the game and navigates to the secretary screen.
     """
     package_name = options['packageName']
     boot_timer = options.get('bootTimer', 120)
+    sleep_timer = options.get('sleep', 3)
 
     status_logger.info(f"Launching the game package: {package_name}.")
     launch_package(device_id, package_name)
     time.sleep(boot_timer)
     status_logger.info(f"Waited {boot_timer} seconds for the game to boot.")
-    # Additional navigation steps can be added here if needed
+    
+    clear_notifications(device_id, templates, sleep_timer)
+    random_sleep(sleep_timer)
+
+    # open the profile screen
+    click_at_location(
+        button_positions['profile'][0],
+        button_positions['profile'][1],
+        device_id
+    )
+    random_sleep(sleep_timer)
+    
+    # ensure there is no likes
+    screen_shot = capture_screenshot(device_id)
+    like_accept_location = find_on_screen(screen_shot, templates['awesome'])
+    if like_accept_location is not None:
+        click_at_location(
+            like_accept_location[0],
+            like_accept_location[1],
+            device_id
+        )
+        random_sleep(sleep_timer)
+ 
+    # Open the positions menu
+    click_at_location(
+        button_positions['secrataryMenu'][0],
+        button_positions['secrataryMenu'][1],
+        device_id
+    )
+    random_sleep(sleep_timer)
+
 
 def open_position_menu(device_id, secretary_position, button_positions, options):
     """
@@ -100,7 +173,7 @@ def accept_applicants(device_id, templates, options, max_accepts=5):
 
     while accept_counter < max_accepts:
         screenshot_path = capture_screenshot(device_id)
-        icon_position = find_icon_on_screen(
+        icon_position = find_on_screen(
             screenshot_path,
             templates['accept'],
             threshold=threshold,
@@ -128,7 +201,7 @@ def handle_applicants(device_id, secretary_position, button_positions, options, 
 
     # Check if there are any applicants
     initial_screenshot = capture_screenshot(device_id)
-    has_applicants = find_icon_on_screen(
+    has_applicants = find_on_screen(
         initial_screenshot,
         templates['accept'],
         threshold=threshold,

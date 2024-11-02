@@ -6,7 +6,7 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-def find_icon_on_screen(screenshot_path, icon_path, threshold=0.8, scale_range=(0.7, 1.3), debug=False):
+def find_on_screen(screenshot_path, icon_path, threshold=0.8, scale_range=(0.7, 1.3), debug=False):
     """
     Finds the position of a specific icon in a screenshot using multi-scale template matching.
     """

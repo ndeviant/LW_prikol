@@ -3,7 +3,7 @@
 import logging
 from logging_config import applicant_logger
 
-from utils.adb_utils import get_connected_devices, select_device, get_screen_size
+from utils.adb_utils import click_at_location, get_connected_devices, select_device, get_screen_size
 from utils.config_utils import load_config, load_config_section
 from utils.game_utils import (
     check_game_status,
@@ -35,7 +35,7 @@ def main():
 
     # Get screen size
     screen_width, screen_height = get_screen_size(device_id)
-
+    
     # Determine which secretary positions to use
     alternate_position = options.get('alternatePosition', False)
     secretary_key = 'secretaryPositionsAlt' if alternate_position else 'secretaryPositions'
@@ -45,21 +45,18 @@ def main():
     # Convert positions from percentages to pixels
     secretary_positions = convert_percentage_positions(secretary_positions, screen_width, screen_height)
     button_positions = convert_percentage_positions(button_positions, screen_width, screen_height)
-    
-    print(secretary_positions)
-    raise('stop')
 
     last_status_check = None
 
     while True:
         try:
             # Check game and secretary screen status every 10 minutes
-            needs_status_check, last_status_check = check_time_passed(last_status_check, 10)
+            needs_status_check, last_status_check = check_time_passed(last_status_check, options['statusCheckTimer'])
             if needs_status_check:
                 is_secretary_screen = check_game_status(device_id, options, templates)
                 if not is_secretary_screen:
                     logger.info("Launching secretary screen.")
-                    launch_secretary_screen(device_id, options, templates)
+                    launch_secretary_screen(device_id, options, templates, button_positions)
 
             # Handle each position in the secretary positions list
             for name, secretary_position in secretary_positions.items():

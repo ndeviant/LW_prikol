@@ -4,6 +4,7 @@ import logging
 import random
 import time
 from datetime import datetime, timedelta
+from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +36,55 @@ def check_time_passed(last_check, minutes):
     logger.debug(f"Time check not passed. Last check was at {last_check}.")
     return False, last_check
 
-def convert_percentage_positions(positions_dict, screen_width, screen_height):
+def convert_percentage_positions(
+    positions_dict: Dict[str, List[str]],
+    screen_width: int,
+    screen_height: int
+) -> Dict[str, Tuple[int, int]]:
     """
-    Converts positions specified as percentages to actual pixel coordinates.
+    Converts positions specified as percentage strings to actual pixel coordinates.
+
+    Args:
+        positions_dict (dict): A dictionary where each key maps to a list of two percentage strings.
+                               Example:
+                               {
+                                   'button': ['50%', '80%'],
+                                   'icon': ['25%', '75%']
+                               }
+        screen_width (int): The width of the screen in pixels.
+        screen_height (int): The height of the screen in pixels.
+
+    Returns:
+        dict: A dictionary with the same keys, mapping to tuples of (x, y) pixel coordinates.
     """
     converted_positions = {}
     for key, value in positions_dict.items():
+        # Ensure that 'value' is a list or tuple with exactly two elements
+        if not (isinstance(value, (list, tuple)) and len(value) == 2):
+            raise ValueError(f"Value for key '{key}' must be a list or tuple of two percentage strings.")
+        
         x_str, y_str = value
-        x = int(float(x_str.strip('%')) / 100 * screen_width)
-        y = int(float(y_str.strip('%')) / 100 * screen_height)
-        converted_positions[key] = (x, y)
+
+        # Ensure that both x_str and y_str are strings ending with '%'
+        if not (isinstance(x_str, str) and x_str.endswith('%')):
+            raise ValueError(f"x value for key '{key}' must be a string ending with '%'.")
+        if not (isinstance(y_str, str) and y_str.endswith('%')):
+            raise ValueError(f"y value for key '{key}' must be a string ending with '%'.")
+        
+        # Convert percentage strings to float values
+        x_pct = float(x_str.strip('%'))
+        y_pct = float(y_str.strip('%'))
+
+        # Validate percentage ranges
+        if not (0 <= x_pct <= 100):
+            raise ValueError(f"x percentage for key '{key}' must be between 0% and 100%.")
+        if not (0 <= y_pct <= 100):
+            raise ValueError(f"y percentage for key '{key}' must be between 0% and 100%.")
+
+        # Convert percentages to pixel coordinates with rounding
+        x_px = int(round((x_pct / 100) * screen_width))
+        y_px = int(round((y_pct / 100) * screen_height))
+
+        converted_positions[key] = (x_px, y_px)
+
     return converted_positions

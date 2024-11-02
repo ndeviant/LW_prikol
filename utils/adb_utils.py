@@ -1,9 +1,13 @@
 # utils/adb_utils.py
 
+import os
 import subprocess
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Define a constant for the wait time
+WAIT_TIME_BEFORE_RELAUNCH = 3 
 
 def get_connected_devices():
     """
@@ -57,21 +61,31 @@ def get_current_running_app(device_id):
         logger.exception(f"Failed to get current running app: {e}")
         return None
 
-def capture_screenshot(device_id, filename='screenshot.png'):
+def capture_screenshot(device_id, filename='screenshot.png', output_directory="tmp"):
     """
-    Captures a screenshot from the device and saves it locally.
+    Captures a screenshot from the device and saves it in the specified output directory.
     """
+    # Ensure the output directory exists
+    os.makedirs(output_directory, exist_ok=True)
+    
+    # Construct the save location path
+    save_location = os.path.join(output_directory, filename)
+    
     try:
+        # Capture the screenshot to the device's storage
         subprocess.run(
             ['adb', '-s', device_id, 'shell', 'screencap', '-p', f'/sdcard/{filename}'],
             check=True
         )
+        
+        # Pull the screenshot from the device to the specified output directory
         subprocess.run(
-            ['adb', '-s', device_id, 'pull', f'/sdcard/{filename}', filename],
+            ['adb', '-s', device_id, 'pull', f'/sdcard/{filename}', save_location],
             check=True
         )
-        logger.debug(f"Screenshot saved as {filename}")
-        return filename
+        
+        logger.debug(f"Screenshot saved as {save_location}")
+        return save_location
     except subprocess.CalledProcessError as e:
         logger.exception(f"Failed to capture screenshot: {e}")
         return None
@@ -89,11 +103,24 @@ def click_at_location(x, y, device_id):
     except subprocess.CalledProcessError as e:
         logger.exception(f"Failed to click at location ({x}, {y}): {e}")
 
+import time
+
 def launch_package(device_id, package_name):
     """
-    Launches the specified app package on the device.
+    Kills the specified app package, waits briefly, and then relaunches it on the device.
     """
     try:
+        # Stop the app
+        subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'am', 'force-stop', package_name],
+            check=True
+        )
+        logger.info(f"Killed package {package_name}")
+
+        # Wait for 2 seconds to ensure the app is fully stopped
+        time.sleep(WAIT_TIME_BEFORE_RELAUNCH)
+
+        # Launch the app
         subprocess.run(
             ['adb', '-s', device_id, 'shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'],
             check=True
@@ -135,3 +162,16 @@ def swipe_down(device_id, start_x, start_y, distance, duration=500):
         logger.debug(f"Swiped down from ({start_x}, {start_y}) to ({start_x}, {end_y})")
     except subprocess.CalledProcessError as e:
         logger.exception(f"Failed to swipe down: {e}")
+
+def send_back_press(device_id):
+    """
+    Sends a 'back' button press to the specified device.
+    """
+    try:
+        subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'input', 'keyevent', 'KEYCODE_BACK'],
+            check=True
+        )
+        logger.debug(f"Sent 'back' button press to device {device_id}")
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"Failed to send 'back' button press: {e}")

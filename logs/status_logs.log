@@ -1,5 +1,33 @@
-[2024-11-01 16:50:15] INFO:Secretary screen is active.
-[2024-11-01 16:57:03] INFO:status_logger:Secretary screen is active.
-[2024-11-01 16:58:49] INFO:status_logger:Secretary screen is active.
-[2024-11-01 16:59:32] INFO:status_logger:Secretary screen is active.
-[2024-11-01 17:01:48] INFO:status_logger:Secretary screen is active.
+[2024-11-02 14:48:06] INFO:status_logger:Secretary screen is not active.
+[2024-11-02 14:48:06] INFO:status_logger:Launching the game package: com.fun.lastwar.gp.
+[2024-11-02 14:50:09] INFO:status_logger:Waited 120 seconds for the game to boot.
+[2024-11-02 14:50:09] INFO:status_logger:Sending back press event to clear notifications.
+[2024-11-02 14:50:13] INFO:status_logger:Back press attempt 1 of 10.
+[2024-11-02 14:50:13] INFO:status_logger:Sending back press event to clear notifications.
+[2024-11-02 14:50:18] INFO:status_logger:Back press attempt 2 of 10.
+[2024-11-02 14:50:18] INFO:status_logger:Sending back press event to clear notifications.
+[2024-11-02 14:50:22] INFO:status_logger:Quit button found, clearing the last notification.
+[2024-11-02 14:53:13] INFO:status_logger:Secretary screen is active.
+[2024-11-02 14:54:24] INFO:status_logger:Secretary screen is active.
+[2024-11-02 14:55:36] INFO:status_logger:Secretary screen is active.
+[2024-11-02 14:56:45] INFO:status_logger:Secretary screen is active.
+[2024-11-02 14:57:56] INFO:status_logger:Secretary screen is active.
+[2024-11-02 14:59:46] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:02:22] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:04:13] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:05:24] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:06:32] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:07:41] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:09:30] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:10:39] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:11:49] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:12:59] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:14:48] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:17:24] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:18:34] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:19:44] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:20:55] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:22:04] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:23:12] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:24:21] INFO:status_logger:Secretary screen is active.
+[2024-11-02 15:25:29] INFO:status_logger:Secretary screen is active.

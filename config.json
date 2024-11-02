@@ -9,7 +9,9 @@
         "capitol": "images/icons/Capitol.png",
         "mail": "images/icons/Mail.png",
         "accept": "images/icons/AcceptIcon.png",
-        "firstLady": "images/templates/FirstLady.png"
+        "firstLady": "images/templates/FirstLady.png",
+        "awesome": "images/templates/Awesome.png",
+        "quit": "images/templates/QuitGame.png"
     },
     "positions": {
         "secretaryPositions": {
@@ -28,11 +30,14 @@
         },
         "buttonPositions": {
             "list": ["85%", "85%"],
-            "close": ["88.5%", "12.5%"]
+            "close": ["88.5%", "12.5%"],
+            "profile": ["7.5%", "5%"],
+            "secrataryMenu": ["70%", "65%"]
         }
     },
     "options": {
-        "sleep": 5,
+        "sleep": 3,
+        "statusCheckTimer": 1,
         "bootTimer": 120,
         "imageMatchThreshold": 0.65,
         "alternatePosition": false,

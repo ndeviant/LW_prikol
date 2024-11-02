@@ -1,4 +1,275 @@
-[2024-11-01 16:58:49] INFO:Handling applicants for secretary at position (720, 450).
-[2024-11-01 16:59:01] INFO:No applicants found for this secretary.
-[2024-11-01 16:59:32] INFO:Handling applicants for secretary at position (720, 450).
-[2024-11-01 17:01:48] INFO:Handling applicants for secretary at position (720, 450).
+[2024-11-02 14:50:35] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 14:50:42] INFO:No applicants found for this secretary.
+[2024-11-02 14:50:48] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 14:51:33] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 14:51:37] INFO:Accepted applicant #2 at position (np.int64(405), np.int64(217)).
+[2024-11-02 14:51:41] INFO:Accepted applicant #3 at position (np.int64(405), np.int64(217)).
+[2024-11-02 14:51:48] INFO:Finished handling applicants. Total accepted: 3.
+[2024-11-02 14:51:48] INFO:Accepted 3 applicants for security.
+[2024-11-02 14:51:48] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 14:52:36] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 14:52:43] INFO:Finished handling applicants. Total accepted: 1.
+[2024-11-02 14:52:43] INFO:Accepted 1 applicants for development.
+[2024-11-02 14:52:43] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 14:52:50] INFO:No applicants found for this secretary.
+[2024-11-02 14:52:56] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 14:53:03] INFO:No applicants found for this secretary.
+[2024-11-02 14:53:13] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 14:53:21] INFO:No applicants found for this secretary.
+[2024-11-02 14:53:27] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 14:53:35] INFO:No applicants found for this secretary.
+[2024-11-02 14:53:40] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 14:53:47] INFO:No applicants found for this secretary.
+[2024-11-02 14:53:53] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 14:54:01] INFO:No applicants found for this secretary.
+[2024-11-02 14:54:07] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 14:54:15] INFO:No applicants found for this secretary.
+[2024-11-02 14:54:24] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 14:54:31] INFO:No applicants found for this secretary.
+[2024-11-02 14:54:38] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 14:54:46] INFO:No applicants found for this secretary.
+[2024-11-02 14:54:52] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 14:54:59] INFO:No applicants found for this secretary.
+[2024-11-02 14:55:06] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 14:55:13] INFO:No applicants found for this secretary.
+[2024-11-02 14:55:19] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 14:55:26] INFO:No applicants found for this secretary.
+[2024-11-02 14:55:36] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 14:55:43] INFO:No applicants found for this secretary.
+[2024-11-02 14:55:49] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 14:55:56] INFO:No applicants found for this secretary.
+[2024-11-02 14:56:02] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 14:56:09] INFO:No applicants found for this secretary.
+[2024-11-02 14:56:15] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 14:56:23] INFO:No applicants found for this secretary.
+[2024-11-02 14:56:29] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 14:56:36] INFO:No applicants found for this secretary.
+[2024-11-02 14:56:45] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 14:56:52] INFO:No applicants found for this secretary.
+[2024-11-02 14:56:58] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 14:57:06] INFO:No applicants found for this secretary.
+[2024-11-02 14:57:13] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 14:57:20] INFO:No applicants found for this secretary.
+[2024-11-02 14:57:26] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 14:57:33] INFO:No applicants found for this secretary.
+[2024-11-02 14:57:39] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 14:57:46] INFO:No applicants found for this secretary.
+[2024-11-02 14:57:56] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 14:58:02] INFO:No applicants found for this secretary.
+[2024-11-02 14:58:09] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 14:58:15] INFO:No applicants found for this secretary.
+[2024-11-02 14:58:22] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 14:58:28] INFO:No applicants found for this secretary.
+[2024-11-02 14:58:35] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 14:59:23] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 14:59:30] INFO:Finished handling applicants. Total accepted: 1.
+[2024-11-02 14:59:30] INFO:Accepted 1 applicants for science.
+[2024-11-02 14:59:30] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 14:59:37] INFO:No applicants found for this secretary.
+[2024-11-02 14:59:46] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 14:59:53] INFO:No applicants found for this secretary.
+[2024-11-02 15:00:00] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:00:08] INFO:No applicants found for this secretary.
+[2024-11-02 15:00:14] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:01:00] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:01:04] INFO:Accepted applicant #2 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:01:11] INFO:Finished handling applicants. Total accepted: 2.
+[2024-11-02 15:01:11] INFO:Accepted 2 applicants for development.
+[2024-11-02 15:01:11] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:01:18] INFO:No applicants found for this secretary.
+[2024-11-02 15:01:24] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:02:11] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:02:18] INFO:Finished handling applicants. Total accepted: 1.
+[2024-11-02 15:02:18] INFO:Accepted 1 applicants for interior.
+[2024-11-02 15:02:22] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:02:28] INFO:No applicants found for this secretary.
+[2024-11-02 15:02:35] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:02:42] INFO:No applicants found for this secretary.
+[2024-11-02 15:02:48] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:03:35] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:03:42] INFO:Finished handling applicants. Total accepted: 1.
+[2024-11-02 15:03:42] INFO:Accepted 1 applicants for development.
+[2024-11-02 15:03:42] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:03:49] INFO:No applicants found for this secretary.
+[2024-11-02 15:03:56] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:04:03] INFO:No applicants found for this secretary.
+[2024-11-02 15:04:13] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:04:20] INFO:No applicants found for this secretary.
+[2024-11-02 15:04:27] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:04:34] INFO:No applicants found for this secretary.
+[2024-11-02 15:04:40] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:04:47] INFO:No applicants found for this secretary.
+[2024-11-02 15:04:54] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:05:01] INFO:No applicants found for this secretary.
+[2024-11-02 15:05:07] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:05:15] INFO:No applicants found for this secretary.
+[2024-11-02 15:05:24] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:05:31] INFO:No applicants found for this secretary.
+[2024-11-02 15:05:37] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:05:43] INFO:No applicants found for this secretary.
+[2024-11-02 15:05:49] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:05:55] INFO:No applicants found for this secretary.
+[2024-11-02 15:06:02] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:06:09] INFO:No applicants found for this secretary.
+[2024-11-02 15:06:16] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:06:23] INFO:No applicants found for this secretary.
+[2024-11-02 15:06:32] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:06:39] INFO:No applicants found for this secretary.
+[2024-11-02 15:06:45] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:06:51] INFO:No applicants found for this secretary.
+[2024-11-02 15:06:58] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:07:05] INFO:No applicants found for this secretary.
+[2024-11-02 15:07:11] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:07:18] INFO:No applicants found for this secretary.
+[2024-11-02 15:07:24] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:07:31] INFO:No applicants found for this secretary.
+[2024-11-02 15:07:41] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:07:48] INFO:No applicants found for this secretary.
+[2024-11-02 15:07:53] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:08:40] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:08:47] INFO:Finished handling applicants. Total accepted: 1.
+[2024-11-02 15:08:47] INFO:Accepted 1 applicants for security.
+[2024-11-02 15:08:47] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:08:54] INFO:No applicants found for this secretary.
+[2024-11-02 15:09:00] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:09:06] INFO:No applicants found for this secretary.
+[2024-11-02 15:09:12] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:09:20] INFO:No applicants found for this secretary.
+[2024-11-02 15:09:30] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:09:36] INFO:No applicants found for this secretary.
+[2024-11-02 15:09:42] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:09:50] INFO:No applicants found for this secretary.
+[2024-11-02 15:09:56] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:10:03] INFO:No applicants found for this secretary.
+[2024-11-02 15:10:08] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:10:15] INFO:No applicants found for this secretary.
+[2024-11-02 15:10:22] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:10:29] INFO:No applicants found for this secretary.
+[2024-11-02 15:10:39] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:10:46] INFO:No applicants found for this secretary.
+[2024-11-02 15:10:52] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:10:59] INFO:No applicants found for this secretary.
+[2024-11-02 15:11:05] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:11:12] INFO:No applicants found for this secretary.
+[2024-11-02 15:11:18] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:11:25] INFO:No applicants found for this secretary.
+[2024-11-02 15:11:32] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:11:39] INFO:No applicants found for this secretary.
+[2024-11-02 15:11:49] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:11:56] INFO:No applicants found for this secretary.
+[2024-11-02 15:12:02] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:12:08] INFO:No applicants found for this secretary.
+[2024-11-02 15:12:15] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:12:22] INFO:No applicants found for this secretary.
+[2024-11-02 15:12:29] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:12:35] INFO:No applicants found for this secretary.
+[2024-11-02 15:12:41] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:12:48] INFO:No applicants found for this secretary.
+[2024-11-02 15:12:59] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:13:05] INFO:No applicants found for this secretary.
+[2024-11-02 15:13:12] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:13:19] INFO:No applicants found for this secretary.
+[2024-11-02 15:13:26] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:14:12] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:14:18] INFO:Finished handling applicants. Total accepted: 1.
+[2024-11-02 15:14:18] INFO:Accepted 1 applicants for development.
+[2024-11-02 15:14:18] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:14:25] INFO:No applicants found for this secretary.
+[2024-11-02 15:14:32] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:14:39] INFO:No applicants found for this secretary.
+[2024-11-02 15:14:48] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:14:55] INFO:No applicants found for this secretary.
+[2024-11-02 15:15:01] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:15:49] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:15:56] INFO:Finished handling applicants. Total accepted: 1.
+[2024-11-02 15:15:56] INFO:Accepted 1 applicants for security.
+[2024-11-02 15:15:56] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:16:43] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:16:47] INFO:Accepted applicant #2 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:16:54] INFO:Finished handling applicants. Total accepted: 2.
+[2024-11-02 15:16:54] INFO:Accepted 2 applicants for development.
+[2024-11-02 15:16:54] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:17:01] INFO:No applicants found for this secretary.
+[2024-11-02 15:17:07] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:17:14] INFO:No applicants found for this secretary.
+[2024-11-02 15:17:24] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:17:30] INFO:No applicants found for this secretary.
+[2024-11-02 15:17:37] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:17:44] INFO:No applicants found for this secretary.
+[2024-11-02 15:17:51] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:17:58] INFO:No applicants found for this secretary.
+[2024-11-02 15:18:04] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:18:11] INFO:No applicants found for this secretary.
+[2024-11-02 15:18:17] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:18:25] INFO:No applicants found for this secretary.
+[2024-11-02 15:18:34] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:18:41] INFO:No applicants found for this secretary.
+[2024-11-02 15:18:48] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:18:54] INFO:No applicants found for this secretary.
+[2024-11-02 15:19:00] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:19:07] INFO:No applicants found for this secretary.
+[2024-11-02 15:19:14] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:19:21] INFO:No applicants found for this secretary.
+[2024-11-02 15:19:27] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:19:34] INFO:No applicants found for this secretary.
+[2024-11-02 15:19:44] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:19:51] INFO:No applicants found for this secretary.
+[2024-11-02 15:19:57] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:20:04] INFO:No applicants found for this secretary.
+[2024-11-02 15:20:11] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:20:18] INFO:No applicants found for this secretary.
+[2024-11-02 15:20:25] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:20:31] INFO:No applicants found for this secretary.
+[2024-11-02 15:20:37] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:20:45] INFO:No applicants found for this secretary.
+[2024-11-02 15:20:55] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:21:02] INFO:No applicants found for this secretary.
+[2024-11-02 15:21:07] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:21:14] INFO:No applicants found for this secretary.
+[2024-11-02 15:21:20] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:21:27] INFO:No applicants found for this secretary.
+[2024-11-02 15:21:33] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:21:40] INFO:No applicants found for this secretary.
+[2024-11-02 15:21:46] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:21:53] INFO:No applicants found for this secretary.
+[2024-11-02 15:22:04] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:22:10] INFO:No applicants found for this secretary.
+[2024-11-02 15:22:17] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:22:24] INFO:No applicants found for this secretary.
+[2024-11-02 15:22:30] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:22:36] INFO:No applicants found for this secretary.
+[2024-11-02 15:22:42] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:22:49] INFO:No applicants found for this secretary.
+[2024-11-02 15:22:55] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:23:02] INFO:No applicants found for this secretary.
+[2024-11-02 15:23:12] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:23:19] INFO:No applicants found for this secretary.
+[2024-11-02 15:23:25] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:23:31] INFO:No applicants found for this secretary.
+[2024-11-02 15:23:37] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:23:44] INFO:No applicants found for this secretary.
+[2024-11-02 15:23:51] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:23:58] INFO:No applicants found for this secretary.
+[2024-11-02 15:24:04] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:24:11] INFO:No applicants found for this secretary.
+[2024-11-02 15:24:21] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:24:28] INFO:No applicants found for this secretary.
+[2024-11-02 15:24:35] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:24:41] INFO:No applicants found for this secretary.
+[2024-11-02 15:24:47] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:24:54] INFO:No applicants found for this secretary.
+[2024-11-02 15:25:00] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:25:06] INFO:No applicants found for this secretary.
+[2024-11-02 15:25:13] INFO:Handling applicants for secretary at position (405, 720).
+[2024-11-02 15:25:19] INFO:No applicants found for this secretary.
+[2024-11-02 15:25:29] INFO:Handling applicants for secretary at position (243, 480).
+[2024-11-02 15:25:37] INFO:No applicants found for this secretary.
+[2024-11-02 15:25:42] INFO:Handling applicants for secretary at position (405, 480).
+[2024-11-02 15:25:50] INFO:No applicants found for this secretary.
+[2024-11-02 15:25:56] INFO:Handling applicants for secretary at position (81, 720).
+[2024-11-02 15:26:03] INFO:No applicants found for this secretary.
+[2024-11-02 15:26:09] INFO:Handling applicants for secretary at position (243, 720).
+[2024-11-02 15:26:55] INFO:Accepted applicant #1 at position (np.int64(405), np.int64(217)).
+[2024-11-02 15:27:02] INFO:Finished handling applicants. Total accepted: 1.
+[2024-11-02 15:27:02] INFO:Accepted 1 applicants for science.
+[2024-11-02 15:27:02] INFO:Handling applicants for secretary at position (405, 720).
