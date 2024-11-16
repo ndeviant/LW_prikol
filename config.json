@@ -22,6 +22,8 @@
             "interior": ["75%", "75%"]
         },
         "secretaryPositionsAlt": {
+            "military": ["32%", "40%"],
+            "adminstrative": ["64%", "40%"],
             "strategy": ["45%", "60%"],
             "security": ["75%", "60%"],
             "development": ["15%", "85%"],
@@ -38,7 +40,7 @@
     "options": {
         "sleep": 3,
         "statusCheckTimer": 1,
-        "bootTimer": 120,
+        "bootTimer": 60,
         "imageMatchThreshold": 0.65,
         "alternatePosition": false,
         "packageName": "com.fun.lastwar.gp"

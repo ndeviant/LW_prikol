@@ -1,6 +1,7 @@
 # utils/adb_utils.py
 
 import os
+import random
 import subprocess
 import logging
 
@@ -175,3 +176,61 @@ def send_back_press(device_id):
         logger.debug(f"Sent 'back' button press to device {device_id}")
     except subprocess.CalledProcessError as e:
         logger.exception(f"Failed to send 'back' button press: {e}")
+
+def swipe(device_id, screen_width, screen_height, direction='down', times=3, duration=300, sleep_interval=0.5):
+    """
+    Perform swipe gestures on an Android device using ADB.
+
+    Parameters:
+    - device_id: The ID of the target device.
+    - screen_width: The width of the device screen.
+    - screen_height: The height of the device screen.
+    - direction: 'down' for swiping down, 'up' for swiping up.
+    - times: The number of times to perform the swipe.
+    - duration: The duration of each swipe in milliseconds.
+    - sleep_interval: The time to sleep between swipes (in seconds).
+    """
+    for _ in range(times):
+        if direction == 'down':
+            start_y = int(screen_height * 0.2)  # Start near the top
+            end_y = int(screen_height * 0.8)   # End near the bottom
+        elif direction == 'up':
+            start_y = int(screen_height * 0.8)  # Start near the bottom
+            end_y = int(screen_height * 0.2)    # End near the top
+        else:
+            raise ValueError("Invalid direction. Use 'down' or 'up'.")
+
+        # The X-axis remains constant; swiping is along the Y-axis
+        command = [
+            "adb", "-s", device_id, "shell", "input", "swipe",
+            str(screen_width // 2), str(start_y), str(screen_width // 2), str(end_y), str(duration)
+        ]
+        subprocess.run(command, check=True)
+
+        # Sleep between swipes
+        time.sleep(sleep_interval)
+
+def swipe_up(device_id, times=1):
+    screen_width, screen_height = get_screen_size(device_id)
+    swipe(
+        device_id=device_id,
+        screen_width=screen_width,
+        screen_height=screen_height,
+        direction='up',
+        times=times,
+        duration=550,
+        sleep_interval=0.5
+    )
+
+
+def swipe_down(device_id, times=1):
+    screen_width, screen_height = get_screen_size(device_id)
+    swipe(
+        device_id=device_id,
+        screen_width=screen_width,
+        screen_height=screen_height,
+        direction='down',
+        times=times,
+        duration=550,
+        sleep_interval=0.5
+    )

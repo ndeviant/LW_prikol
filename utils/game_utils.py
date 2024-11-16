@@ -12,7 +12,9 @@ from .adb_utils import (
     get_screen_size,
     launch_package,
     send_back_press,
+    swipe,
     swipe_down,
+    swipe_up,
 )
 from .image_processing import find_on_screen
 from .utils import random_sleep
@@ -124,6 +126,10 @@ def launch_secretary_screen(device_id, options, templates, button_positions):
         button_positions['secrataryMenu'][1],
         device_id
     )
+
+    # Sroll to bottom
+    swipe_up(device_id)
+
     random_sleep(sleep_timer)
 
 
@@ -154,14 +160,6 @@ def close_menu(device_id, button_positions, options):
         )
         random_sleep(sleep_interval)
 
-def swipe_to_top(device_id, center_x, center_y, swipe_distance, options, times=3):
-    """
-    Swipes down multiple times to ensure reaching the top of the list.
-    """
-    sleep_interval = options['sleep']
-    for _ in range(times):
-        swipe_down(device_id, center_x, center_y, swipe_distance)
-        random_sleep(sleep_interval)
 
 def accept_applicants(device_id, templates, options, max_accepts=5):
     """
@@ -213,22 +211,7 @@ def handle_applicants(device_id, secretary_position, button_positions, options, 
         return 0
 
     # Swipe to the top of the list
-    screen_width, screen_height = get_screen_size(device_id)
-    SWIPE_MULTIPLIER_MIN = 0.75
-    SWIPE_MULTIPLIER_MAX = 1.25
-    SWIPE_HEIGHT_FACTOR = 0.3
-    swipe_distance = random.uniform(
-        SWIPE_MULTIPLIER_MIN * (screen_height * SWIPE_HEIGHT_FACTOR),
-        SWIPE_MULTIPLIER_MAX * (screen_height * SWIPE_HEIGHT_FACTOR)
-    )
-    swipe_to_top(
-        device_id,
-        screen_width // 2,
-        screen_height // 2,
-        swipe_distance,
-        options,
-        times=10
-    )
+    swipe_down(device_id, 5)
 
     # Process accept icons
     applicants_accepted = accept_applicants(device_id, templates, options)
@@ -238,3 +221,4 @@ def handle_applicants(device_id, secretary_position, button_positions, options, 
     applicant_logger.info(f"Finished handling applicants. Total accepted: {applicants_accepted}.")
 
     return applicants_accepted
+
