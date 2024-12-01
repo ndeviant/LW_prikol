@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, Generator
 import json
 import uuid
 import os
@@ -149,7 +149,7 @@ class Session:
         self.cleanup_session()
 
 @contextmanager
-def create_session(config: Config, device_id: str) -> Session:
+def create_session(config: Config, device_id: str) -> Generator[Session, None, None]:
     """Context manager for creating and managing a session"""
     session = None
     try:
