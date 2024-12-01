@@ -292,11 +292,11 @@ def process_secretaries(
             humanized_tap(device_id, list_x, list_y)
             time.sleep(random.uniform(options.sleep * 2, options.sleep * 2.5))  # Reduced delay
             
-            # First check if accept button is visible before scrolling
+            # First check if any accept buttons exist
             screenshot_path = os.path.join('tmp', f'screen_{int(time.time())}.png')
             capture_screenshot(device_id, filename=screenshot_path)
             
-            needs_scroll = True
+            has_accepts = False
             if 'accept' in templates.buttons:
                 matches = find_all_matches(
                     screenshot_path=screenshot_path,
@@ -304,24 +304,35 @@ def process_secretaries(
                     threshold=0.8
                 )
                 if matches:
-                    needs_scroll = False
-                    app_logger.debug("Found accept button without scrolling")
+                    has_accepts = True
+                    app_logger.debug("Found accept buttons, will process after scrolling to top")
             
             if os.path.exists(screenshot_path):
                 os.remove(screenshot_path)
             
-            # Only scroll if needed
-            if needs_scroll:
-                app_logger.debug("Scrolling to top of list")
-                for _ in range(3):
-                    width, height = DeviceContext.get_screen_dimensions()
-                    center_x = (width // 2) + random.randint(-30, 30)
-                    start_y = height // 3
-                    end_y = start_y + 300
-                    humanized_swipe(device_id, center_x, start_y, center_x, end_y)
-                    time.sleep(random.uniform(options.sleep * 0.3, options.sleep * 0.5))  # Reduced scroll delay
+            # If no accept buttons found, skip scrolling and processing
+            if not has_accepts:
+                app_logger.debug("No accept buttons found, skipping this secretary")
+                # Exit list view with single back press
+                press_back(device_id)
+                time.sleep(random.uniform(options.sleep * 3, options.sleep * 3.5))
+                
+                # Exit secretary menu with single back press
+                press_back(device_id)
+                time.sleep(random.uniform(options.sleep * 3, options.sleep * 3.5))
+                continue
             
-            # Process accept buttons
+            # Scroll to top of list since we found accepts
+            app_logger.debug("Scrolling to top of list")
+            for _ in range(3):
+                width, height = DeviceContext.get_screen_dimensions()
+                center_x = (width // 2) + random.randint(-30, 30)
+                start_y = height // 3
+                end_y = start_y + 300
+                humanized_swipe(device_id, center_x, start_y, center_x, end_y)
+                time.sleep(random.uniform(options.sleep * 0.3, options.sleep * 0.5))  # Reduced scroll delay
+            
+            # Process accept buttons from top to bottom
             found_accept = True  # Start true to check first screen
             last_accept_clicked = False  # Track if we clicked an accept on the last screen
             while found_accept:
