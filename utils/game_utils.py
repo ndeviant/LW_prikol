@@ -270,8 +270,11 @@ def process_secretaries(
         # Track secretaries processed for health check
         secretaries_since_check = 0
         
+        # Convert required secretaries to list for ordered processing
+        secretary_list = list(REQUIRED_SECRETARIES)
+        
         # Process required secretaries first
-        for secretary in REQUIRED_SECRETARIES:
+        for idx, secretary in enumerate(secretary_list):
             app_logger.info(f"Processing secretary {secretary}")
             
             if secretary not in secretary_positions:
@@ -282,42 +285,16 @@ def process_secretaries(
             x, y = secretary_positions[secretary]
             app_logger.debug(f"Clicking secretary {secretary} at ({x}, {y})")
             humanized_tap(device_id, x, y)
-            # Longer delay after clicking secretary
             time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
-            
-            # Perform health check if needed
-            if secretaries_since_check >= 3:
-                app_logger.info("Performing health check")
-                # Take screenshot and verify list button is visible
-                screenshot_path = os.path.join('tmp', f'screen_{int(time.time())}.png')
-                capture_screenshot(device_id, filename=screenshot_path)
-                
-                if 'list' in templates.buttons:
-                    matches = find_all_matches(
-                        screenshot_path=screenshot_path,
-                        template_path=templates.buttons['list'],
-                        threshold=0.8
-                    )
-                    if not matches:
-                        app_logger.error("Health check failed - list not accessible")
-                        return False
-                    app_logger.debug("Health check passed - list button found")
-                    secretaries_since_check = 0
-                
-                # Clean up screenshot
-                if os.path.exists(screenshot_path):
-                    os.remove(screenshot_path)
             
             # Click list button
             app_logger.debug(f"Clicking list at ({list_x}, {list_y})")
             humanized_tap(device_id, list_x, list_y)
-            # Longer delay after clicking list
             time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
             
             # Scroll to top of list (3 swipes)
             app_logger.debug("Scrolling to top of list")
             for _ in range(3):
-                # Swipe down (reverse of swipe up)
                 width, height = DeviceContext.get_screen_dimensions()
                 center_x = (width // 2) + random.randint(-30, 30)
                 start_y = height // 3
@@ -327,6 +304,7 @@ def process_secretaries(
             
             # Process accept buttons
             found_accept = True  # Start true to check first screen
+            last_accept_clicked = False  # Track if we clicked an accept on the last screen
             while found_accept:
                 # Take screenshot and look for accept buttons
                 screenshot_path = os.path.join('tmp', f'screen_{int(time.time())}.png')
@@ -357,6 +335,7 @@ def process_secretaries(
                     
                     if unique_matches:
                         found_accept = True
+                        last_accept_clicked = True
                         # Only click the topmost accept button
                         x, y = unique_matches[0]
                         app_logger.info(f"Found accept button at ({x}, {y})")
@@ -374,18 +353,58 @@ def process_secretaries(
                     humanized_swipe(device_id, center_x, height * 0.7, center_x, height * 0.3)
                     time.sleep(random.uniform(options.sleep * 0.5, options.sleep * 0.8))
             
+            # Extra delay if we clicked an accept on the last screen
+            if last_accept_clicked:
+                time.sleep(random.uniform(options.sleep * 3.5, options.sleep * 4))
+            
             # Exit list view with single back press
             app_logger.debug("Pressing back button to exit list view")
             press_back(device_id)
-            time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
+            time.sleep(random.uniform(options.sleep * 3.5, options.sleep * 4))
             
             # Exit secretary menu with single back press
             app_logger.debug("Pressing back button to exit secretary menu")
             press_back(device_id)
-            time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
+            time.sleep(random.uniform(options.sleep * 3.5, options.sleep * 4))
             
             # Increment secretaries processed
             secretaries_since_check += 1
+            
+            # Perform health check if needed
+            if secretaries_since_check >= 3:
+                app_logger.info("Performing health check")
+                # Click next secretary position to trigger list button
+                if idx + 1 < len(secretary_list):
+                    next_secretary = secretary_list[idx + 1]
+                    if next_secretary in secretary_positions:
+                        next_x, next_y = secretary_positions[next_secretary]
+                        humanized_tap(device_id, next_x, next_y)
+                        time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
+                        
+                        # Take screenshot and verify list button is visible
+                        screenshot_path = os.path.join('tmp', f'screen_{int(time.time())}.png')
+                        capture_screenshot(device_id, filename=screenshot_path)
+                        
+                        if 'list' in templates.buttons:
+                            matches = find_all_matches(
+                                screenshot_path=screenshot_path,
+                                template_path=templates.buttons['list'],
+                                threshold=0.8
+                            )
+                            if matches:
+                                app_logger.debug("Health check passed - list button found")
+                                secretaries_since_check = 0
+                            else:
+                                app_logger.error("Health check failed - list not accessible")
+                                return False
+                        
+                        # Clean up screenshot
+                        if os.path.exists(screenshot_path):
+                            os.remove(screenshot_path)
+                            
+                        # Exit back to main menu
+                        press_back(device_id)
+                        time.sleep(random.uniform(options.sleep * 3.5, options.sleep * 4))
             
         return True
         
