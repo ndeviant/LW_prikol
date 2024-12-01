@@ -288,10 +288,25 @@ def process_secretaries(
             # Perform health check if needed
             if secretaries_since_check >= 3:
                 app_logger.info("Performing health check")
-                if not verify_screen_state(device_id, templates):
-                    app_logger.error("Health check failed - list not accessible")
-                    return False
-                secretaries_since_check = 0
+                # Take screenshot and verify list button is visible
+                screenshot_path = os.path.join('tmp', f'screen_{int(time.time())}.png')
+                capture_screenshot(device_id, filename=screenshot_path)
+                
+                if 'list' in templates.buttons:
+                    matches = find_all_matches(
+                        screenshot_path=screenshot_path,
+                        template_path=templates.buttons['list'],
+                        threshold=0.8
+                    )
+                    if not matches:
+                        app_logger.error("Health check failed - list not accessible")
+                        return False
+                    app_logger.debug("Health check passed - list button found")
+                    secretaries_since_check = 0
+                
+                # Clean up screenshot
+                if os.path.exists(screenshot_path):
+                    os.remove(screenshot_path)
             
             # Click list button
             app_logger.debug(f"Clicking list at ({list_x}, {list_y})")
