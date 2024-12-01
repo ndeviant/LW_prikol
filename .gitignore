@@ -4,3 +4,8 @@ info.txt
 tmp/*
 logs/*
 !logs/.gitkeep
+config.json
+lastwar.log
+sessions/*
+!sessions/.gitkeep
+

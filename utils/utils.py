@@ -4,19 +4,25 @@ import logging
 import random
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional, Union
+from functools import wraps
+from logging_config import app_logger
 
 logger = logging.getLogger(__name__)
 
-def random_sleep(base_interval, variation=0.5):
+def random_sleep(base_interval: float = 1.0, variation: float = 0.5):
     """
     Sleeps for a random amount of time around the base interval.
+    
+    Args:
+        base_interval (float): Base time to sleep in seconds (default: 1.0)
+        variation (float): Maximum variation in seconds (default: 0.5)
     """
     sleep_duration = random.uniform(
         max(0, base_interval - variation),
         base_interval + variation
     )
-    logger.debug(f"Sleeping for {sleep_duration:.2f} seconds.")
+    app_logger.debug(f"Sleeping for {sleep_duration:.2f} seconds.")
     time.sleep(sleep_duration)
 
 def get_timestamp():
@@ -25,66 +31,71 @@ def get_timestamp():
     """
     return datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
 
-def check_time_passed(last_check, minutes):
+def check_time_passed(
+    last_check: Optional[datetime],
+    minutes: Union[int, float]
+) -> Tuple[bool, datetime]:
     """
-    Checks if a specified number of minutes have passed since the last check.
+    Check if specified minutes have passed since last check.
+    
+    Args:
+        last_check: Previous check timestamp or None
+        minutes: Minutes to wait between checks
+        
+    Returns:
+        Tuple of (should_check: bool, current_time: datetime)
     """
     current_time = datetime.now()
     if last_check is None or current_time - last_check > timedelta(minutes=minutes):
-        logger.debug(f"Time check passed. Last check was at {last_check}.")
         return True, current_time
-    logger.debug(f"Time check not passed. Last check was at {last_check}.")
     return False, last_check
 
-def convert_percentage_positions(
-    positions_dict: Dict[str, List[str]],
-    screen_width: int,
-    screen_height: int
-) -> Dict[str, Tuple[int, int]]:
+def convert_percentage_positions(positions_dict, screen_width, screen_height):
     """
     Converts positions specified as percentage strings to actual pixel coordinates.
-
-    Args:
-        positions_dict (dict): A dictionary where each key maps to a list of two percentage strings.
-                               Example:
-                               {
-                                   'button': ['50%', '80%'],
-                                   'icon': ['25%', '75%']
-                               }
-        screen_width (int): The width of the screen in pixels.
-        screen_height (int): The height of the screen in pixels.
-
-    Returns:
-        dict: A dictionary with the same keys, mapping to tuples of (x, y) pixel coordinates.
     """
     converted_positions = {}
+    app_logger.debug(f"Converting positions with screen size: {screen_width}x{screen_height}")
+    
     for key, value in positions_dict.items():
-        # Ensure that 'value' is a list or tuple with exactly two elements
-        if not (isinstance(value, (list, tuple)) and len(value) == 2):
-            raise ValueError(f"Value for key '{key}' must be a list or tuple of two percentage strings.")
-        
-        x_str, y_str = value
-
-        # Ensure that both x_str and y_str are strings ending with '%'
-        if not (isinstance(x_str, str) and x_str.endswith('%')):
-            raise ValueError(f"x value for key '{key}' must be a string ending with '%'.")
-        if not (isinstance(y_str, str) and y_str.endswith('%')):
-            raise ValueError(f"y value for key '{key}' must be a string ending with '%'.")
-        
-        # Convert percentage strings to float values
-        x_pct = float(x_str.strip('%'))
-        y_pct = float(y_str.strip('%'))
-
-        # Validate percentage ranges
-        if not (0 <= x_pct <= 100):
-            raise ValueError(f"x percentage for key '{key}' must be between 0% and 100%.")
-        if not (0 <= y_pct <= 100):
-            raise ValueError(f"y percentage for key '{key}' must be between 0% and 100%.")
-
-        # Convert percentages to pixel coordinates with rounding
-        x_px = int(round((x_pct / 100) * screen_width))
-        y_px = int(round((y_pct / 100) * screen_height))
-
-        converted_positions[key] = (x_px, y_px)
-
+        try:
+            x_str, y_str = value
+            x_pct = float(x_str.strip('%'))
+            y_pct = float(y_str.strip('%'))
+            
+            x_px = int((x_pct / 100) * screen_width)
+            y_px = int((y_pct / 100) * screen_height)
+            
+            converted_positions[key] = (x_px, y_px)
+            app_logger.debug(f"Converted {key}: from ({x_str}, {y_str}) to ({x_px}, {y_px})")
+        except Exception as e:
+            app_logger.error(f"Failed to convert position for {key}: {e}")
+            raise
+    
     return converted_positions
+
+def retry(max_attempts: int = 3, delay: float = 1.0):
+    """Decorator for retrying failed operations"""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            last_exception = None
+            for attempt in range(max_attempts):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    last_exception = e
+                    app_logger.warning(
+                        f"Attempt {attempt + 1}/{max_attempts} failed: {e}"
+                    )
+                    if attempt < max_attempts - 1:
+                        time.sleep(delay)
+            raise last_exception
+        return wrapper
+    return decorator
+
+# Usage:
+@retry(max_attempts=3)
+def find_on_screen(screenshot_path, icon_path, threshold=0.8):
+    # Existing implementation
+    pass

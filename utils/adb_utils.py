@@ -1,236 +1,152 @@
 # utils/adb_utils.py
 
 import os
+import time
 import random
 import subprocess
-import logging
+from typing import List, Dict, Optional, Tuple
+from pathlib import Path
 
-logger = logging.getLogger(__name__)
+from logging_config import app_logger
+from .error_handling import DeviceError
+from .device_utils import get_screen_size
 
-# Define a constant for the wait time
-WAIT_TIME_BEFORE_RELAUNCH = 3 
-
-def get_connected_devices():
-    """
-    Returns a list of connected device IDs using ADB.
-    """
+def run_adb_command(command: List[str], device_id: Optional[str] = None) -> str:
+    """Run an ADB command and return output"""
     try:
-        result = subprocess.run(
-            ['adb', 'devices'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        lines = result.stdout.strip().split('\n')
-        devices = [
-            line.split('\t')[0] for line in lines[1:] if '\tdevice' in line
-        ]
-        logger.info(f"Connected devices: {devices}")
-        return devices
-    except subprocess.CalledProcessError as e:
-        logger.exception(f"ADB command failed: {e}")
-        return []
-
-def select_device(devices):
-    """
-    Selects a device from the list of connected devices.
-    For simplicity, we select the first device.
-    """
-    if devices:
-        return devices[0]
-    else:
-        raise Exception("No devices to select from.")
-
-def get_current_running_app(device_id):
-    """
-    Returns the package name of the currently running app on the device.
-    """
-    try:
-        result = subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'dumpsys', 'window', 'windows'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        for line in result.stdout.splitlines():
-            if 'mCurrentFocus' in line or 'mFocusedApp' in line:
-                package_name = line.split('/')[0].split()[-1]
-                logger.debug(f"Current running app: {package_name}")
-                return package_name
-        return None
-    except subprocess.CalledProcessError as e:
-        logger.exception(f"Failed to get current running app: {e}")
-        return None
-
-def capture_screenshot(device_id, filename='screenshot.png', output_directory="tmp"):
-    """
-    Captures a screenshot from the device and saves it in the specified output directory.
-    """
-    # Ensure the output directory exists
-    os.makedirs(output_directory, exist_ok=True)
-    
-    # Construct the save location path
-    save_location = os.path.join(output_directory, filename)
-    
-    try:
-        # Capture the screenshot to the device's storage
-        subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'screencap', '-p', f'/sdcard/{filename}'],
-            check=True
-        )
-        
-        # Pull the screenshot from the device to the specified output directory
-        subprocess.run(
-            ['adb', '-s', device_id, 'pull', f'/sdcard/{filename}', save_location],
-            check=True
-        )
-        
-        logger.debug(f"Screenshot saved as {save_location}")
-        return save_location
-    except subprocess.CalledProcessError as e:
-        logger.exception(f"Failed to capture screenshot: {e}")
-        return None
-
-def click_at_location(x, y, device_id):
-    """
-    Simulates a tap at the specified coordinates on the device screen.
-    """
-    try:
-        subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'input', 'tap', str(x), str(y)],
-            check=True
-        )
-        logger.debug(f"Clicked at location ({x}, {y})")
-    except subprocess.CalledProcessError as e:
-        logger.exception(f"Failed to click at location ({x}, {y}): {e}")
-
-import time
-
-def launch_package(device_id, package_name):
-    """
-    Kills the specified app package, waits briefly, and then relaunches it on the device.
-    """
-    try:
-        # Stop the app
-        subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'am', 'force-stop', package_name],
-            check=True
-        )
-        logger.info(f"Killed package {package_name}")
-
-        # Wait for 2 seconds to ensure the app is fully stopped
-        time.sleep(WAIT_TIME_BEFORE_RELAUNCH)
-
-        # Launch the app
-        subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'],
-            check=True
-        )
-        logger.info(f"Launched package {package_name}")
-    except subprocess.CalledProcessError as e:
-        logger.exception(f"Failed to launch package {package_name}: {e}")
-
-def get_screen_size(device_id):
-    """
-    Returns the screen size (width, height) of the device.
-    """
-    try:
-        result = subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'wm', 'size'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        size_str = result.stdout.strip().split(':')[1].strip()
-        width, height = map(int, size_str.split('x'))
-        logger.debug(f"Screen size: {width}x{height}")
-        return width, height
-    except subprocess.CalledProcessError as e:
-        logger.exception(f"Failed to get screen size: {e}")
-        return None, None
-
-def swipe_down(device_id, start_x, start_y, distance, duration=500):
-    """
-    Swipes down on the device screen from the specified start point by the given distance.
-    """
-    end_y = start_y + distance
-    try:
-        subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'input', 'swipe',
-             str(start_x), str(start_y), str(start_x), str(end_y), str(duration)],
-            check=True
-        )
-        logger.debug(f"Swiped down from ({start_x}, {start_y}) to ({start_x}, {end_y})")
-    except subprocess.CalledProcessError as e:
-        logger.exception(f"Failed to swipe down: {e}")
-
-def send_back_press(device_id):
-    """
-    Sends a 'back' button press to the specified device.
-    """
-    try:
-        subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'input', 'keyevent', 'KEYCODE_BACK'],
-            check=True
-        )
-        logger.debug(f"Sent 'back' button press to device {device_id}")
-    except subprocess.CalledProcessError as e:
-        logger.exception(f"Failed to send 'back' button press: {e}")
-
-def swipe(device_id, screen_width, screen_height, direction='down', times=3, duration=300, sleep_interval=0.5):
-    """
-    Perform swipe gestures on an Android device using ADB.
-
-    Parameters:
-    - device_id: The ID of the target device.
-    - screen_width: The width of the device screen.
-    - screen_height: The height of the device screen.
-    - direction: 'down' for swiping down, 'up' for swiping up.
-    - times: The number of times to perform the swipe.
-    - duration: The duration of each swipe in milliseconds.
-    - sleep_interval: The time to sleep between swipes (in seconds).
-    """
-    for _ in range(times):
-        if direction == 'down':
-            start_y = int(screen_height * 0.2)  # Start near the top
-            end_y = int(screen_height * 0.8)   # End near the bottom
-        elif direction == 'up':
-            start_y = int(screen_height * 0.8)  # Start near the bottom
-            end_y = int(screen_height * 0.2)    # End near the top
+        if device_id:
+            command = ['adb', '-s', device_id] + command
         else:
-            raise ValueError("Invalid direction. Use 'down' or 'up'.")
+            command = ['adb'] + command
+            
+        result = subprocess.check_output(command).decode('utf-8')
+        return result.strip()
+        
+    except subprocess.CalledProcessError as e:
+        app_logger.error(f"ADB command failed: {e}")
+        raise DeviceError(f"ADB command failed: {e}")
 
-        # The X-axis remains constant; swiping is along the Y-axis
-        command = [
-            "adb", "-s", device_id, "shell", "input", "swipe",
-            str(screen_width // 2), str(start_y), str(screen_width // 2), str(end_y), str(duration)
-        ]
-        subprocess.run(command, check=True)
+def humanized_tap(device_id: str, x: int, y: int, variance: int = 5):
+    """
+    Tap with slight random position variations to seem more human-like.
+    Adds random offset of +/- variance pixels to both x and y coordinates.
+    """
+    try:
+        width, height = get_screen_size(device_id)
+        
+        # Add slight random variations to coordinates
+        actual_x = x + random.randint(-variance, variance)
+        actual_y = y + random.randint(-variance, variance)
+        
+        # Ensure coordinates stay within reasonable bounds
+        actual_x = max(0, min(actual_x, width))
+        actual_y = max(0, min(actual_y, height))
+        
+        run_adb_command([
+            'shell', 'input', 'tap',
+            str(actual_x), str(actual_y)
+        ], device_id)
+        
+        # Add slight random delay after tap
+        time.sleep(random.uniform(0.1, 0.3))
+        
+    except Exception as e:
+        app_logger.error(f"Error with humanized tap at ({x}, {y}): {e}")
+        raise DeviceError(f"Error with humanized tap: {e}")
 
-        # Sleep between swipes
-        time.sleep(sleep_interval)
+def humanized_swipe(device_id: str, start_x: int, start_y: int, end_x: int, end_y: int, base_duration: int = 300):
+    """
+    Perform swipe with human-like variations in speed and position
+    """
+    try:
+        width, height = get_screen_size(device_id)
+        
+        # Add slight random variations to coordinates
+        actual_start_x = start_x + random.randint(-10, 10)
+        actual_start_y = start_y + random.randint(-10, 10)
+        actual_end_x = end_x + random.randint(-10, 10)
+        actual_end_y = end_y + random.randint(-10, 10)
+        
+        # Ensure coordinates stay within screen bounds
+        actual_start_x = max(0, min(actual_start_x, width))
+        actual_start_y = max(0, min(actual_start_y, height))
+        actual_end_x = max(0, min(actual_end_x, width))
+        actual_end_y = max(0, min(actual_end_y, height))
+        
+        # Vary the swipe duration
+        duration = base_duration + random.randint(-50, 50)
+        
+        run_adb_command([
+            'shell', 'input', 'swipe',
+            str(actual_start_x), str(actual_start_y),
+            str(actual_end_x), str(actual_end_y),
+            str(duration)
+        ], device_id)
+        
+        # Add slight random delay after swipe
+        time.sleep(random.uniform(0.2, 0.4))
+        
+    except Exception as e:
+        app_logger.error(f"Error performing humanized swipe: {e}")
+        raise DeviceError(f"Error performing humanized swipe: {e}")
 
-def swipe_up(device_id, times=1):
-    screen_width, screen_height = get_screen_size(device_id)
-    swipe(
-        device_id=device_id,
-        screen_width=screen_width,
-        screen_height=screen_height,
-        direction='up',
-        times=times,
-        duration=550,
-        sleep_interval=0.5
-    )
+def swipe_up(device_id: str, distance: int = 300):
+    """Swipe up on screen with human-like variations"""
+    try:
+        width, height = get_screen_size(device_id)
+        
+        # Add slight horizontal variation to seem more human
+        center_x = (width // 2) + random.randint(-30, 30)
+        start_y = (height * 2) // 3
+        end_y = start_y - distance
+        
+        humanized_swipe(device_id, center_x, start_y, center_x, end_y)
+        
+    except Exception as e:
+        app_logger.error(f"Error performing swipe up: {e}")
+        raise DeviceError(f"Error performing swipe up: {e}")
 
+def press_back(device_id: str):
+    """Press the back button"""
+    try:
+        run_adb_command(['shell', 'input', 'keyevent', 'KEYCODE_BACK'], device_id)
+    except Exception as e:
+        app_logger.error(f"Failed to press back button: {e}")
+        raise
 
-def swipe_down(device_id, times=1):
-    screen_width, screen_height = get_screen_size(device_id)
-    swipe(
-        device_id=device_id,
-        screen_width=screen_width,
-        screen_height=screen_height,
-        direction='down',
-        times=times,
-        duration=550,
-        sleep_interval=0.5
-    )
+def launch_package(device_id: str, package_name: str):
+    """Launch an app package"""
+    try:
+        run_adb_command(['shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'], device_id)
+    except Exception as e:
+        app_logger.error(f"Failed to launch package {package_name}: {e}")
+        raise
+
+def force_stop_package(device_id: str, package_name: str):
+    """Force stop an app package"""
+    try:
+        run_adb_command(['shell', 'am', 'force-stop', package_name], device_id)
+    except Exception as e:
+        app_logger.error(f"Failed to force stop package {package_name}: {e}")
+        raise
+
+def get_device_list() -> List[str]:
+    """Get list of connected devices"""
+    try:
+        result = subprocess.run(['adb', 'devices'], capture_output=True, text=True)
+        if result.returncode != 0:
+            app_logger.error(f"Failed to get device list: {result.stderr}")
+            return []
+            
+        # Parse output to get device IDs
+        devices = []
+        for line in result.stdout.splitlines()[1:]:  # Skip first line (header)
+            if line.strip():
+                device_id = line.split()[0]
+                devices.append(device_id)
+                
+        return devices
+        
+    except Exception as e:
+        app_logger.error(f"Error getting device list: {e}")
+        return []
