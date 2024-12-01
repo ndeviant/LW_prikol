@@ -285,22 +285,41 @@ def process_secretaries(
             x, y = secretary_positions[secretary]
             app_logger.debug(f"Clicking secretary {secretary} at ({x}, {y})")
             humanized_tap(device_id, x, y)
-            time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
+            time.sleep(random.uniform(options.sleep * 2, options.sleep * 2.5))  # Reduced delay
             
             # Click list button
             app_logger.debug(f"Clicking list at ({list_x}, {list_y})")
             humanized_tap(device_id, list_x, list_y)
-            time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
+            time.sleep(random.uniform(options.sleep * 2, options.sleep * 2.5))  # Reduced delay
             
-            # Scroll to top of list (3 swipes)
-            app_logger.debug("Scrolling to top of list")
-            for _ in range(3):
-                width, height = DeviceContext.get_screen_dimensions()
-                center_x = (width // 2) + random.randint(-30, 30)
-                start_y = height // 3
-                end_y = start_y + 300
-                humanized_swipe(device_id, center_x, start_y, center_x, end_y)
-                time.sleep(random.uniform(options.sleep * 0.5, options.sleep * 0.8))
+            # First check if accept button is visible before scrolling
+            screenshot_path = os.path.join('tmp', f'screen_{int(time.time())}.png')
+            capture_screenshot(device_id, filename=screenshot_path)
+            
+            needs_scroll = True
+            if 'accept' in templates.buttons:
+                matches = find_all_matches(
+                    screenshot_path=screenshot_path,
+                    template_path=templates.buttons['accept'],
+                    threshold=0.8
+                )
+                if matches:
+                    needs_scroll = False
+                    app_logger.debug("Found accept button without scrolling")
+            
+            if os.path.exists(screenshot_path):
+                os.remove(screenshot_path)
+            
+            # Only scroll if needed
+            if needs_scroll:
+                app_logger.debug("Scrolling to top of list")
+                for _ in range(3):
+                    width, height = DeviceContext.get_screen_dimensions()
+                    center_x = (width // 2) + random.randint(-30, 30)
+                    start_y = height // 3
+                    end_y = start_y + 300
+                    humanized_swipe(device_id, center_x, start_y, center_x, end_y)
+                    time.sleep(random.uniform(options.sleep * 0.3, options.sleep * 0.5))  # Reduced scroll delay
             
             # Process accept buttons
             found_accept = True  # Start true to check first screen
@@ -340,7 +359,7 @@ def process_secretaries(
                         x, y = unique_matches[0]
                         app_logger.info(f"Found accept button at ({x}, {y})")
                         humanized_tap(device_id, x, y)
-                        time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
+                        time.sleep(random.uniform(options.sleep * 2, options.sleep * 2.5))  # Reduced delay
                 
                 # Clean up screenshot
                 if os.path.exists(screenshot_path):
@@ -351,21 +370,21 @@ def process_secretaries(
                     width, height = DeviceContext.get_screen_dimensions()
                     center_x = (width // 2) + random.randint(-30, 30)
                     humanized_swipe(device_id, center_x, height * 0.7, center_x, height * 0.3)
-                    time.sleep(random.uniform(options.sleep * 0.5, options.sleep * 0.8))
+                    time.sleep(random.uniform(options.sleep * 0.3, options.sleep * 0.5))  # Reduced scroll delay
             
             # Extra delay if we clicked an accept on the last screen
             if last_accept_clicked:
-                time.sleep(random.uniform(options.sleep * 3.5, options.sleep * 4))
+                time.sleep(random.uniform(options.sleep * 3, options.sleep * 3.5))  # Slightly reduced but still safe
             
             # Exit list view with single back press
             app_logger.debug("Pressing back button to exit list view")
             press_back(device_id)
-            time.sleep(random.uniform(options.sleep * 3.5, options.sleep * 4))
+            time.sleep(random.uniform(options.sleep * 3, options.sleep * 3.5))  # Keep longer delay for back
             
             # Exit secretary menu with single back press
             app_logger.debug("Pressing back button to exit secretary menu")
             press_back(device_id)
-            time.sleep(random.uniform(options.sleep * 3.5, options.sleep * 4))
+            time.sleep(random.uniform(options.sleep * 3, options.sleep * 3.5))  # Keep longer delay for back
             
             # Increment secretaries processed
             secretaries_since_check += 1
@@ -379,7 +398,7 @@ def process_secretaries(
                     if next_secretary in secretary_positions:
                         next_x, next_y = secretary_positions[next_secretary]
                         humanized_tap(device_id, next_x, next_y)
-                        time.sleep(random.uniform(options.sleep * 2.5, options.sleep * 3))
+                        time.sleep(random.uniform(options.sleep * 2, options.sleep * 2.5))  # Reduced delay
                         
                         # Take screenshot and verify list button is visible
                         screenshot_path = os.path.join('tmp', f'screen_{int(time.time())}.png')
@@ -394,6 +413,9 @@ def process_secretaries(
                             if matches:
                                 app_logger.debug("Health check passed - list button found")
                                 secretaries_since_check = 0
+                                # Exit back to main menu since we're in a secretary menu
+                                press_back(device_id)
+                                time.sleep(random.uniform(options.sleep * 3, options.sleep * 3.5))  # Keep longer delay for back
                             else:
                                 app_logger.error("Health check failed - list not accessible")
                                 return False
@@ -401,10 +423,6 @@ def process_secretaries(
                         # Clean up screenshot
                         if os.path.exists(screenshot_path):
                             os.remove(screenshot_path)
-                            
-                        # Exit back to main menu
-                        press_back(device_id)
-                        time.sleep(random.uniform(options.sleep * 3.5, options.sleep * 4))
             
         return True
         
