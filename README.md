@@ -1,17 +1,19 @@
 # Game Automation
 
-An automation tool for managing game tasks efficiently.
+An automation tool for managing game tasks efficiently, including secretary management, alliance donations, and scheduled events.
 
 ## Features
 
-- Automated secretary management
+- Automated secretary management with alliance tag filtering
 - Resource collection
-- Alliance donation handling (configurable)
-- Automatic help button detection and clicking
+- Alliance donation handling
+- Automatic help button detection
 - Smart delay system with configurable multiplier
 - Robust error handling and recovery
-- Automatic cleanup of temporary files and screenshots
+- Automatic cleanup of temporary files
 - Log rotation with size limits
+- Alliance whitelist filtering
+- Scheduled event automation
 
 ## Setup
 
