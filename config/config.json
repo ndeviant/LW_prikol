@@ -1,0 +1,94 @@
+{
+  "package_name": "com.fun.lastwar.gp",
+  "sleep_multiplier": 1.0,
+  "debug_mode": false,
+  "max_retries": 3,
+  "retry_delay": 1.0,
+  "collect_resources_interval": 300,
+  "donate_alliance_interval": null,
+  "screenshot_quality": 100,
+  "match_threshold": 0.8,
+  "ui_elements": {
+    "profile": {
+      "x": "5%",
+      "y": "3%"
+    },
+    "secretary_menu": {
+      "x": "70%",
+      "y": "65%"
+    },
+    "list": {
+      "x": "50%",
+      "y": "30%"
+    },
+    "accept": {
+      "x": "50%",
+      "y": "40%"
+    },
+    "back": {
+      "x": "50%",
+      "y": "90%"
+    },
+    "swipe": {
+      "start_x": "50%",
+      "start_y": "30%",
+      "end_x": "50%",
+      "end_y": "80%"
+    }
+  },
+  "timings": {
+    "tap_delay": 1.5,
+    "menu_animation": 1.8,
+    "list_animation": 1.8,
+    "swipe_duration": {
+      "min": 300,
+      "max": 400
+    },
+    "list_timeout": 3.0,
+    "accept_timeout": 2.0,
+    "scroll_delay": 0.3,
+    "settle_time": 0.5,
+    "launch_wait": 35.0,
+    "home_check_interval": 3.0,
+    "quit_check_timeout": 2.0,
+    "max_home_wait": 45.0,
+    "error_delay": 5.0
+  },
+  "randomization": {
+    "critical_radius": 1,
+    "normal_radius": 2,
+    "swipe_variance": {
+      "position": "1%",
+      "duration": 10
+    }
+  },
+  "thresholds": {
+    "list_button": 0.6,
+    "accept_button": 0.6,
+    "quit_button": 0.6,
+    "home_icon": 0.55,
+    "secretary_slot": 0.4
+  },
+  "ocr_settings": {
+    "languages": {
+      "alliance": "eng",
+      "name": [
+        "eng",
+        "chi_sim",
+        "kor",
+        "jpn",
+        "rus",
+        "ara",
+        "tha"
+      ]
+    },
+    "psm_mode": 7,
+    "oem_mode": 1
+  },
+  "network_sniffing": {
+    "enabled": true,
+    "endpoints": {
+      "secretary_list": "secretary/list"
+    }
+  }
+}

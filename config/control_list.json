@@ -1,0 +1,19 @@
+{
+    "whitelist": {
+        "alliance": [
+            "Brn",
+            "sTAR",
+            "twr",
+            "UbRg",
+            "Trol",
+            "wxp",
+            "NzC",
+            "WXP3",
+            "BRN2",
+            "rhw"
+        ]
+    },
+    "blacklist": {
+        "alliance": []
+    }
+}
