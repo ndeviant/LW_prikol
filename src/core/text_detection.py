@@ -7,7 +7,7 @@ import re
 from typing import Tuple, Optional, Union, List, Dict, Any
 from .logging import app_logger
 from .device import take_screenshot, get_screen_size
-from .image_processing import _load_template, find_template, find_all_templates
+from .image_processing import _load_template, _take_and_load_screenshot, find_template, find_all_templates
 from .config import CONFIG
 from .debug import save_debug_region
 import numpy as np
