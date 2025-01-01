@@ -1,9 +1,9 @@
 """Core ADB functionality"""
 
 import subprocess
-import time
 from typing import List, Optional
 from .logging import app_logger
+import re
 
 def get_device_list() -> List[str]:
     """Get list of connected devices"""
@@ -27,27 +27,17 @@ def get_device_list() -> List[str]:
         app_logger.error(f"Error getting device list: {e}")
         return []
 
-def launch_package(device_id: str, package_name: str) -> bool:
+def launch_package(device_id: str, package_name: str):
     """Launch an app package"""
-    try:
-        cmd = f"adb -s {device_id} shell monkey -p {package_name} -c android.intent.category.LAUNCHER 1"
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.returncode == 0
-        
-    except Exception as e:
-        app_logger.error(f"Error launching package: {e}")
-        return False
+    subprocess.run(
+        ['adb', '-s', device_id, 'shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
 
-def force_stop_package(device_id: str, package_name: str) -> bool:
+def force_stop_package(device_id: str, package_name: str):
     """Force stop an app package"""
-    try:
-        cmd = f"adb -s {device_id} shell am force-stop {package_name}"
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        return result.returncode == 0
-        
-    except Exception as e:
-        app_logger.error(f"Error force stopping package: {e}")
-        return False
+    subprocess.run(['adb', '-s', device_id, 'shell', 'am', 'force-stop', package_name])
 
 def press_back(device_id: str) -> bool:
     """Press back button"""
@@ -129,3 +119,18 @@ def long_press_screen(device_id: str, x: int, y: int, duration: int) -> bool:
     except subprocess.CalledProcessError:
         app_logger.error(f"Failed to execute long press on device {device_id}")
         return False
+
+def get_screen_size(device_id: str) -> tuple[int, int]:
+    """Get device screen size"""
+    try:
+        result = subprocess.run(
+            ['adb', '-s', device_id, 'shell', 'wm', 'size'], 
+            capture_output=True, 
+            text=True
+        )
+        match = re.search(r'(\d+)x(\d+)', result.stdout)
+        if match:
+            return int(match.group(1)), int(match.group(2))
+        raise ValueError("Could not parse screen size")
+    except Exception as e:
+        raise RuntimeError(f"Failed to get screen size: {e}")

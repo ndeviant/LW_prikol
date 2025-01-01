@@ -1,10 +1,10 @@
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, Dict
 from datetime import datetime
-import time
+from collections import OrderedDict
 from src.core.logging import app_logger
 
 class CheckInfo(TypedDict):
-    last_check: Optional[float]  # Unix timestamp of last check
+    last_run: Optional[float]  # Unix timestamp of last run
     needs_check: bool           # Whether check is currently due
     time_to_check: int         # Interval in seconds between checks
 
@@ -14,14 +14,14 @@ class ScheduledEvent(TypedDict):
     day: str                    # Day of week (e.g., 'friday')
     time: str                   # Time in 24h format (e.g., '13:50')
 
-def update_interval_check(checks: dict[str, CheckInfo], current_time: float) -> dict[str, CheckInfo]:
+def update_interval_check(checks: Dict[str, CheckInfo], current_time: float) -> Dict[str, CheckInfo]:
     """Update check times and set needs_check flags based on intervals"""
     for check_name, check_info in checks.items():
-        if check_info["last_check"] is None:
+        if check_info["last_run"] is None:
             app_logger.debug(f"First run for check: {check_name}")
             check_info["needs_check"] = True
         else:
-            time_elapsed = current_time - check_info["last_check"]
+            time_elapsed = current_time - check_info["last_run"]
             check_info["needs_check"] = time_elapsed >= check_info["time_to_check"]
             app_logger.debug(
                 f"Check {check_name}: elapsed={time_elapsed:.1f}s, interval={check_info['time_to_check']}s, needs_check={check_info['needs_check']}"

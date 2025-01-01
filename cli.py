@@ -4,107 +4,106 @@ import sys
 import argparse
 import traceback
 import time
+import json
 from pathlib import Path
 import signal
-
-from src.core.adb import launch_package, force_stop_package, get_device_list, get_connected_device
-from src.core.device import cleanup_temp_files, ensure_dir
 from src.core.logging import setup_logging, app_logger
-from src.game.alliance_donate import run_alliance_donate
-from src.game.automation import run_automation
-from src.game.secretary_automation import run_secretary_loop
+from src.core.device import cleanup_temp_files, cleanup_device_screenshots, ensure_dir
+from src.core.adb import get_connected_device
+from src.automation.automation import MainAutomation
+from src.core.cleanup import CleanupManager
+from src.automation.handler_factory import HandlerFactory
 
-# Create parser at module level
+def get_routine_config():
+    try:
+        with open("config/automation.json") as f:
+            config = json.load(f)
+            return config.get("time_checks", {})
+    except Exception:
+        return {}
+
 parser = argparse.ArgumentParser(description='Game automation CLI')
+parser.add_argument('command', choices=['auto', 'routine'], help='Automation command to run')
+parser.add_argument('routine_name', nargs='?', choices=list(get_routine_config().keys()), help='Name of routine to run')
 parser.add_argument('--debug', action='store_true', help='Enable debug logging')
-parser.add_argument('--output', help='Output file for results')
-parser.add_argument('--no-home-check', action='store_true', help='Disable periodic home screen checks')
-parser.add_argument('--no-cleanup', action='store_true', help='Disable cleanup of temporary files')
-parser.add_argument(
-    'command',
-    choices=[
-        'run',
-        'loop',
-        'devices',
-        'force-stop',
-        'launch',
-        'donate',
-    ],
-    help='Command to execute'
-)
+parser.add_argument('--no-cleanup', action='store_true', help='Skip cleanup on exit')
+
+cleanup_manager = CleanupManager()
+
+def cleanup():
+    """Cleanup resources"""
+    cleanup_manager.cleanup()
 
 def signal_handler(signum, frame):
     """Handle shutdown signals gracefully"""
     app_logger.info("\nShutdown requested, cleaning up...")
-    args = parser.parse_args()
-    if not args.no_cleanup:
-        cleanup_temp_files()
+    cleanup()
     sys.exit(0)
 
-def main():
+def run_single_routine(device_id: str, routine_name: str) -> bool:
+    """Run a single routine"""
     try:
-        # Register signal handler for Ctrl+C
-        signal.signal(signal.SIGINT, signal_handler)
-        
-        args = parser.parse_args()
-        
-        # Set up logging
-        setup_logging(args.debug)
-        
-        # Create debug screenshot directory
-        ensure_dir("tmp")
-        
-        # Get connected device
-        device_id = get_connected_device()
-        if not device_id:
-            sys.exit(1)
+        routine_config = get_routine_config().get(routine_name)
+        if not routine_config:
+            app_logger.error(f"Routine {routine_name} not found in config")
+            return False
             
-        # Execute command
-        if args.command == 'run':
-            try:
-                run_automation(device_id)
-            finally:
-                if not args.no_cleanup:
-                    cleanup_temp_files()
+        handler_factory = HandlerFactory()
+        handler = handler_factory.create_handler(
+            routine_config["handler"],
+            device_id,
+            {"interval": routine_config["interval"]}
+        )
         
-        elif args.command == 'test':
-            app_logger.info("Starting secretary processing loop...")
-            try:
-                run_secretary_loop(device_id)
-            finally:
-                cleanup_temp_files()
+        if handler:
+            app_logger.info(f"Running {routine_name} routine")
+            return handler.start()
+        return False
         
-        elif args.command == 'loop':
-            app_logger.info("Starting secretary processing loop...")
-            try:
-                for i in range(100):
-                    app_logger.info(f"Running loop {i}")
-                    run_secretary_loop(device_id)
-            finally:
-                cleanup_temp_files()
+    except Exception as e:
+        app_logger.error(f"Error running routine {routine_name}: {e}")
+        return False
+
+def main():
+    args = parser.parse_args()
+    setup_logging()
+    
+    device_id = get_connected_device()
+    if not device_id:
+        app_logger.error("No devices found. Please check:")
+        app_logger.error("1. Device is connected via USB")
+        app_logger.error("2. USB debugging is enabled")
+        app_logger.error("3. Computer is authorized for USB debugging")
+        sys.exit(1)
+    
+    app_logger.info(f"Connected to device: {device_id}")
+    
+    cleanup_manager.set_device(device_id)
+    cleanup_manager.set_skip_cleanup(args.no_cleanup)
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    try:
+        if args.command == 'routine':
+            if not args.routine_name:
+                app_logger.error("No routine specified")
+                return 1
+            success = run_single_routine(device_id, args.routine_name)
+            return 0 if success else 1
             
-        elif args.command == 'devices':
-            devices = get_device_list()
-            print("\nConnected devices:")
-            for device in devices:
-                print(f"  {device}")
-                
-        elif args.command == 'force-stop':
-            app_logger.info("Force stopping game...")
-            force_stop_package(device_id, "com.fun.lastwar.gp")
-            
-        elif args.command == 'launch':
-            app_logger.info("Launching game...")
-            launch_package(device_id, "com.fun.lastwar.gp")
-            
-        elif args.command == 'donate':
-            app_logger.info("Donating to alliance tech...")
-            run_alliance_donate(device_id)
+        elif args.command == 'auto':
+            automation = MainAutomation(device_id)
+            success = automation.run()
+            return 0 if success else 1
             
     except Exception as e:
-        app_logger.error(f"Error: {e}")
-        traceback.print_exc()
-        sys.exit(1)
+        app_logger.error(f"Error in main: {e}")
+        if args.debug:
+            traceback.print_exc()
+        return 1
+    finally:
+        cleanup()
 
 if __name__ == '__main__':
-    main() 
+    sys.exit(main()) 

@@ -7,4 +7,8 @@ logs/*
 lastwar.log
 sessions/*
 !sessions/.gitkeep
+state/*
+
+# Environment variables
+.env
 

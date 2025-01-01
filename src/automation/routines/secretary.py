@@ -1,0 +1,283 @@
+from typing import Tuple
+import cv2
+from src.automation.routines.routineBase import TimeCheckRoutine
+from src.core.logging import app_logger
+from src.core.config import CONFIG
+from src.core.image_processing import _take_and_load_screenshot, find_template, find_all_templates, wait_for_image, compare_screenshots, find_and_tap_template
+from src.core.network_sniffing import start_network_capture
+from src.core.device import take_screenshot
+from src.core.adb import get_screen_size, press_back
+from src.game.controls import human_delay, humanized_tap, handle_swipes
+from src.core.text_detection import (
+    extract_text_from_region, 
+    get_text_regions, 
+    log_rejected_alliance,
+    CONTROL_LIST
+)
+from src.core.audio import play_beep
+import numpy as np
+
+class SecretaryRoutine(TimeCheckRoutine):
+    def __init__(self, device_id: str, interval: int, last_run: float = None):
+        super().__init__(device_id, interval, last_run)
+        self.secretary_types = ["strategy", "security", "development", "science", "interior"]
+        self.capture = None
+        self.manual_deny = False
+
+    def _execute(self) -> bool:
+        """Start secretary automation sequence"""
+        return self.execute_with_error_handling(self._execute_internal)
+    
+    def _execute_internal(self) -> bool:
+        """Internal execution logic"""
+        self.open_profile_menu(self.device_id)
+        self.open_secretary_menu(self.device_id)
+        return self.process_all_secretary_positions()
+
+    def find_accept_buttons(self) -> list[Tuple[int, int]]:
+        """Find all accept buttons on the screen and sort by Y coordinate"""
+        try:
+            matches = find_all_templates(
+                self.device_id,
+                "accept"
+            )
+            if not matches:
+                return []
+            
+            # Sort by Y coordinate (ascending) and X coordinate (ascending) for same Y
+            sorted_matches = sorted(matches, key=lambda x: (x[1], x[0]))
+            if sorted_matches:
+                app_logger.debug(f"Found {len(sorted_matches)} accept buttons")
+                app_logger.debug(f"Topmost button at coordinates: ({sorted_matches[0][0]}, {sorted_matches[0][1]})")
+            return sorted_matches
+        
+        except Exception as e:
+            app_logger.error(f"Error finding accept buttons: {e}")
+            return []
+
+    def find_reject_buttons(self) -> list[Tuple[int, int]]:
+        """Find all reject buttons on the screen and sort by Y coordinate"""
+        try:
+            matches = find_all_templates(
+                self.device_id,
+                "reject"
+            )
+            if not matches:
+                return []
+            
+            # Sort by Y coordinate (ascending) and X coordinate (ascending) for same Y
+            sorted_matches = sorted(matches, key=lambda x: (x[1], x[0]))
+            if sorted_matches:
+                app_logger.debug(f"Found {len(sorted_matches)} reject buttons")
+                app_logger.debug(f"Topmost button at coordinates: ({sorted_matches[0][0]}, {sorted_matches[0][1]})")
+            return sorted_matches
+        
+        except Exception as e:
+            app_logger.error(f"Error finding reject buttons: {e}")
+            return []
+    
+    def open_profile_menu(self, device_id: str) -> bool:
+        """Open the profile menu"""
+        try:
+            width, height = get_screen_size(device_id)
+            profile = CONFIG['ui_elements']['profile']
+            profile_x = int(width * float(profile['x'].strip('%')) / 100)
+            profile_y = int(height * float(profile['y'].strip('%')) / 100)
+            humanized_tap(device_id, profile_x, profile_y)
+
+            # Look for notification indicators
+            notification = wait_for_image(
+                device_id,
+                "awesome",
+                timeout=CONFIG['timings']['menu_animation'],
+            )
+            
+            if notification:
+                humanized_tap(device_id, notification[0], notification[1])
+                press_back(device_id)
+                human_delay(CONFIG['timings']['menu_animation'])
+
+            return True
+        except Exception as e:
+            app_logger.error(f"Error opening profile menu: {e}")
+            return False
+
+    def open_secretary_menu(self, device_id: str) -> bool:
+        """Open the secretary menu"""
+        try:
+            width, height = get_screen_size(device_id)
+            secretary = CONFIG['ui_elements']['secretary_menu']
+
+            # Click secretary menu with randomization
+            secretary_x = int(width * float(secretary['x'].strip('%')) / 100)
+            secretary_y = int(height * float(secretary['y'].strip('%')) / 100)
+            humanized_tap(device_id, secretary_x, secretary_y)
+        
+            return True
+        except Exception as e:
+            app_logger.error(f"Error opening secretary menu: {e}")
+            return False
+
+    def exit_to_secretary_menu(self) -> bool:
+        """Exit back to secretary menu"""
+        try:
+            max_attempts = 10
+            for _ in range(max_attempts):
+                if self.verify_secretary_menu():
+                    return True
+                    
+                press_back(self.device_id)
+                human_delay(CONFIG['timings']['menu_animation'])
+                
+            app_logger.error("Failed to return to secretary menu")
+            return False
+            
+        except Exception as e:
+            app_logger.error(f"Error exiting to secretary menu: {e}")
+            return False
+    
+    def verify_secretary_menu(self) -> bool:
+        """Verify we're in the secretary menu"""
+        return wait_for_image(
+            self.device_id,
+            "president",
+            timeout=CONFIG['timings']['menu_animation']
+        ) is not None
+    
+    def process_secretary_position(self, name: str) -> bool:
+        """Process a single secretary position"""
+        try:        
+            # Find and click secretary position
+            if not find_and_tap_template(
+                self.device_id,
+                name,
+                error_msg=f"Could not find {name} secretary position",
+                critical=True
+            ):
+                return True  # Continue with next position
+            
+            human_delay(CONFIG['timings']['tap_delay'])
+            
+            # Find and click list button
+            if not find_and_tap_template(
+                self.device_id,
+                "list",
+                error_msg="List button not found",
+                critical=True,
+                timeout=CONFIG['timings']['list_timeout']
+            ):
+                return False
+
+            accept_locations = self.find_accept_buttons()
+            if accept_locations:
+                # Scroll to top if needed
+                if len(accept_locations) > 5:
+                    handle_swipes(self.device_id, direction="up")
+                    human_delay(CONFIG['timings']['settle_time'] * 2)
+                    accept_locations = self.find_accept_buttons()
+                
+                processed = 0
+                accepted = 0
+                
+                while processed < 5:  # Max 8 applicants
+                    if not take_screenshot(self.device_id):
+                        break
+                        
+                    current_screenshot = cv2.imread('tmp/screen.png')
+                    if current_screenshot is None:
+                        break
+                    
+                    accept_locations = self.find_accept_buttons()
+                    if not accept_locations:
+                        break
+                    
+                    topmost_accept = accept_locations[0]
+                    alliance_region, name_region, screenshot = get_text_regions(
+                        topmost_accept, 
+                        self.device_id,
+                        existing_screenshot=current_screenshot
+                    )
+                    
+                    if screenshot is None:
+                        continue
+
+                    alliance_text, original_text = extract_text_from_region(
+                        self.device_id, 
+                        alliance_region, 
+                        languages='eng', 
+                        img=screenshot
+                    )
+                    
+                    if len(CONTROL_LIST['whitelist']['alliance']) > 0:
+                        if alliance_text in CONTROL_LIST['whitelist']['alliance']:
+                            humanized_tap(self.device_id, topmost_accept[0], topmost_accept[1])
+                            app_logger.debug(f"Tapping accept at coordinates: ({topmost_accept[0]}, {topmost_accept[1]})")
+                            app_logger.info(f"Accepted candidate with alliance: {alliance_text} for {name}")
+                            accepted += 1
+                        else:
+                            # Handle rejection
+                            app_logger.info(f"Rejecting candidate with alliance: {alliance_text} for {name}")
+                            log_rejected_alliance(alliance_text, original_text)
+                            
+                            if self.manual_deny:
+                                play_beep()
+                                input('Press Enter to continue...')
+                            
+                            # Try reject button first
+                            reject_buttons = self.find_reject_buttons()
+                            if reject_buttons:
+                                # Get topmost reject button
+                                reject_button = reject_buttons[0]
+                                # Verify it's aligned with our accept button vertically
+                                if abs(reject_button[1] - topmost_accept[1]) <= 10:  # 10 pixel tolerance
+                                    humanized_tap(self.device_id, reject_button[0], reject_button[1])
+                                    app_logger.debug(f"Tapping reject at coordinates: ({reject_button[0]}, {reject_button[1]})")
+                                    if not find_and_tap_template(
+                                        self.device_id,
+                                        "confirm",
+                                        error_msg="Failed to find confirm button",
+                                        critical=True
+                                    ):
+                                        continue
+                            else:
+                                # No reject buttons found, try confirm
+                                if not find_and_tap_template(
+                                    self.device_id,
+                                    "confirm",
+                                    error_msg="Failed to find confirm button",
+                                    critical=True
+                                ):
+                                    continue
+                    else:
+                        # No whitelist - accept all
+                        if not find_and_tap_template(
+                            self.device_id,
+                            "accept",
+                            error_msg=f"Failed to accept candidate for {name}",
+                            success_msg=f"Accepting candidate for {name}"
+                        ):
+                            continue
+                    
+                    processed += 1
+                    human_delay(CONFIG['timings']['settle_time'])
+                                
+            # Exit menus with verification
+            if not self.exit_to_secretary_menu():
+                app_logger.error("Failed to exit to secretary menu")
+                return False
+            
+            return True
+            
+        except Exception as e:
+            app_logger.error(f"Error processing secretary position: {e}")
+            if not self.exit_to_secretary_menu():
+                app_logger.error("Failed to exit to secretary menu after error")
+                return False
+            return True
+        
+    def process_all_secretary_positions(self) -> bool:
+        """Process all secretary positions"""
+        for name in self.secretary_types:
+            if not self.process_secretary_position(name):
+                return False
+        return True

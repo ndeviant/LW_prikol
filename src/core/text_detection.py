@@ -4,20 +4,33 @@ import os
 import cv2
 import pytesseract
 import re
-from typing import Tuple, Optional, Union, List
+from typing import Tuple, Optional, Union, List, Dict, Any
 from .logging import app_logger
 from .device import take_screenshot, get_screen_size
-from .image_processing import find_template, find_all_templates
-from .config import CONFIG, CONTROL_LIST
+from .image_processing import _load_template, find_template, find_all_templates
+from .config import CONFIG
 from .debug import save_debug_region
 import numpy as np
-import shutil
+import json
+from pathlib import Path
 
 debug = True
 
-def get_text_regions(accept_location: Tuple[int, int], device_id: str) -> Tuple[Tuple[int, int, int, int], Tuple[int, int, int, int], Optional[np.ndarray]]:
+def get_text_regions(
+    accept_location: Tuple[int, int], 
+    device_id: str,
+    existing_screenshot: Optional[np.ndarray] = None
+) -> Tuple[Tuple[int, int, int, int], Tuple[int, int, int, int], Optional[np.ndarray]]:
     """Calculate regions for alliance tag and name extraction based on bracket location"""
     width, height = get_screen_size(device_id)
+    
+    if existing_screenshot is not None:
+        img = existing_screenshot
+    else:
+        img = _take_and_load_screenshot(device_id)
+        if img is None:
+            return (0, 0, 0, 0), (0, 0, 0, 0), None
+    
     app_logger.debug(f"Screen size: {width}x{height}")
     
     # Add debug logging for region calculations
@@ -28,7 +41,7 @@ def get_text_regions(accept_location: Tuple[int, int], device_id: str) -> Tuple[
     y_offset = int(height * 0.015)  # 1.5% vertical search area
     
     # Get template size to ensure minimum search region
-    template = cv2.imread("config/templates/left_bracket.png")
+    template, template_config = _load_template('left_bracket')
     if template is not None:
         min_width = template.shape[1] * 3
         min_height = template.shape[0] * 3
@@ -62,16 +75,14 @@ def get_text_regions(accept_location: Tuple[int, int], device_id: str) -> Tuple[
     # Find brackets within cropped region
     left_brackets = find_all_templates(
         device_id,
-        "config/templates/left_bracket.png",
-        threshold=0.75,
-        search_region=(x1, y1, x2, y2)  # Pass search region to template matcher
+        "left_bracket",
+        search_region=(x1, y1, x2, y2)
     )
     
     right_brackets = find_all_templates(
         device_id,
-        "config/templates/right_bracket.png",
-        threshold=0.75,
-        search_region=(x1, y1, x2, y2)  # Add search region here
+        "right_bracket",
+        search_region=(x1, y1, x2, y2)
     )
     
     # Filter brackets by vertical alignment with accept button
@@ -93,8 +104,8 @@ def get_text_regions(accept_location: Tuple[int, int], device_id: str) -> Tuple[
         right_bracket = min(valid_right, key=lambda x: x[0])
         app_logger.debug(f"Selected brackets - Left: {left_bracket}, Right: {right_bracket}")
         
-        # Get bracket width FIRST
-        template = cv2.imread("config/templates/left_bracket.png")
+        # Get bracket width
+        template, _ = _load_template('left_bracket')
         bracket_width = template.shape[1] if template is not None else int(width * 0.01)
         
         # Calculate vertical bounds based on bracket position
@@ -191,24 +202,19 @@ def extract_text_from_region(device_id: str, region: Tuple[int, int, int, int], 
         text = text.replace('—', '').replace('–', '').strip()
         
         # Try to extract text between brackets first
-        bracket_match = re.search(r'\[(.*?)\]', text)
+        bracket_match = re.search(r'[\[|\(](.*?)[\]|\)]', text)
         if bracket_match:
             return bracket_match.group(1), original_text
             
-        # Clean the text and try common OCR mistakes
-        cleaned_text = text.replace('l', '[').replace('I', '[')
-        bracket_match = re.search(r'\[(.*?)\]', cleaned_text)
-        if bracket_match:
-            return bracket_match.group(1), original_text
-            
-        # Last resort: look for 3-4 letter sequences
-        cleaned_text = re.sub(r'[^A-Za-z]', '', text)
-        if len(cleaned_text) >= 3:
-            # Take first 3-4 characters preserving case
-            result = cleaned_text[:4] if len(cleaned_text) >= 4 else cleaned_text[:3]
-            return result, original_text
+        # If no brackets, look for 3-4 letter sequences that match alliance patterns
+        words = re.findall(r'[A-Za-z0-9]{3,4}', text)
+        if words:
+            # Take first word that matches length of known alliances
+            for word in words:
+                if len(word) in {3, 4}:  # Most alliance tags are 3-4 chars
+                    return word, original_text
         
-        return cleaned_text, original_text
+        return "", original_text
         
     return "", original_text
 
@@ -250,8 +256,8 @@ def log_rejected_alliance(alliance_text: str, original_text: str = ""):
 
 def build_alliance_whitelist() -> str:
     """Build whitelist of characters from alliance tags in control list"""
-    # Get all alliance tags
-    alliance_tags = CONTROL_LIST['whitelist']['alliance']
+    # Get alliance tags from main config
+    alliance_tags = CONFIG.get('control_list', {}).get('whitelist', {}).get('alliance', [])
     
     # Create set of unique characters exactly as they appear
     chars = set()
@@ -261,8 +267,16 @@ def build_alliance_whitelist() -> str:
     # Convert to sorted string
     whitelist = ''.join(sorted(chars))
     app_logger.debug(f"Alliance whitelist: {whitelist}")
-    print(whitelist)
     return whitelist
 
-# Cache for alliance whitelist
-ALLIANCE_CHARS = build_alliance_whitelist() 
+# Build alliance whitelist from config
+ALLIANCE_CHARS = build_alliance_whitelist()
+
+# Export CONFIG's control list for compatibility
+CONTROL_LIST = CONFIG.get('control_list', {
+    "whitelist": {"alliance": []}, 
+    "blacklist": {"alliance": []}
+})
+
+__all__ = ['CONTROL_LIST', 'ALLIANCE_CHARS', 'extract_text_from_region', 
+           'get_text_regions', 'log_rejected_alliance'] 

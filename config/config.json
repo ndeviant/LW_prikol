@@ -3,6 +3,7 @@
   "sleep_multiplier": 1.0,
   "debug_mode": false,
   "max_retries": 3,
+  "max_home_attempts": 10,
   "retry_delay": 1.0,
   "collect_resources_interval": 300,
   "donate_alliance_interval": null,
@@ -37,22 +38,22 @@
     }
   },
   "timings": {
-    "tap_delay": 1.5,
-    "menu_animation": 1.8,
-    "list_animation": 1.8,
+    "tap_delay": 1,
+    "menu_animation": 1,
+    "list_animation": 1,
     "swipe_duration": {
       "min": 300,
       "max": 400
     },
-    "list_timeout": 3.0,
-    "accept_timeout": 2.0,
+    "list_timeout": 2.0,
+    "accept_timeout": 1.0,
     "scroll_delay": 0.3,
-    "settle_time": 0.5,
+    "settle_time": 0.2,
     "launch_wait": 35.0,
     "home_check_interval": 3.0,
     "quit_check_timeout": 2.0,
-    "max_home_wait": 45.0,
-    "error_delay": 5.0
+    "error_delay": 5.0,
+    "app_close_wait": 5
   },
   "randomization": {
     "critical_radius": 1,
@@ -61,13 +62,6 @@
       "position": "1%",
       "duration": 10
     }
-  },
-  "thresholds": {
-    "list_button": 0.6,
-    "accept_button": 0.6,
-    "quit_button": 0.6,
-    "home_icon": 0.55,
-    "secretary_slot": 0.4
   },
   "ocr_settings": {
     "languages": {
@@ -89,6 +83,140 @@
     "enabled": true,
     "endpoints": {
       "secretary_list": "secretary/list"
+    }
+  },
+  "control_list": {
+    "whitelist": {
+      "alliance": [
+        "Brn",
+        "sTAR",
+        "twr",
+        "UbRg",
+        "Trol",
+        "wxp",
+        "NzC",
+        "WXP3",
+        "BRN2",
+        "rhw"
+      ]
+    },
+    "blacklist": {
+      "alliance": []
+    }
+  },
+  "templates": {
+    "left_bracket": {
+      "path": "templates/left_bracket.png",
+      "threshold": 0.75
+    },
+    "right_bracket": {
+      "path": "templates/right_bracket.png",
+      "threshold": 0.75
+    },
+    "accept": {
+      "path": "templates/accept.png",
+      "threshold": 0.6
+    },
+    "reject": {
+      "path": "templates/reject.png",
+      "threshold": 0.6
+    },
+    "confirm": {
+      "path": "templates/confirm.png",
+      "threshold": 0.6
+    },
+    "help": {
+      "path": "templates/help.png",
+      "threshold": 0.8
+    },
+    "home": {
+      "path": "templates/home.png",
+      "threshold": 0.8
+    },
+    "alliance": {
+      "path": "templates/alliance.png",
+      "threshold": 0.55
+    },
+    "alliance_tech_icon": {
+      "path": "templates/alliance_tech_icon.png",
+      "threshold": 0.55
+    },
+    "recommended_flag": {
+      "path": "templates/recommended_flag.png",
+      "threshold": 0.55
+    },
+    "donate_button": {
+      "path": "templates/donate_button.png",
+      "threshold": 0.55
+    },
+    "president": {
+      "path": "templates/president.png",
+      "threshold": 0.4
+    },
+    "list": {
+      "path": "templates/list.png",
+      "threshold": 0.6
+    },
+    "strategy": {
+      "path": "templates/strategy.png",
+      "threshold": 0.8
+    },
+    "security": {
+      "path": "templates/security.png",
+      "threshold": 0.8
+    },
+    "development": {
+      "path": "templates/development.png",
+      "threshold": 0.8
+    },
+    "science": {
+      "path": "templates/science.png",
+      "threshold": 0.8
+    },
+    "interior": {
+      "path": "templates/interior.png",
+      "threshold": 0.8
+    },
+    "awesome": {
+      "path": "templates/awesome.png",
+      "threshold": 0.75
+    },
+    "secret_task": {
+      "path": "templates/secret_task.png",
+      "threshold": 0.75
+    },
+    "dig": {
+      "path": "templates/dig.png",
+      "threshold": 0.75
+    },
+    "hidden_treasures": {
+      "path": "templates/hidden_treasures_tab.png",
+      "threshold": 0.75
+    },
+    "hidden_treasures_exchange": {
+      "path": "templates/hidden_treasures_exchange.png",
+      "threshold": 0.75
+    },
+    "hidden_treasures_start_exchange": {
+      "path": "templates/hidden_treasures_start_exchange.png",
+      "threshold": 0.75
+    },
+    "hidden_treasures_allies_exchange": {
+      "path": "templates/hidden_treasures_allies_exchange.png",
+      "threshold": 0.75
+    },
+    "hidden_treasures_confirm_exchange": {
+      "path": "templates/hidden_treasures_confirm_exchange.png",
+      "threshold": 0.75
+    }
+  },
+  "discord": {
+    "bot_name": "Tina\ubd07",
+    "dig_notification": {
+      "content": "<:digEmote:1305924160949846106> **NEW DIG / \uc0c8\ub85c\uc6b4 \ubc1c\uad74**",
+      "embed_title": ":zap: Action Required / \uc870\uce58 \ud544\uc694",
+      "embed_value": ":flag_us: A new dig has been posted! Get digging!\n:flag_kr: \uc0c8\ub85c\uc6b4 \ubc1c\uad74\uc774 \uac8c\uc2dc\ub418\uc5c8\uc2b5\ub2c8\ub2e4! \ubc1c\uad74\uc744 \uc2dc\uc791\ud558\uc138\uc694!",
+      "embed_color": "0xFF0000"
     }
   }
 }

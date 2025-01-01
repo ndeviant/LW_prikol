@@ -14,6 +14,8 @@ An automation tool for managing game tasks efficiently, including secretary mana
 - Log rotation with size limits
 - Alliance whitelist filtering
 - Scheduled event automation
+- Map exchange automation
+- Dig checking system
 
 ## Setup
 
@@ -39,7 +41,11 @@ An automation tool for managing game tasks efficiently, including secretary mana
      sudo apt-get install tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-kor tesseract-ocr-jpn tesseract-ocr-rus tesseract-ocr-ara tesseract-ocr-tha
      ```
 4. Connect your device via ADB
-5. Configure your settings in `config/game_config.json`
+5. Configure your settings in `config/game_config.json` and `config/automation.json`
+6. Create a `.env` file in the root directory with your Discord webhook:
+   ```
+   DISCORD_WEBHOOK_URL=your_webhook_url_here
+   ```
 
 ## Configuration
 
@@ -55,9 +61,103 @@ An automation tool for managing game tasks efficiently, including secretary mana
   "collect_resources_interval": 300,  // Seconds between resource collections
   "donate_alliance_interval": null,   // Seconds between alliance donations (null to disable)
   "screenshot_quality": 100,      // Quality of captured screenshots
-  "match_threshold": 0.8         // Confidence threshold for template matching
+  "match_threshold": 0.8,         // Confidence threshold for template matching
+  "timings": {
+    "menu_animation": 1.5         // Delay for menu animations
+  },
+  "discord": {
+    "dig_notification": {
+      "content": "🏴‍☠️ **Dig Notification!**\nA new dig location has been discovered on the map.",
+      "embed_color": "0xFF0000",
+      "embed_title": "Action Required",
+      "embed_value": "Check the map for new dig locations!"
+    }
+  }
 }
 ```
+
+### Automation Config (`config/automation.json`)
+
+This file controls all automation routines and their scheduling. Each routine can be configured with:
+- `handler`: The Python class that implements the routine
+- `interval`: Time in seconds between routine executions (for time-based checks)
+- `schedule`: Specific schedule for routines that run at fixed times (for scheduled events)
+
+Example:
+```json
+{
+  "time_checks": {
+    "routine_name": {
+      "handler": "src.automation.routines.RoutineClass",
+      "interval": 300
+    }
+  },
+  "scheduled_events": {
+    "event_name": {
+      "handler": "src.automation.routines.EventClass",
+      "schedule": {
+        "day": "sunday",
+        "time": "01:50"
+      }
+    }
+  }
+}
+```
+
+## Available Routines
+
+The following routines are available for automation:
+
+1. **Secretary Management** (`secretary`)
+   - Handles secretary-related tasks
+   - Interval: 30 seconds
+   - Filters alliance tags and manages resources
+
+2. **Alliance Donations** (`donate`)
+   - Manages alliance donations
+   - Interval: 25000 seconds
+   - Automatically handles resource distribution
+
+3. **Help Detection** (`help`)
+   - Monitors and clicks help buttons
+   - Interval: 10 seconds
+   - Provides alliance support
+
+4. **Map Exchange** (`mapExchange`)
+   - Handles map exchange activities
+   - Interval: 300 seconds
+   - Manages map-related resources
+
+5. **Dig Checking** (`dig`)
+   - Monitors for dig opportunities
+   - Interval: 10 seconds
+   - Automates dig-related activities
+
+6. **Cleanup** (`cleanup`)
+   - Manages temporary files and resources
+   - Interval: 3600 seconds (1 hour)
+   - Prevents disk space issues
+
+7. **Reset** (`reset`)
+   - Handles game reset procedures
+   - Interval: 2700 seconds
+   - Maintains game state
+
+8. **Weekly Reset** (`weekly_reset`)
+   - Scheduled event for weekly resets
+   - Runs every Sunday at 01:50
+   - Handles weekly maintenance tasks
+
+### Managing Routines
+
+To enable or disable routines:
+1. Open `config/automation.json`
+2. To disable a routine:
+   - Remove its entry from the configuration
+   - Or set its interval to `null`
+3. To enable a routine:
+   - Add its configuration under `time_checks` or `scheduled_events`
+   - Specify the handler path and desired interval/schedule
 
 ### Positions Config (`config/positions.json`)
 
@@ -81,12 +181,15 @@ python cli.py
 ```
 ├── config/
 │   ├── game_config.json     # Main configuration
+│   ├── automation.json      # Routine configuration
 │   ├── positions.json       # Screen coordinates
 │   └── templates/           # Template images
 ├── src/
 │   ├── core/               # Core functionality
 │   ├── game/               # Game-specific logic
-│   └── utils/              # Utility functions
+│   ├── automation/         # Automation routines
+│   │   └── routines/      # Individual routine implementations
+│   └── utils/             # Utility functions
 ├── logs/                   # Log files (rotated, max 10MB each)
 └── tmp/                    # Temporary files (auto-cleaned)
 ```
@@ -97,6 +200,7 @@ Logs are stored in the `logs/` directory with automatic rotation:
 - Maximum file size: 10MB
 - Keeps last 5 backup files
 - Automatically rotates when size limit is reached
+- Includes detailed routine execution information
 
 ## Cleanup
 
@@ -112,6 +216,7 @@ The automation includes robust error handling:
 - Automatic recovery from disconnections
 - Smart retries for failed actions
 - Comprehensive logging for debugging
+- Routine-specific error recovery mechanisms
 
 ## Contributing
 

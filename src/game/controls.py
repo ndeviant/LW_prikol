@@ -2,10 +2,10 @@
 
 import time
 import random
-from typing import Tuple
+from src.core.image_processing import find_and_tap_template, find_template
 from src.core.logging import app_logger
 from src.core.device import get_screen_size
-from src.core.adb import swipe_screen, tap_screen, long_press_screen
+from src.core.adb import force_stop_package, launch_package, press_back, swipe_screen, tap_screen, long_press_screen
 from src.core.config import CONFIG
 
 def human_delay(delay: float):
@@ -15,7 +15,6 @@ def human_delay(delay: float):
 def handle_swipes(device_id: str, direction: str = "up", num_swipes: int = 8) -> None:
     """Handle scrolling with swipes"""
     width, height = get_screen_size(device_id)
-    app_logger.info(f"Scrolling {direction} in list ({num_swipes} swipes)...")
     
     swipe_cfg = CONFIG['ui_elements']['swipe']
     variance_pct = float(CONFIG['randomization']['swipe_variance']['position'].strip('%')) / 100
@@ -92,3 +91,51 @@ def humanized_long_press(device_id: str, x: int, y: int, duration: float = 1.0, 
     except Exception as e:
         app_logger.error(f"Error performing humanized long press: {e}")
         return False
+ 
+def launch_game(device_id: str):
+    """Launch the game"""
+    force_stop_package(device_id, CONFIG['package_name'])
+    time.sleep(CONFIG['timings']['app_close_wait'])
+    launch_package(device_id, CONFIG['package_name'])
+    
+    # Wait for home icon with timeout
+    find_and_tap_template(
+        device_id,
+        "home",
+        error_msg="Could not find home icon after launch",
+        critical=True,
+        timeout=CONFIG['timings']['launch_wait']
+    )
+
+def navigate_home(device_id: str, force: bool = False) -> bool:
+    """Navigate to home screen"""
+    try:
+        # Check if already at home
+        if not force:
+            home_loc = find_template(device_id, "home")
+            if home_loc:
+                app_logger.debug("Already at home screen")
+                return True
+            
+        # Press back until we find home screen
+        max_attempts = CONFIG.get('max_home_attempts', 10)
+        for attempt in range(max_attempts):
+            app_logger.debug(f"Attempting to find home screen ({attempt + 1}/{max_attempts})")
+            
+            # Take screenshot and look for home
+            home_loc = find_template(device_id, "home")
+            if home_loc:
+                app_logger.debug("Found home screen")
+                return True
+                
+            # Not found, press back and wait
+            press_back(device_id)
+            human_delay(CONFIG['timings']['menu_animation'])
+            
+        app_logger.error("Failed to find home screen after maximum attempts")
+        return False
+        
+    except Exception as e:
+        app_logger.error(f"Error navigating home: {e}")
+        return False
+   

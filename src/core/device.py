@@ -6,34 +6,48 @@ from .logging import app_logger
 from pathlib import Path
 
 def take_screenshot(device_id: str) -> bool:
-    """Take a screenshot and save it as screen.png"""
+    """Take screenshot and pull to local tmp directory"""
     try:
-        result = subprocess.run(
-            f"adb -s {device_id} exec-out screencap -p > tmp/screen.png",
-            shell=True
-        )
-        return result.returncode == 0
+        ensure_dir("tmp")
+        
+        # Take screenshot on device
+        cmd = f"adb -s {device_id} shell screencap -p /sdcard/screen.png"
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            app_logger.error(f"Failed to take screenshot: {result.stderr}")
+            return False
+            
+        # Pull screenshot to local tmp directory
+        cmd = f"adb -s {device_id} pull /sdcard/screen.png tmp/screen.png"
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            app_logger.error(f"Failed to pull screenshot: {result.stderr}")
+            return False
+            
+        # Clean up device screenshot
+        cleanup_device_screenshots(device_id)
+        return True
+        
     except Exception as e:
         app_logger.error(f"Error taking screenshot: {e}")
         return False
 
 def get_screen_size(device_id: str) -> Tuple[int, int]:
-    """Get device screen size"""
+    """Get screen size from device"""
     try:
         cmd = f"adb -s {device_id} shell wm size"
         result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode == 0:
-            # Parse output like "Physical size: 1080x2400"
-            size = result.stdout.strip().split(": ")[1]
-            width, height = map(int, size.split("x"))
-            return width, height
-        else:
-            app_logger.error(f"Error getting screen size: {result.stderr}")
-            return 540, 960  # Default size
+        if result.returncode != 0:
+            app_logger.error(f"Failed to get screen size: {result.stderr}")
+            return (1920, 1080)  # Default fallback
             
+        # Parse output like "Physical size: 1920x1080"
+        size = result.stdout.strip().split(": ")[1].split("x")
+        return (int(size[0]), int(size[1]))
+        
     except Exception as e:
         app_logger.error(f"Error getting screen size: {e}")
-        return 540, 960  # Default size 
+        return (1920, 1080)  # Default fallback
 
 def cleanup_device_screenshots(device_id: str) -> None:
     """Clean up screenshots from device"""
@@ -52,14 +66,17 @@ def cleanup_temp_files() -> None:
     try:
         files = Path("tmp").glob("*.png")
         for f in files:
-            #f.unlink()
-            app_logger.debug(f"Cleaned up temporary file: {f}")
+            try:
+                f.unlink()
+                app_logger.debug(f"Cleaned up temporary file: {f}")
+            except Exception as e:
+                app_logger.warning(f"Failed to delete {f}: {e}")
         app_logger.debug("Cleaned up temporary files")
     except Exception as e:
         app_logger.error(f"Error cleaning temporary files: {e}")
 
 def cleanup(device_id: str) -> None:
-    """Cleanup device"""
+    """Cleanup device and local temp files"""
     cleanup_device_screenshots(device_id)
     cleanup_temp_files()
 
