@@ -227,7 +227,7 @@ class MainAutomation:
                 current_app = get_current_running_app(self.device_id)
                 if current_app != CONFIG['package_name']:
                     app_logger.info("Game not running, launching...")
-                    launch_game(self.device_id)
+                    launch_game(self.device_id, True)
                     time.sleep(CONFIG['timings']['launch_wait'])
                 
                 # Try to navigate home
