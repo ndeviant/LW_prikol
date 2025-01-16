@@ -14,10 +14,7 @@ class ResetRoutine(TimeCheckRoutine):
     def _execute_internal(self) -> bool:
         app_logger.info("Launching game")
         launch_game(self.device_id)
-        app_logger.info(f"Waiting for {CONFIG['timings']['launch_wait']} seconds")
-
-        time.sleep(CONFIG['timings']['launch_wait'])
-        
+        navigate_home(self.device_id, force=True)
         retry_count = 0
         while retry_count < 3:
             if navigate_home(self.device_id, force=True):

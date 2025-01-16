@@ -2,7 +2,7 @@
 
 import time
 import random
-from src.core.image_processing import find_and_tap_template, find_template
+from src.core.image_processing import find_and_tap_template, find_template, wait_for_image
 from src.core.logging import app_logger
 from src.core.device import get_screen_size
 from src.core.adb import force_stop_package, launch_package, press_back, swipe_screen, tap_screen, long_press_screen
@@ -99,13 +99,14 @@ def launch_game(device_id: str):
     launch_package(device_id, CONFIG['package_name'])
     
     # Wait for home icon with timeout
-    find_and_tap_template(
+    if not wait_for_image(
         device_id,
         "home",
-        error_msg="Could not find home icon after launch",
-        critical=True,
         timeout=CONFIG['timings']['launch_wait']
-    )
+    ):
+        app_logger.error("Could not find home icon after launch")
+        return False
+    return True
 
 def navigate_home(device_id: str, force: bool = False) -> bool:
     """Navigate to home screen"""

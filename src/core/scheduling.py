@@ -40,7 +40,8 @@ def update_schedule(events: dict[str, ScheduledEvent], current_time: float) -> d
         app_logger.debug(f"Checking schedule for {event_name}")
         app_logger.debug(f"Current day: {current_day}, Event day: {event['day']}")
         
-        if current_day == event["day"].lower():
+        # Check if day matches or if no specific day is required
+        if event["day"] is not None and current_day == event["day"].lower():
             if event["last_check"] is not None:
                 last_check_dt = datetime.utcfromtimestamp(event["last_check"])
                 if last_check_dt.date() == current_dt.date():

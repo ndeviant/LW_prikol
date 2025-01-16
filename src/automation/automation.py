@@ -69,12 +69,12 @@ class MainAutomation:
         # Use config order, not state order
         for check_name, check_data in config.items():
             last_run = self.state.get_last_run(check_name, "time_checks")
-            checks[check_name] = OrderedDict({
+            checks[check_name] = {
                 "last_run": last_run,
                 "time_to_check": check_data["interval"],
                 "handler": check_data["handler"],
                 "needs_check": True  # Force initial check
-            })
+            }
         return checks
 
     def initialize_scheduled_events(self, config: Dict[str, Any]) -> Dict[str, Any]:
@@ -168,53 +168,66 @@ class MainAutomation:
         config = self.load_automation_config()
         return list(config.get("time_checks", {}).keys())
 
-    def run_scheduled_tasks(self):
+    def get_ordered_tasks(self) -> list[tuple[str, float, str]]:
+        """Get all tasks ordered by how overdue they are"""
         current_time = time.time()
+        tasks = []
         
-        # Run time-based checks in config order
-        ordered_checks = self.get_ordered_check_names()
-        for check_name in ordered_checks:
-            check_data = self.time_checks.get(check_name)
-            if check_data and self.needs_check(check_name):
-                handler = self.get_handler(check_data["handler"], check_data)
-                if not handler:
-                    # Handler failed to create, mark as not needing check
-                    check_data["needs_check"] = False
-                    continue
-                    
-                if handler.should_run():
-                    app_logger.info(f"Running {check_name} routine")
-                    success = handler.start()
-                    
-                    if success:
-                        handler.after_run()
-                        check_data["last_run"] = current_time
-                        check_data["needs_check"] = False
-                        self.state.set_last_run(check_name, current_time, "time_checks")
-                        self.state.save()
-                    else:
-                        check_data["needs_check"] = False
-                    
-        # Run scheduled events
+        # Add time-based checks
+        for check_name, check_data in self.time_checks.items():
+            if not check_data.get('needs_check', True):  # Default to True if missing
+                continue
+            
+            last_run = check_data.get('last_run') or 0
+            interval = check_data.get('time_to_check', 0)
+            overdue_time = current_time - (last_run + interval)
+            tasks.append((check_name, overdue_time, 'time_checks'))
+        
+        # Add scheduled events
         for event_name, event_data in self.scheduled_events.items():
-            if self.needs_check(event_name):
+            if not event_data.get('needs_check', True):  # Default to True if missing
+                continue
+            tasks.append((event_name, float('inf'), 'scheduled_events'))
+        
+        # Sort by overdue time (most overdue first)
+        return sorted(tasks, key=lambda x: x[1], reverse=True)
+
+    def run_scheduled_tasks(self):
+        """Run tasks in order of priority"""
+        current_time = time.time()
+        ordered_tasks = self.get_ordered_tasks()
+        
+        for task_name, _, task_type in ordered_tasks:
+            if task_type == 'time_checks':
+                check_data = self.time_checks[task_name]
+                handler = self.get_handler(check_data["handler"], check_data)
+            else:  # scheduled_events
+                event_data = self.scheduled_events[task_name]
                 handler = self.get_handler(event_data["handler"], event_data)
-                if not handler:
-                    # Handler failed to create, mark as not needing check
-                    event_data["needs_check"] = False
-                    continue
-                    
-                app_logger.info(f"Running {event_name} event")
+                
+            if not handler:
+                continue
+                
+            if handler.should_run():
+                app_logger.info(f"Running {task_name} ({task_type})")
                 success = handler.start()
                 
                 if success:
                     handler.after_run()
-                    event_data["last_run"] = current_time
-                    event_data["needs_check"] = False
-                    self.state.set_last_run(event_name, current_time, "scheduled_events")
+                    if task_type == 'time_checks':
+                        check_data["last_run"] = current_time
+                        check_data["needs_check"] = False
+                    else:
+                        event_data["last_run"] = current_time
+                        event_data["needs_check"] = False
+                        
+                    self.state.set_last_run(task_name, current_time, task_type)
                     self.state.save()
                 else:
-                    event_data["needs_check"] = False
+                    if task_type == 'time_checks':
+                        check_data["needs_check"] = False
+                    else:
+                        event_data["needs_check"] = False
 
     def verify_game_running(self) -> bool:
         """Verify game is running and at home screen, with retry logic"""
@@ -231,12 +244,13 @@ class MainAutomation:
                     time.sleep(CONFIG['timings']['launch_wait'])
                 
                 # Try to navigate home
-                if navigate_home(self.device_id):
+                if navigate_home(self.device_id, True):
                     return True
                     
                 # If navigation failed, increment retry and wait
                 retry_count += 1
-                sleep_time = base_sleep * (2 ** retry_count)
+                sleep_time = min(base_sleep * (2 ** retry_count), 600)  # Cap at 10 minutes
+                launch_game(self.device_id, True)
                 app_logger.debug(f"Navigation failed, waiting {sleep_time}s before retry {retry_count}")
                 time.sleep(sleep_time)
                 

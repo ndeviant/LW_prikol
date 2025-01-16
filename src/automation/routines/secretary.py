@@ -21,18 +21,30 @@ class SecretaryRoutine(TimeCheckRoutine):
     def __init__(self, device_id: str, interval: int, last_run: float = None):
         super().__init__(device_id, interval, last_run)
         self.secretary_types = ["strategy", "security", "development", "science", "interior"]
+        self.current_position_index = 0
         self.capture = None
         self.manual_deny = False
 
     def _execute(self) -> bool:
-        """Start secretary automation sequence"""
+        """Start secretary automation sequence for one position"""
         return self.execute_with_error_handling(self._execute_internal)
     
     def _execute_internal(self) -> bool:
-        """Internal execution logic"""
+        """Internal execution logic for one position"""
+        if self.current_position_index >= len(self.secretary_types):
+            self.current_position_index = 0
+            app_logger.info("Completed full secretary cycle")
+            return True
+
+        current_position = self.secretary_types[self.current_position_index]
+        app_logger.info(f"Processing secretary position {current_position} ({self.current_position_index + 1}/{len(self.secretary_types)})")
+        self.current_position_index += 1
+
         self.open_profile_menu(self.device_id)
         self.open_secretary_menu(self.device_id)
-        return self.process_all_secretary_positions()
+        success = self.process_secretary_position(current_position)
+
+        return success
 
     def find_accept_buttons(self) -> list[Tuple[int, int]]:
         """Find all accept buttons on the screen and sort by Y coordinate"""

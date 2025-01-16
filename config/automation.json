@@ -14,15 +14,15 @@
       },
       "help": {
         "handler": "src.automation.routines.help.HelpRoutine",
-        "interval": 10
+        "interval": 5
       },
       "dig": {
         "handler": "src.automation.routines.checkForDigs.CheckForDigsRoutine",
-        "interval": 10
+        "interval": 5
       },
       "secretary": {
         "handler": "src.automation.routines.secretary.SecretaryRoutine",
-        "interval": 30
+        "interval": 20
       },
       "mapExchange": {
         "handler": "src.automation.routines.mapExchange.MapExchangeRoutine",
@@ -33,7 +33,7 @@
       "weekly_reset": {
         "handler": "src.automation.routines.weeklyReset.WeeklyResetRoutine",
         "schedule": {
-          "day": "sunday",
+          "day": null,
           "time": "01:50"
         }
       }
