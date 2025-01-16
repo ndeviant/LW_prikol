@@ -209,6 +209,10 @@
     "hidden_treasures_confirm_exchange": {
       "path": "templates/hidden_treasures_confirm_exchange.png",
       "threshold": 0.75
+    },
+    "has_applicant": {
+      "path": "templates/secretary/hasApplicant.png",
+      "threshold": 0.75
     }
   },
   "discord": {

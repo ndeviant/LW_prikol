@@ -240,7 +240,7 @@ class MainAutomation:
                 current_app = get_current_running_app(self.device_id)
                 if current_app != CONFIG['package_name']:
                     app_logger.info("Game not running, launching...")
-                    launch_game(self.device_id, True)
+                    launch_game(self.device_id)
                     time.sleep(CONFIG['timings']['launch_wait'])
                 
                 # Try to navigate home
@@ -250,7 +250,7 @@ class MainAutomation:
                 # If navigation failed, increment retry and wait
                 retry_count += 1
                 sleep_time = min(base_sleep * (2 ** retry_count), 600)  # Cap at 10 minutes
-                launch_game(self.device_id, True)
+                launch_game(self.device_id)
                 app_logger.debug(f"Navigation failed, waiting {sleep_time}s before retry {retry_count}")
                 time.sleep(sleep_time)
                 

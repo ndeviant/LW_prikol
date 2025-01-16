@@ -22,7 +22,7 @@
       },
       "secretary": {
         "handler": "src.automation.routines.secretary.SecretaryRoutine",
-        "interval": 20
+        "interval": 40
       },
       "mapExchange": {
         "handler": "src.automation.routines.mapExchange.MapExchangeRoutine",

@@ -21,30 +21,18 @@ class SecretaryRoutine(TimeCheckRoutine):
     def __init__(self, device_id: str, interval: int, last_run: float = None):
         super().__init__(device_id, interval, last_run)
         self.secretary_types = ["strategy", "security", "development", "science", "interior"]
-        self.current_position_index = 0
         self.capture = None
         self.manual_deny = False
 
     def _execute(self) -> bool:
-        """Start secretary automation sequence for one position"""
+        """Start secretary automation sequence"""
         return self.execute_with_error_handling(self._execute_internal)
     
     def _execute_internal(self) -> bool:
-        """Internal execution logic for one position"""
-        if self.current_position_index >= len(self.secretary_types):
-            self.current_position_index = 0
-            app_logger.info("Completed full secretary cycle")
-            return True
-
-        current_position = self.secretary_types[self.current_position_index]
-        app_logger.info(f"Processing secretary position {current_position} ({self.current_position_index + 1}/{len(self.secretary_types)})")
-        self.current_position_index += 1
-
+        """Internal execution logic"""
         self.open_profile_menu(self.device_id)
         self.open_secretary_menu(self.device_id)
-        success = self.process_secretary_position(current_position)
-
-        return success
+        return self.process_all_secretary_positions()
 
     def find_accept_buttons(self) -> list[Tuple[int, int]]:
         """Find all accept buttons on the screen and sort by Y coordinate"""
@@ -287,9 +275,66 @@ class SecretaryRoutine(TimeCheckRoutine):
                 return False
             return True
         
+    def find_positions_with_applicants(self) -> list[str]:
+        """Find all secretary positions that have applicants"""
+        try:
+            positions_to_process = []
+            
+            # Find all secretary positions
+            all_positions = {}
+            for position_type in self.secretary_types:
+                positions = find_all_templates(
+                    self.device_id,
+                    position_type
+                )
+                if positions:
+                    all_positions[position_type] = positions[0]  # Take first match for each type
+                    app_logger.debug(f"Found {position_type} position at ({positions[0][0]}, {positions[0][1]})")
+            # Find all applicant icons
+            applicant_locations = find_all_templates(
+                self.device_id,
+                "has_applicant"
+            )
+            
+            print(applicant_locations)
+
+            if not applicant_locations:
+                app_logger.debug("No applicant icons found")
+                return []
+            
+            app_logger.debug(f"Found {len(applicant_locations)} applicant icons:")
+            for i, (x, y) in enumerate(applicant_locations):
+                app_logger.debug(f"  Applicant {i+1}: ({x}, {y})")
+            
+            # For each position, check if there's an applicant icon nearby
+            for position_type, pos_loc in all_positions.items():
+                pos_x, pos_y = pos_loc
+                
+                # Check each applicant icon
+                for app_x, app_y in applicant_locations:
+                    x_diff = app_x - pos_x
+                    y_diff = app_y - pos_y
+                    # Check if applicant icon is within 100 pixels horizontally and 25 pixels vertically
+                    if abs(x_diff) <= 100 and abs(y_diff) <= 25:
+                        positions_to_process.append(position_type)
+                        app_logger.info(f"Found applicant for {position_type} position (x_diff={x_diff}, y_diff={y_diff})")
+                        break
+            
+            return positions_to_process
+            
+        except Exception as e:
+            app_logger.error(f"Error finding positions with applicants: {e}")
+            return []
+
     def process_all_secretary_positions(self) -> bool:
-        """Process all secretary positions"""
-        for name in self.secretary_types:
+        """Process all secretary positions that have applicants"""
+        positions_to_process = self.find_positions_with_applicants()
+        
+        if not positions_to_process:
+            app_logger.info("No positions with applicants found")
+            return True
+        
+        for name in positions_to_process:
             if not self.process_secretary_position(name):
                 return False
         return True
