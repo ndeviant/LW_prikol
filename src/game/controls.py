@@ -102,10 +102,16 @@ def launch_game(device_id: str):
     if not wait_for_image(
         device_id,
         "home",
-        timeout=CONFIG['timings']['launch_wait']
+        timeout=CONFIG['timings']['launch_max_wait']
     ):
         app_logger.error("Could not find home icon after launch")
         return False
+
+    # Wait for home screen to load
+    app_logger.debug("Waiting for home screen to load")
+    time.sleep(CONFIG['timings']['launch_wait'])
+
+    navigate_home(device_id, True)
     return True
 
 def navigate_home(device_id: str, force: bool = False) -> bool:
@@ -121,16 +127,21 @@ def navigate_home(device_id: str, force: bool = False) -> bool:
         # Press back until we find home screen
         max_attempts = CONFIG.get('max_home_attempts', 10)
         for attempt in range(max_attempts):
-            app_logger.debug(f"Attempting to find home screen ({attempt + 1}/{max_attempts})")
+            # Not found, press back and wait
+            press_back(device_id)
+            human_delay(CONFIG['timings']['menu_animation'])
             
             # Take screenshot and look for home
-            home_loc = find_template(device_id, "home")
-            if home_loc:
-                app_logger.debug("Found home screen")
+            quit_loc = find_template(device_id, "quit")
+            if quit_loc:
+                app_logger.debug("Found quit button")
+
+                # Press back again to get to home
+                press_back(device_id)
+                human_delay(CONFIG['timings']['menu_animation'])
                 return True
                 
             # Not found, press back and wait
-            press_back(device_id)
             human_delay(CONFIG['timings']['menu_animation'])
             
         app_logger.error("Failed to find home screen after maximum attempts")

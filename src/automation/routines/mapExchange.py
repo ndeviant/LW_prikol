@@ -1,7 +1,6 @@
 from src.automation.routines import TimeCheckRoutine
 from src.core.image_processing import find_all_templates, find_and_tap_template
 from src.game.controls import humanized_tap
-from src.core.config import CONFIG
 from src.core.logging import app_logger
 from typing import Optional
 
@@ -19,6 +18,8 @@ class MapExchangeRoutine(TimeCheckRoutine):
         return self.exchange_maps()
 
     def navigate(self) -> bool:
+        self.automation.game_state["is_home"] = False
+
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
         if not find_and_tap_template(

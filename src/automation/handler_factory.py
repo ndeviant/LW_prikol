@@ -13,7 +13,8 @@ class HandlerFactory:
         self, 
         handler_path: str, 
         device_id: str, 
-        config: Dict[str, Any]
+        config: Dict[str, Any],
+        automation=None
     ) -> Optional[RoutineBase]:
         """
         Create a handler instance from a path string
@@ -21,6 +22,7 @@ class HandlerFactory:
             handler_path: Path to handler class (e.g. "src.automation.routines.help.HelpRoutine")
             device_id: Device ID to pass to handler
             config: Configuration data for the handler
+            automation: Automation instance to pass to handler
         Returns:
             Instance of handler class or None if creation fails
         """
@@ -53,7 +55,12 @@ class HandlerFactory:
                     if k not in excluded_keys
                 }
                 
-                handler = handler_class(device_id, interval, **init_params)
+                handler = handler_class(
+                    device_id,
+                    interval,
+                    automation=automation,
+                    **init_params
+                )
                 
                 # Set last_check from saved state if available
                 if "last_check" in config:
@@ -63,7 +70,7 @@ class HandlerFactory:
                 
             else:
                 # Regular automation just needs device_id
-                handler = handler_class(device_id)
+                handler = handler_class(device_id, automation=automation)
                 
                 return handler
                 

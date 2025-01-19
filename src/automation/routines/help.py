@@ -1,7 +1,5 @@
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.image_processing import find_and_tap_template
-from src.core.logging import app_logger
-from src.core.config import CONFIG
 
 class HelpRoutine(TimeCheckRoutine):
     def _execute(self) -> bool:

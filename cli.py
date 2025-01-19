@@ -48,11 +48,15 @@ def run_single_routine(device_id: str, routine_name: str) -> bool:
             app_logger.error(f"Routine {routine_name} not found in config")
             return False
             
+        # Create automation instance
+        automation = MainAutomation(device_id)
+        
         handler_factory = HandlerFactory()
         handler = handler_factory.create_handler(
             routine_config["handler"],
             device_id,
-            {"interval": routine_config["interval"]}
+            {"interval": routine_config["interval"]},
+            automation=automation  # Pass the automation instance
         )
         
         if handler:

@@ -1,5 +1,4 @@
 from src.automation.routines import TimeCheckRoutine
-from src.core.logging import app_logger
 from src.core.device import cleanup_temp_files, cleanup_device_screenshots
 
 class CleanupRoutine(TimeCheckRoutine):

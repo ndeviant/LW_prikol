@@ -8,9 +8,10 @@ from src.game.controls import navigate_home
 
 class RoutineBase(ABC):
     """Base class for all automation routines"""
-    
-    def __init__(self, device_id: str) -> None:
+
+    def __init__(self, device_id: str, automation=None) -> None:
         self.device_id = device_id
+        self.automation = automation
         
     @abstractmethod
     def _execute(self) -> bool:
@@ -20,9 +21,11 @@ class RoutineBase(ABC):
     def start(self) -> bool:
         """Start the automation sequence with home navigation"""
         try:
-            if not navigate_home(self.device_id):
-                app_logger.error("Failed to navigate home before routine")
-                return False
+            if not self.automation.game_state["is_home"]:
+                if not navigate_home(self.device_id, True):
+                    app_logger.error("Failed to navigate home after clearing dig")
+                    return False
+            self.automation.game_state["is_home"] = True
             return self._execute()
         except Exception as e:
             app_logger.error(f"Error in routine execution: {e}")
@@ -47,23 +50,21 @@ class RoutineBase(ABC):
         pass
 
 class TimeCheckRoutine(RoutineBase):
-    """Base class for interval-based checks"""
+    """Base class for time-based check routines"""
     
-    def __init__(self, device_id: str, interval: int, last_run: float = None, **kwargs):
-        super().__init__(device_id)
+    def __init__(self, device_id: str, interval: int, last_run: float = None, automation=None) -> None:
+        super().__init__(device_id, automation)
         self.interval = interval
-        self.last_run = last_run
-        # Store any additional kwargs as instance attributes
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+        self._last_run = last_run or 0
+        self.automation = automation
         
     def should_run(self) -> bool:
-        if self.last_run is None:
+        if self._last_run is None:
             return True
-        return time.time() - self.last_run >= self.interval
+        return time.time() - self._last_run >= self.interval
         
     def after_run(self) -> None:
-        self.last_run = time.time()
+        self._last_run = time.time()
 
 class DailyRoutine(RoutineBase):
     """Base class for daily scheduled routines"""

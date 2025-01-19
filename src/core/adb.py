@@ -4,6 +4,9 @@ import subprocess
 from typing import List, Optional
 from .logging import app_logger
 import re
+import time
+import socket
+import telnetlib
 
 def get_device_list() -> List[str]:
     """Get list of connected devices"""
@@ -134,3 +137,54 @@ def get_screen_size(device_id: str) -> tuple[int, int]:
         raise ValueError("Could not parse screen size")
     except Exception as e:
         raise RuntimeError(f"Failed to get screen size: {e}")
+    
+def simulate_shake(device_id: str, duration_ms: int = 1000) -> bool:
+    """Simulate device shake using appropriate method for emulator or real device
+    
+    Args:
+        device_id: The device identifier
+        duration_ms: Duration of shake in milliseconds (default 1000ms)
+    
+    Returns:
+        bool: True if shake simulation succeeded, False otherwise
+    """
+    try:
+        # Check if device is an emulator
+        app_logger.debug("Using emulator shake simulation")
+        
+        # Different shake patterns
+        shake_patterns = [
+            # Strong side shake
+            ("100:0:9.81", "-100:0:9.81"),
+            # Strong up/down shake
+            ("0:100:9.81", "0:-100:9.81"),
+            # Diagonal shake
+            ("100:100:9.81", "-100:-100:9.81"),
+            # Very strong shake
+            ("200:200:9.81", "-200:-200:9.81"),
+        ]
+        
+        for pattern in shake_patterns:
+            app_logger.info(f"Trying shake pattern: {pattern}")
+            
+            for values in pattern:
+                # Use the full adb shell command instead of emu
+                cmd = f'adb -s {device_id} shell "setprop debug.sensors.accelerometer.x {values.split(":")[0]};' \
+                      f'setprop debug.sensors.accelerometer.y {values.split(":")[1]};' \
+                      f'setprop debug.sensors.accelerometer.z {values.split(":")[2]}"'
+                app_logger.debug(f"Executing: {cmd}")
+                subprocess.run(cmd, shell=True)
+                time.sleep(0.1)
+                
+            # Reset to normal
+            cmd = f'adb -s {device_id} shell "setprop debug.sensors.accelerometer.x 0;' \
+                  f'setprop debug.sensors.accelerometer.y 0;' \
+                  f'setprop debug.sensors.accelerometer.z 9.81"'
+            subprocess.run(cmd, shell=True)
+            time.sleep(0.2)
+            
+        return True
+            
+    except Exception as e:
+        app_logger.error(f"Error simulating shake: {e}")
+        return False

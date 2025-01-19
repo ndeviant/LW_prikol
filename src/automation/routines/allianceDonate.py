@@ -2,12 +2,15 @@ from src.automation.routines import TimeCheckRoutine
 from src.core.image_processing import find_and_tap_template
 
 class AllianceDonateRoutine(TimeCheckRoutine):
+    force_home: bool = True
 
     def _execute(self) -> bool:
         """Execute alliance donation sequence"""
         return self.execute_with_error_handling(self.navigate_and_donate)
 
     def navigate_and_donate(self) -> bool:
+        self.automation.game_state["is_home"] = False
+
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
         if not find_and_tap_template(

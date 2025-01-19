@@ -4,6 +4,7 @@ import subprocess
 from typing import Optional, Tuple
 from .logging import app_logger
 from pathlib import Path
+import shutil
 
 def take_screenshot(device_id: str) -> bool:
     """Take screenshot and pull to local tmp directory"""
@@ -64,14 +65,25 @@ def cleanup_device_screenshots(device_id: str) -> None:
 def cleanup_temp_files() -> None:
     """Clean up temporary files"""
     try:
-        files = Path("tmp").glob("*.png")
-        for f in files:
+        # Remove entire tmp directory and its contents recursively
+        tmp_dir = Path("tmp")
+        if tmp_dir.exists():
+            for item in tmp_dir.iterdir():
+                try:
+                    if item.is_file():
+                        item.unlink()
+                        app_logger.debug(f"Cleaned up temporary file: {item}")
+                    elif item.is_dir():
+                        shutil.rmtree(item, ignore_errors=True)
+                        app_logger.debug(f"Cleaned up temporary directory: {item}")
+                except Exception as e:
+                    app_logger.warning(f"Failed to delete {item}: {e}")
+            
             try:
-                f.unlink()
-                app_logger.debug(f"Cleaned up temporary file: {f}")
+                tmp_dir.rmdir()
+                app_logger.debug("Cleaned up main temporary directory")
             except Exception as e:
-                app_logger.warning(f"Failed to delete {f}: {e}")
-        app_logger.debug("Cleaned up temporary files")
+                app_logger.warning(f"Failed to delete tmp directory: {e}")
     except Exception as e:
         app_logger.error(f"Error cleaning temporary files: {e}")
 

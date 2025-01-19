@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 from src.automation.routines.routineBase import RoutineBase
 from src.core.config import CONFIG
-from src.core.image_processing import find_template
 from src.core.logging import app_logger
 from src.core.scheduling import update_interval_check, update_schedule
 from src.core.adb import get_current_running_app
@@ -23,6 +22,7 @@ class MainAutomation:
         self.scheduled_events = self.initialize_scheduled_events(config.get('scheduled_events', {}))
         self.handlers = {}
         self.handler_factory = HandlerFactory()
+        self.game_state = {"is_home": False}
         
     def cleanup(self):
         """Cleanup resources"""
@@ -92,7 +92,12 @@ class MainAutomation:
     def get_handler(self, handler_path: str, config: Dict[str, Any] = None) -> Optional[RoutineBase]:
         """Get or create a handler instance"""
         if handler_path not in self.handlers:
-            handler = self.handler_factory.create_handler(handler_path, self.device_id, config or {})
+            handler = self.handler_factory.create_handler(
+                handler_path, 
+                self.device_id, 
+                config or {},
+                automation=self  # Pass self reference to the handler
+            )
             if handler:
                 self.handlers[handler_path] = handler
                 
@@ -238,21 +243,17 @@ class MainAutomation:
             while retry_count < CONFIG['max_home_attempts']:
                 # Check if game is running first
                 current_app = get_current_running_app(self.device_id)
-                if current_app != CONFIG['package_name']:
-                    app_logger.info("Game not running, launching...")
-                    launch_game(self.device_id)
-                    time.sleep(CONFIG['timings']['launch_wait'])
-                
-                # Try to navigate home
-                if navigate_home(self.device_id, True):
+                if current_app == CONFIG['package_name']:
                     return True
-                    
+                
+                app_logger.info("Game is not running, launching game")
                 # If navigation failed, increment retry and wait
                 retry_count += 1
                 sleep_time = min(base_sleep * (2 ** retry_count), 600)  # Cap at 10 minutes
-                launch_game(self.device_id)
+                
                 app_logger.debug(f"Navigation failed, waiting {sleep_time}s before retry {retry_count}")
                 time.sleep(sleep_time)
+                launch_game(self.device_id)
                 
             app_logger.error("Failed to verify game is running after maximum attempts")
             return False

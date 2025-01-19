@@ -195,7 +195,9 @@ def extract_text_from_region(device_id: str, region: Tuple[int, int, int, int], 
             f'-c tessedit_char_whitelist={ALLIANCE_CHARS}[] '
             '-c tessedit_write_images=1 '
             '-c textord_min_linesize=2 '
-            '-c edges_max_children_per_outline=40'
+            '-c edges_max_children_per_outline=40 '
+            '-c classify_bln_numeric_mode=1 '  # Enable numeric mode
+            '-c tessedit_prefer_number_over_letter=1'  # Prefer numbers when ambiguous
         )
         text = pytesseract.image_to_string(binary, lang=languages, config=config).strip()
         original_text = text

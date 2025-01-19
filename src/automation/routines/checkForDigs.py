@@ -2,15 +2,15 @@ from src.automation.routines import TimeCheckRoutine
 from src.core.logging import app_logger
 from src.core.config import CONFIG
 from src.core.image_processing import find_and_tap_template
-from src.game.controls import navigate_home, human_delay
 from src.core.discord_bot import DiscordNotifier
 from discord import Embed
 import asyncio
 import os
 
 class CheckForDigsRoutine(TimeCheckRoutine):
-    def __init__(self, device_id: str, interval: int, last_run: float = None):
-        super().__init__(device_id, interval, last_run)
+    
+    def __init__(self, device_id: str, interval: int, last_run: float = None, automation=None):
+        super().__init__(device_id, interval, last_run, automation)
         self.discord = DiscordNotifier()
         self.is_enabled = bool(os.getenv('DISCORD_WEBHOOK_URL'))
         if not self.is_enabled:
@@ -33,15 +33,9 @@ class CheckForDigsRoutine(TimeCheckRoutine):
                 success_msg="Found dig icon"
             ):
                 return True
+            
+            self.automation.game_state["is_home"] = False;
                 
-            # Wait for chat to open
-            human_delay(CONFIG['timings']['menu_animation'])
-            
-            # Navigate home again to ensure clean state
-            if not navigate_home(self.device_id):
-                app_logger.error("Failed to navigate home after clearing dig")
-                return False
-            
             # Send Discord notification
             asyncio.run(self.send_notification())
             return True

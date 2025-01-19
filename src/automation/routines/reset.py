@@ -12,15 +12,15 @@ class ResetRoutine(TimeCheckRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        app_logger.info("Launching game")
-        launch_game(self.device_id)
-        navigate_home(self.device_id, force=True)
         retry_count = 0
-        while retry_count < 3:
-            if navigate_home(self.device_id, force=True):
-                return True
-            retry_count += 1
-            time.sleep(2)
+        while retry_count < CONFIG['max_home_attempts']:
+            sleep_time = min(600, retry_count * 30)
+            app_logger.info(f"Launching game in {sleep_time} seconds")
+            time.sleep(sleep_time)
+            if launch_game(self.device_id):
+                app_logger.info("Game launched successfully")
+                if navigate_home(self.device_id, force=True):
+                    return True
         
         app_logger.error("Failed to navigate home after reset")
         return False 

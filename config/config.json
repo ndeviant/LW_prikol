@@ -3,7 +3,7 @@
   "sleep_multiplier": 1.0,
   "debug_mode": false,
   "max_retries": 3,
-  "max_home_attempts": 10,
+  "max_home_attempts": 500,
   "retry_delay": 1.0,
   "collect_resources_interval": 300,
   "donate_alliance_interval": null,
@@ -49,8 +49,9 @@
     "accept_timeout": 1.0,
     "scroll_delay": 0.3,
     "settle_time": 0.2,
-    "launch_wait": 35.0,
     "home_check_interval": 3.0,
+    "launch_wait": 20.0,
+    "launch_max_wait": 120.0,
     "quit_check_timeout": 2.0,
     "error_delay": 5.0,
     "app_close_wait": 5
@@ -65,7 +66,7 @@
   },
   "ocr_settings": {
     "languages": {
-      "alliance": "eng",
+      "alliance": "eng+osd",
       "name": [
         "eng",
         "chi_sim",
@@ -76,8 +77,8 @@
         "tha"
       ]
     },
-    "psm_mode": 7,
-    "oem_mode": 1
+    "psm_mode": 8,
+    "oem_mode": 3
   },
   "network_sniffing": {
     "enabled": true,
@@ -98,7 +99,7 @@
         "krw",
         "BRN2",
         "rhw",
-        "uBrG"
+        "SSUP"
       ]
     },
     "blacklist": {
@@ -107,11 +108,11 @@
   },
   "templates": {
     "left_bracket": {
-      "path": "templates/left_bracket.png",
+      "path": "templates/ui/left_bracket.png",
       "threshold": 0.75
     },
     "right_bracket": {
-      "path": "templates/right_bracket.png",
+      "path": "templates/ui/right_bracket.png",
       "threshold": 0.75
     },
     "accept": {
@@ -119,7 +120,7 @@
       "threshold": 0.6
     },
     "reject": {
-      "path": "templates/reject.png",
+      "path": "templates/ui/reject.png",
       "threshold": 0.6
     },
     "confirm": {
@@ -127,19 +128,19 @@
       "threshold": 0.6
     },
     "help": {
-      "path": "templates/help.png",
+      "path": "templates/ui/help.png",
       "threshold": 0.8
     },
     "home": {
-      "path": "templates/home.png",
+      "path": "templates/ui/home.png",
       "threshold": 0.8
     },
     "alliance": {
-      "path": "templates/alliance.png",
+      "path": "templates/alliance/alliance.png",
       "threshold": 0.55
     },
     "alliance_tech_icon": {
-      "path": "templates/alliance_tech_icon.png",
+      "path": "templates/alliance/alliance_tech_icon.png",
       "threshold": 0.55
     },
     "recommended_flag": {
@@ -147,7 +148,7 @@
       "threshold": 0.55
     },
     "donate_button": {
-      "path": "templates/donate_button.png",
+      "path": "templates/alliance/donate_button.png",
       "threshold": 0.55
     },
     "president": {
@@ -155,7 +156,7 @@
       "threshold": 0.4
     },
     "list": {
-      "path": "templates/list.png",
+      "path": "templates/ui/list.png",
       "threshold": 0.6
     },
     "strategy": {
@@ -178,41 +179,57 @@
       "path": "templates/secretary/interior.png",
       "threshold": 0.8
     },
+    "quit": {
+      "path": "templates/ui/quit.png",
+      "threshold": 0.65
+    },
     "awesome": {
-      "path": "templates/awesome.png",
+      "path": "templates/ui/awesome.png",
       "threshold": 0.75
     },
     "secret_task": {
-      "path": "templates/secret_task.png",
+      "path": "templates/ui/secret_task.png",
       "threshold": 0.75
     },
     "dig": {
-      "path": "templates/dig.png",
+      "path": "templates/ui/dig.png",
       "threshold": 0.75
     },
     "hidden_treasures": {
-      "path": "templates/hidden_treasures_tab.png",
+      "path": "templates/hidden_treasures/hidden_treasures_tab.png",
       "threshold": 0.75
     },
     "hidden_treasures_exchange": {
-      "path": "templates/hidden_treasures_exchange.png",
+      "path": "templates/hidden_treasures/hidden_treasures_exchange.png",
       "threshold": 0.75
     },
     "hidden_treasures_start_exchange": {
-      "path": "templates/hidden_treasures_start_exchange.png",
+      "path": "templates/hidden_treasures/hidden_treasures_start_exchange.png",
       "threshold": 0.75
     },
     "hidden_treasures_allies_exchange": {
-      "path": "templates/hidden_treasures_allies_exchange.png",
+      "path": "templates/hidden_treasures/hidden_treasures_allies_exchange.png",
       "threshold": 0.75
     },
     "hidden_treasures_confirm_exchange": {
-      "path": "templates/hidden_treasures_confirm_exchange.png",
+      "path": "templates/hidden_treasures/hidden_treasures_confirm_exchange.png",
       "threshold": 0.75
     },
     "has_applicant": {
       "path": "templates/secretary/hasApplicant.png",
-      "threshold": 0.75
+      "threshold": 0.55
+    },
+    "alliance_gifts": {
+      "path": "templates/alliance/gifts.png",
+      "threshold": 0.65
+    },
+    "alliance_claim_all": {
+      "path": "templates/alliance/claim_all.png",
+      "threshold": 0.65
+    },
+    "alliance_gift_premium": {
+      "path": "templates/alliance/premium.png",
+      "threshold": 0.65
     }
   },
   "discord": {

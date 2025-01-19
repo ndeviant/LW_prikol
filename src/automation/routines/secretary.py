@@ -18,8 +18,10 @@ from src.core.audio import play_beep
 import numpy as np
 
 class SecretaryRoutine(TimeCheckRoutine):
-    def __init__(self, device_id: str, interval: int, last_run: float = None):
-        super().__init__(device_id, interval, last_run)
+    force_home: bool = True
+
+    def __init__(self, device_id: str, interval: int, last_run: float = None, automation=None):
+        super().__init__(device_id, interval, last_run, automation)
         self.secretary_types = ["strategy", "security", "development", "science", "interior"]
         self.capture = None
         self.manual_deny = False
@@ -30,10 +32,11 @@ class SecretaryRoutine(TimeCheckRoutine):
     
     def _execute_internal(self) -> bool:
         """Internal execution logic"""
+        self.automation.game_state["is_home"] = False
         self.open_profile_menu(self.device_id)
         self.open_secretary_menu(self.device_id)
         return self.process_all_secretary_positions()
-
+    
     def find_accept_buttons(self) -> list[Tuple[int, int]]:
         """Find all accept buttons on the screen and sort by Y coordinate"""
         try:
@@ -296,8 +299,6 @@ class SecretaryRoutine(TimeCheckRoutine):
                 "has_applicant"
             )
             
-            print(applicant_locations)
-
             if not applicant_locations:
                 app_logger.debug("No applicant icons found")
                 return []
@@ -317,7 +318,7 @@ class SecretaryRoutine(TimeCheckRoutine):
                     # Check if applicant icon is within 100 pixels horizontally and 25 pixels vertically
                     if abs(x_diff) <= 100 and abs(y_diff) <= 25:
                         positions_to_process.append(position_type)
-                        app_logger.info(f"Found applicant for {position_type} position (x_diff={x_diff}, y_diff={y_diff})")
+                        app_logger.info(f"Found applicant for {position_type} position")
                         break
             
             return positions_to_process
