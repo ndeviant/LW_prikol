@@ -144,7 +144,7 @@
       "threshold": 0.55
     },
     "recommended_flag": {
-      "path": "templates/secretary/recommended_flag.png",
+      "path": "templates/alliance/recommended_flag.png",
       "threshold": 0.55
     },
     "donate_button": {
