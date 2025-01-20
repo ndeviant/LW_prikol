@@ -12,4 +12,4 @@ class CollectResourcesRoutine(TimeCheckRoutine):
     def _execute_internal(self) -> bool:
         print("Collecting resources todo")
         #simulate_shake(self.device_id)
-        return False 
+        return True 

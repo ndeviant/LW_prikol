@@ -34,7 +34,7 @@
       },
       "collect_resources": {
         "handler": "src.automation.routines.collectResources.CollectResourcesRoutine",
-        "interval": 1
+        "interval": 10000
       }
     },
     "scheduled_events": {
