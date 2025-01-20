@@ -137,8 +137,11 @@ def navigate_home(device_id: str, force: bool = False) -> bool:
                 app_logger.debug("Found quit button")
 
                 # Press back again to get to home
-                press_back(device_id)
-                human_delay(CONFIG['timings']['menu_animation'])
+                while quit_loc:
+                    press_back(device_id)
+                    human_delay(CONFIG['timings']['menu_animation'])
+                    quit_loc = find_template(device_id, "quit")
+                    
                 return True
                 
             # Not found, press back and wait
