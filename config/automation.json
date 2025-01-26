@@ -1,9 +1,5 @@
 {
     "time_checks": {
-      "reset": {
-        "handler": "src.automation.routines.reset.ResetRoutine",
-        "interval": 5000
-      },
       "cleanup": {
         "handler": "src.automation.routines.cleanup.CleanupRoutine",
         "interval": 3600

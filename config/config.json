@@ -99,7 +99,7 @@
         "krw",
         "BRN2",
         "rhw",
-        "SSUP"
+        "s8UP"
       ]
     },
     "blacklist": {
@@ -134,6 +134,10 @@
     "home": {
       "path": "templates/ui/home.png",
       "threshold": 0.8
+    },
+    "start": {
+      "path": "templates/ui/start.png",
+      "threshold": 0.75
     },
     "alliance": {
       "path": "templates/alliance/alliance.png",
