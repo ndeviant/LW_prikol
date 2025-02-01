@@ -332,7 +332,10 @@ class SecretaryRoutine(TimeCheckRoutine):
         positions_to_process = self.find_positions_with_applicants()
         
         if not positions_to_process:
-            app_logger.info("No positions with applicants found")
+            app_logger.info("No positions with applicants found")\
+            # ensure the game is not glitched and we can still access the secretary menu
+            if not self.process_secretary_position(self.secretary_types[0]):
+                raise RuntimeError('secretary not accessible')
             return True
         
         for name in positions_to_process:

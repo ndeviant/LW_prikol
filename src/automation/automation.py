@@ -236,6 +236,12 @@ class MainAutomation:
                 app_logger.info(f"Running {task_name} ({task_type})")
                 success = handler.start()
                 
+                if not success:
+                    app_logger.error(f"Task {task_name} failed, attempting game reset")
+                    if self.reset_game():
+                        # Retry the task after reset
+                        success = handler.start()
+                
                 if success:
                     handler.after_run()
                     if task_type == 'time_checks':
