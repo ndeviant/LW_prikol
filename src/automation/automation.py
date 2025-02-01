@@ -285,7 +285,7 @@ class MainAutomation:
                     webhook_url = os.getenv('AUTOMATION_WEBHOOK_URL')
                     if webhook_url:  # Only attempt notification if webhook is configured
                         try:
-                            from src.core.discord import DiscordNotifier
+                            from src.core.discord_bot import DiscordNotifier
                             discord = DiscordNotifier()
                             discord.webhook_url = webhook_url
                             asyncio.run(discord.send_notification(
