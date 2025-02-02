@@ -4,7 +4,6 @@ from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.logging import app_logger
 from src.core.config import CONFIG
 from src.core.image_processing import _take_and_load_screenshot, find_template, find_all_templates, wait_for_image, compare_screenshots, find_and_tap_template
-from src.core.network_sniffing import start_network_capture
 from src.core.device import take_screenshot
 from src.core.adb import get_screen_size, press_back
 from src.game.controls import human_delay, humanized_tap, handle_swipes
