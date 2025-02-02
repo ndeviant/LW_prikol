@@ -334,8 +334,23 @@ class SecretaryRoutine(TimeCheckRoutine):
         if not positions_to_process:
             app_logger.info("No positions with applicants found")\
             # ensure the game is not glitched and we can still access the secretary menu
-            if not self.process_secretary_position(self.secretary_types[0]):
+            if not find_and_tap_template(
+                self.device_id,
+                self.secretary_types[0],
+                error_msg=f"Could not find {self.secretary_types[0]} secretary position",
+                critical=True
+            ):
                 raise RuntimeError('secretary not accessible')
+            
+            human_delay(CONFIG['timings']['tap_delay'])
+            
+            # Find list button
+            if not find_template(
+                self.device_id,
+                "list",
+            ):
+                raise RuntimeError('secretary not accessible')
+            
             return True
         
         for name in positions_to_process:
