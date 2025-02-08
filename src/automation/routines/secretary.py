@@ -3,7 +3,7 @@ import cv2
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.logging import app_logger
 from src.core.config import CONFIG
-from src.core.image_processing import _take_and_load_screenshot, find_template, find_all_templates, wait_for_image, compare_screenshots, find_and_tap_template
+from src.core.image_processing import find_template, find_all_templates, wait_for_image, find_and_tap_template
 from src.core.device import take_screenshot
 from src.core.adb import get_screen_size, press_back
 from src.game.controls import human_delay, humanized_tap, handle_swipes
@@ -22,10 +22,12 @@ class SecretaryRoutine(TimeCheckRoutine):
     def __init__(self, device_id: str, interval: int, last_run: float = None, automation=None):
         super().__init__(device_id, interval, last_run, automation)
         self.secretary_types = ["strategy", "security", "development", "science", "interior"]
+        self.additionalTypes = ["military", "administrative"]
         self.capture = None
         self.manual_deny = False
 
     def _execute(self) -> bool:
+        
         """Start secretary automation sequence"""
         return self.execute_with_error_handling(self._execute_internal)
     
@@ -33,9 +35,16 @@ class SecretaryRoutine(TimeCheckRoutine):
         """Internal execution logic"""
         self.automation.game_state["is_home"] = False
         self.open_profile_menu(self.device_id)
-        self.open_secretary_menu(self.device_id)
+        if not find_and_tap_template(
+            self.device_id,
+            "capitol_menu",
+            error_msg="Failed to find capitol menu",
+            critical=True
+        ):  
+            return False
+        handle_swipes(self.device_id, direction="down", num_swipes=1)
         return self.process_all_secretary_positions()
-    
+
     def find_accept_buttons(self) -> list[Tuple[int, int]]:
         """Find all accept buttons on the screen and sort by Y coordinate"""
         try:
@@ -102,22 +111,6 @@ class SecretaryRoutine(TimeCheckRoutine):
             return True
         except Exception as e:
             app_logger.error(f"Error opening profile menu: {e}")
-            return False
-
-    def open_secretary_menu(self, device_id: str) -> bool:
-        """Open the secretary menu"""
-        try:
-            width, height = get_screen_size(device_id)
-            secretary = CONFIG['ui_elements']['secretary_menu']
-
-            # Click secretary menu with randomization
-            secretary_x = int(width * float(secretary['x'].strip('%')) / 100)
-            secretary_y = int(height * float(secretary['y'].strip('%')) / 100)
-            humanized_tap(device_id, secretary_x, secretary_y)
-        
-            return True
-        except Exception as e:
-            app_logger.error(f"Error opening secretary menu: {e}")
             return False
 
     def exit_to_secretary_menu(self) -> bool:
@@ -284,7 +277,8 @@ class SecretaryRoutine(TimeCheckRoutine):
             
             # Find all secretary positions
             all_positions = {}
-            for position_type in self.secretary_types:
+            secretary_types = self.secretary_types + self.additionalTypes
+            for position_type in secretary_types:
                 positions = find_all_templates(
                     self.device_id,
                     position_type

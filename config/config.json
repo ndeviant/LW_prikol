@@ -93,7 +93,8 @@
         "krw",
         "FZL",
         "rhw",
-        "s8UP"
+        "s8UP",
+        "ssUP"
       ]
     },
     "blacklist": {
@@ -153,6 +154,10 @@
       "path": "templates/secretary/president.png",
       "threshold": 0.4
     },
+    "capitol_menu": {
+      "path": "templates/secretary/capitol_menu.png",
+      "threshold": 0.4
+    },
     "list": {
       "path": "templates/ui/list.png",
       "threshold": 0.6
@@ -175,6 +180,14 @@
     },
     "interior": {
       "path": "templates/secretary/interior.png",
+      "threshold": 0.8
+    },
+    "military": {
+      "path": "templates/secretary/military.png",
+      "threshold": 0.8
+    },
+    "administrative": {
+      "path": "templates/secretary/administrative.png",
       "threshold": 0.8
     },
     "quit": {
