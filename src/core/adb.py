@@ -2,40 +2,47 @@
 
 import subprocess
 from typing import List, Optional
+
+from .config import CONFIG
 from .logging import app_logger
 import re
 import time
 import socket
-import telnetlib
 import os
 import traceback
 
+
 def get_device_list() -> List[str]:
     """Get list of connected devices"""
+
+    cmd = [CONFIG.adb["binary_path"], "version"]
     try:
-        # Try to run ADB directly first
-        cmd = ["adb", "devices"]
+
+        # We initially check the adb version to verify that everything is working
         try:
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
                 check=True,
-                shell=True  # Required for Windows compatibility
+                shell=True
             )
-        except FileNotFoundError:
+
+        except (FileNotFoundError, subprocess.CalledProcessError):
             app_logger.error("ADB not found in PATH. Checking common Android SDK locations...")
+
             # Common SDK locations
             sdk_locations = [
                 os.path.expanduser("~/AppData/Local/Android/Sdk/platform-tools/adb.exe"),
                 "C:/Program Files/Android/platform-tools/adb.exe",
                 os.path.expanduser("~/Android/Sdk/platform-tools/adb.exe")
             ]
-            
+
             for adb_path in sdk_locations:
                 if os.path.exists(adb_path):
                     app_logger.info(f"Found ADB at: {adb_path}")
                     cmd[0] = adb_path
+                    CONFIG.adb["binary_path"] = adb_path
                     result = subprocess.run(
                         cmd,
                         capture_output=True,
@@ -45,8 +52,42 @@ def get_device_list() -> List[str]:
                     )
                     break
             else:
-                app_logger.error("ADB not found in common locations. Please ensure Android SDK platform-tools is installed")
+                app_logger.error(
+                    "ADB not found in common locations. Please ensure Android SDK platform-tools is installed")
                 return []
+
+        lines = result.stdout.strip()
+        version_re = re.compile("Version ([^\r\n]+)")
+        version_match = version_re.search(lines)
+        if version_match:
+            adb_version = version_match.group(1)
+            app_logger.debug(f"Found adb version: {adb_version}")
+        else:
+            app_logger.debug(f"Unknown adb version found:\n{lines}")
+
+        if CONFIG.adb["enforce_connection"]:
+            if CONFIG.adb['host'] and CONFIG.adb['port'] and CONFIG.adb['port'] > 0:
+                cmd = [CONFIG.adb["binary_path"], "connect", f"{CONFIG.adb['host']}:{CONFIG.adb['port']}"]
+                subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    shell=True  # Required for Windows compatibility
+                )
+
+        cmd = [CONFIG.adb["binary_path"], "devices"]
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True,
+            shell=True  # Required for Windows compatibility
+        )
+
+        target_device = ""
+        if CONFIG.adb['host'] and CONFIG.adb['port']:
+            target_device = f"{CONFIG.adb['host']}:{CONFIG.adb['port']}"
 
         # Parse output and get device IDs
         lines = result.stdout.strip().split('\n')[1:]  # Skip first line
@@ -54,9 +95,15 @@ def get_device_list() -> List[str]:
         for line in lines:
             if line.strip():
                 device_id = line.split()[0]
-                devices.append(device_id)
                 app_logger.debug(f"Found device: {device_id}")
-        
+
+                if len(target_device) > 0:
+                    if target_device in device_id:
+                        devices.append(device_id)
+                        break
+                else:
+                    devices.append(device_id)
+
         return devices
             
     except Exception as e:
@@ -67,19 +114,19 @@ def get_device_list() -> List[str]:
 def launch_package(device_id: str, package_name: str):
     """Launch an app package"""
     subprocess.run(
-        ['adb', '-s', device_id, 'shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'],
+        [CONFIG.adb["binary_path"], '-s', device_id, 'shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )
 
 def force_stop_package(device_id: str, package_name: str):
     """Force stop an app package"""
-    subprocess.run(['adb', '-s', device_id, 'shell', 'am', 'force-stop', package_name])
+    subprocess.run([CONFIG.adb["binary_path"], '-s', device_id, 'shell', 'am', 'force-stop', package_name])
 
 def press_back(device_id: str) -> bool:
     """Press back button"""
     try:
-        cmd = f"adb -s {device_id} shell input keyevent 4"
+        cmd = f"{CONFIG.adb["binary_path"]} -s {device_id} shell input keyevent 4"
         result = subprocess.run(cmd, capture_output=True, text=True)
         return result.returncode == 0
         
@@ -90,7 +137,7 @@ def press_back(device_id: str) -> bool:
 def tap_screen(device_id: str, x: int, y: int) -> bool:
     """Tap screen at coordinates"""
     try:
-        cmd = f"adb -s {device_id} shell input tap {x} {y}"
+        cmd = f"{CONFIG.adb["binary_path"]} -s {device_id} shell input tap {x} {y}"
         result = subprocess.run(cmd, capture_output=True, text=True)
         return result.returncode == 0
         
@@ -101,7 +148,7 @@ def tap_screen(device_id: str, x: int, y: int) -> bool:
 def swipe_screen(device_id: str, start_x: int, start_y: int, end_x: int, end_y: int, duration: int = 300) -> bool:
     """Swipe screen from start to end coordinates"""
     try:
-        cmd = f"adb -s {device_id} shell input swipe {start_x} {start_y} {end_x} {end_y} {duration}"
+        cmd = f"{CONFIG.adb["binary_path"]} -s {device_id} shell input swipe {start_x} {start_y} {end_x} {end_y} {duration}"
         result = subprocess.run(cmd, capture_output=True, text=True)
         return result.returncode == 0
         
@@ -111,6 +158,7 @@ def swipe_screen(device_id: str, start_x: int, start_y: int, end_x: int, end_y: 
 
 def get_connected_device() -> Optional[str]:
     """Get the first connected device ID"""
+
     devices = get_device_list()
     if not devices:
         app_logger.error("No devices connected")
@@ -125,7 +173,7 @@ def get_current_running_app(device_id):
     """
     try:
         result = subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'dumpsys', 'window', 'windows'],
+            [CONFIG.adb["binary_path"], '-s', device_id, 'shell', 'dumpsys', 'window', 'windows'],
             capture_output=True,
             text=True,
             check=True
@@ -150,7 +198,7 @@ def long_press_screen(device_id: str, x: int, y: int, duration: int) -> bool:
         duration: Press duration in milliseconds
     """
     try:
-        cmd = f'adb -s {device_id} shell input swipe {x} {y} {x} {y} {duration}'
+        cmd = f'{CONFIG.adb["binary_path"]} -s {device_id} shell input swipe {x} {y} {x} {y} {duration}'
         subprocess.run(cmd, shell=True, check=True)
         return True
     except subprocess.CalledProcessError:
@@ -161,7 +209,7 @@ def get_screen_size(device_id: str) -> tuple[int, int]:
     """Get device screen size"""
     try:
         result = subprocess.run(
-            ['adb', '-s', device_id, 'shell', 'wm', 'size'], 
+            [CONFIG.adb["binary_path"], '-s', device_id, 'shell', 'wm', 'size'],
             capture_output=True, 
             text=True
         )
@@ -203,7 +251,7 @@ def simulate_shake(device_id: str, duration_ms: int = 1000) -> bool:
             
             for values in pattern:
                 # Use the full adb shell command instead of emu
-                cmd = f'adb -s {device_id} shell "setprop debug.sensors.accelerometer.x {values.split(":")[0]};' \
+                cmd = f'{CONFIG.adb["binary_path"]} -s {device_id} shell "setprop debug.sensors.accelerometer.x {values.split(":")[0]};' \
                       f'setprop debug.sensors.accelerometer.y {values.split(":")[1]};' \
                       f'setprop debug.sensors.accelerometer.z {values.split(":")[2]}"'
                 app_logger.debug(f"Executing: {cmd}")
@@ -211,7 +259,7 @@ def simulate_shake(device_id: str, duration_ms: int = 1000) -> bool:
                 time.sleep(0.1)
                 
             # Reset to normal
-            cmd = f'adb -s {device_id} shell "setprop debug.sensors.accelerometer.x 0;' \
+            cmd = f'{CONFIG.adb["binary_path"]} -s {device_id} shell "setprop debug.sensors.accelerometer.x 0;' \
                   f'setprop debug.sensors.accelerometer.y 0;' \
                   f'setprop debug.sensors.accelerometer.z 9.81"'
             subprocess.run(cmd, shell=True)
