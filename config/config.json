@@ -1,14 +1,14 @@
 {
   "package_name": "com.fun.lastwar.gp",
-  "sleep_multiplier": 1.0,
+  "sleep_multiplier": 0.875,
   "debug_mode": false,
   "max_retries": 3,
-  "max_home_attempts": 500,
+  "max_home_attempts": 15,
   "retry_delay": 1.0,
   "collect_resources_interval": 300,
   "donate_alliance_interval": null,
   "screenshot_quality": 100,
-  "match_threshold": 0.8,
+  "match_threshold": 0.6,
   "ui_elements": {
     "profile": {
       "x": "5%",
@@ -38,9 +38,10 @@
     }
   },
   "timings": {
-    "tap_delay": 1,
-    "menu_animation": 1,
+    "tap_delay": 0.25,
+    "menu_animation": 1.5,
     "list_animation": 1,
+    "rally_animation": 2.5,
     "swipe_duration": {
       "min": 300,
       "max": 400
@@ -130,6 +131,10 @@
     "home": {
       "path": "templates/ui/home.png",
       "threshold": 0.8
+    },    
+    "base": {
+      "path": "templates/ui/base.png",
+      "threshold": 0.8
     },
     "start": {
       "path": "templates/ui/start.png",
@@ -203,9 +208,85 @@
       "path": "templates/ui/secret_task.png",
       "threshold": 0.75
     },
-    "dig": {
-      "path": "templates/ui/dig.png",
+    "collect": {
+      "path": "templates/ui/collect.png",
       "threshold": 0.75
+    },
+    "dig": {
+      "path": "templates/dig/dig.png",
+      "threshold": 0.75
+    },
+    "dig_chat_start": {
+      "path": "templates/dig/dig_chat_start.png",
+      "threshold": 0.75
+    },
+    "dig_dig": {
+      "path": "templates/dig/dig_dig.png",
+      "threshold": 0.75
+    },
+    "dig_claim": {
+      "path": "templates/dig/dig_claim.png",
+      "threshold": 0.75
+    },
+    "dig_chat_claim": {
+      "path": "templates/dig/dig_chat_claim.png",
+      "threshold": 0.75
+    },    
+    "dig_chat_claim_drone": {
+      "path": "templates/dig/dig_chat_claim_drone.png",
+      "threshold": 0.75
+    },
+    "rss_truck": {
+      "path": "templates/rss/rss_truck.png",
+      "threshold": 0.75
+    },
+    "ore": {
+      "path": "templates/rss/ore.png",
+      "threshold": 0.75
+    },
+    "screw": {
+      "path": "templates/rss/screw.png",
+      "threshold": 0.75
+    },
+    "gold": {
+      "path": "templates/rss/gold.png",
+      "threshold": 0.75
+    },
+    "iron": {
+      "path": "templates/rss/iron.png",
+      "threshold": 0.75
+    },
+    "food": {
+      "path": "templates/rss/food.png",
+      "threshold": 0.75
+    },
+    "exp": {
+      "path": "templates/rss/exp.png",
+      "threshold": 0.75
+    },    
+    "rallies": {
+      "path": "templates/rally/rallies.png",
+      "threshold": 0.65
+    },     
+    "golden_boss": {
+      "path": "templates/rally/golden_boss.png",
+      "threshold": 0.65
+    },        
+    "join_de_rally": {
+      "path": "templates/rally/join_de_rally.png",
+      "threshold": 0.85
+    },         
+    "join_golden_rally": {
+      "path": "templates/rally/join_golden_rally.png",
+      "threshold": 0.7
+    },       
+    "march": {
+      "path": "templates/rally/march.png",
+      "threshold": 0.7
+    },    
+    "DE": {
+      "path": "templates/rally/DE.png",
+      "threshold": 0.65
     },
     "hidden_treasures": {
       "path": "templates/hidden_treasures/hidden_treasures_tab.png",
@@ -245,12 +326,20 @@
     }
   },
   "discord": {
-    "bot_name": "Tina\ubd07",
-    "dig_notification": {
-      "content": "<:digEmote:1305924160949846106> **NEW DIG / \uc0c8\ub85c\uc6b4 \ubc1c\uad74**",
-      "embed_title": ":zap: Action Required / \uc870\uce58 \ud544\uc694",
-      "embed_value": ":flag_us: A new dig has been posted! Get digging!\n:flag_kr: \uc0c8\ub85c\uc6b4 \ubc1c\uad74\uc774 \uac8c\uc2dc\ub418\uc5c8\uc2b5\ub2c8\ub2e4! \ubc1c\uad74\uc744 \uc2dc\uc791\ud558\uc138\uc694!",
-      "embed_color": "0xFF0000"
+    "bot_name": "Dima Pisun",
+    "notifications" : {
+      "dig": {
+        "content": "<:digEmote:1305924160949846106> **NEW DIG!**",
+        "embed_title": ":zap: Action Required",
+        "embed_value": ":flag_us: A new dig has been posted! Get digging!\n",
+        "embed_color": "0xCC0000"
+      },
+      "rss": {
+        "content": "<:gold:1301483663250161674> **Rss gathered!**",
+        "embed_title": "",
+        "embed_value": ":exploding_head: Success!\n",
+        "embed_color": "0xFFE599"
+      }
     }
   },
   "adb": {

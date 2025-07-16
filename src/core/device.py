@@ -65,6 +65,7 @@ def cleanup_device_screenshots(device_id: str) -> None:
 
 def cleanup_temp_files() -> None:
     """Clean up temporary files"""
+    return
     try:
         # Remove entire tmp directory and its contents recursively
         tmp_dir = Path("tmp")

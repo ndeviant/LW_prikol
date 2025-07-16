@@ -71,22 +71,27 @@ def find_template(
         threshold = template_config.get('threshold', CONFIG['match_threshold'])
         app_logger.debug(f"Match values - Max: {max_val:.4f}, Min: {min_val:.4f}, Threshold: {threshold}")
         app_logger.debug(f"Match location - Max: {max_loc}, Min: {min_loc}")
+
+        h, w = template.shape[:2]
+        # Save debug image
+        def saveDebugImg(success: bool = True, padding: int = 20):
+            color =  (0, 255, 0) if success else (50, 50, 255)
+            debug_img = img.copy()
+            cv2.rectangle(debug_img, (max_loc[0] - padding, max_loc[1] - padding), (max_loc[0] + w + padding, max_loc[1] + h + padding), color, 3)
+            cv2.putText(debug_img, f"{max_val:.3f}", (max_loc[0], max_loc[1] - padding - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+            cv2.imwrite(f'tmp/debug{"" if success else "_fail"}_find_{template_name}.png', debug_img)
         
         # Fix the threshold comparison
         if max_val < threshold:  # Remove the incorrect "threshold - -0.16"
             app_logger.debug(f"Match value {max_val:.4f} below threshold {threshold}")
+            saveDebugImg(False)
             return None
             
         app_logger.debug(f"Match value {max_val:.4f} EXCEEDS threshold {threshold} !")
         
-        # Save debug image
-        debug_img = img.copy()
-        h, w = template.shape[:2]
-        cv2.rectangle(debug_img, max_loc, (max_loc[0] + w, max_loc[1] + h), (0, 255, 0), 2)
-        cv2.putText(debug_img, f"{max_val:.3f}", (max_loc[0], max_loc[1] - 5),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-        cv2.imwrite(f'tmp/debug_find_{template_name}.png', debug_img)
-        
+        saveDebugImg()
+
         # Get template dimensions and calculate center point
         center_x = max_loc[0] + w//2
         center_y = max_loc[1] + h//2
@@ -237,14 +242,15 @@ def find_and_tap_template(
     long_press: bool = False,
     press_duration: float = 1.0,
     critical: bool = False,
-    timeout: float = None
+    timeout: float = None,
+    offset: tuple[int, int] = (0,0)
 ) -> bool:
     """Find and tap a template on screen"""
     if timeout:
         location = wait_for_image(device_id, template_name, timeout=timeout)
     else:
         location = find_template(device_id, template_name)
-    
+        
     if location is None:
         if error_msg:
             if critical:
@@ -255,13 +261,15 @@ def find_and_tap_template(
         
     if success_msg:
         app_logger.info(success_msg)
+
+    coors = (location[0] + offset[0], location[1] + offset[1])
         
     # Import here to avoid circular dependency
     from src.game.controls import humanized_tap, humanized_long_press
         
     if long_press:
-        humanized_long_press(device_id, location[0], location[1], duration=press_duration)
+        humanized_long_press(device_id, coors[0], coors[1], duration=press_duration)
     else:
-        humanized_tap(device_id, location[0], location[1])
+        humanized_tap(device_id, coors[0], coors[1])
         
     return True

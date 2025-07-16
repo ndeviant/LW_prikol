@@ -1,8 +1,14 @@
-[  !["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/notenough)
+# Important
+MEMU Player emulator. If you use my fork, set the display as follows:
 
-If you find this tool helpful, consider supporting the development by buying me a coffee! ☕
+* Rendered: DirectX
+* Resolution 1920 x 1080
+* DPI 240
 
-# Game Automation
+adb connect localhost:21503
+python cli.py auto # --debug
+
+## Game Automation
 
 An automation tool for managing game tasks efficiently, including secretary management, alliance donations, and scheduled events.
 

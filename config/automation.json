@@ -10,7 +10,14 @@
       },
       "help": {
         "handler": "src.automation.routines.help.HelpRoutine",
-        "interval": 5
+        "interval": 15
+      },      
+      "rally": {
+        "handler": "src.automation.routines.rally.RallyRoutine",
+        "interval": 2,
+        "options": {
+          "only_golden": true
+        }
       },
       "dig": {
         "handler": "src.automation.routines.checkForDigs.CheckForDigsRoutine",
@@ -18,11 +25,11 @@
       },
       "secretary": {
         "handler": "src.automation.routines.secretary.SecretaryRoutine",
-        "interval": 40
+        "interval": null
       },
       "mapExchange": {
         "handler": "src.automation.routines.mapExchange.MapExchangeRoutine",
-        "interval": 300
+        "interval": null
       },
       "gifts": {
         "handler": "src.automation.routines.allianceGifts.AllianceGiftsRoutine",
@@ -38,7 +45,7 @@
         "handler": "src.automation.routines.weeklyReset.WeeklyResetRoutine",
         "schedule": {
           "day": null,
-          "time": "01:50"
+          "time": "04:50"
         }
       }
     }

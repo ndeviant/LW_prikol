@@ -89,7 +89,8 @@ class MainAutomation:
                 "last_run": last_run,
                 "time_to_check": check_data["interval"],
                 "handler": check_data["handler"],
-                "needs_check": True
+                "needs_check": True,
+                "options": check_data.get("options")
             }
         return checks
 
@@ -105,7 +106,8 @@ class MainAutomation:
                 "last_run": self.state.get_last_run(event_name, "scheduled_events"),
                 "day": event_data["schedule"]["day"],
                 "time": event_data["schedule"]["time"],
-                "handler": event_data["handler"]
+                "handler": event_data["handler"],
+                "options": event_data.get("options")
             }
         return events
 
