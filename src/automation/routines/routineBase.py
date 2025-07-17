@@ -12,7 +12,7 @@ class RoutineBase(ABC):
     def __init__(self, device_id: str, automation=None, options = None) -> None:
         self.device_id = device_id
         self.automation = automation
-        self.options = options
+        self.options = options or {}
         
     @abstractmethod
     def _execute(self) -> bool:

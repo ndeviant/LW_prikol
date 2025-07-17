@@ -39,7 +39,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
 
             app_logger.info(f"Attempting to claim dig automatically")
 
-            # Check if dig is available to claim
+            # Check if dig is available to claim in chat
             if (find_and_tap_template(
                 self.device_id,
                 "dig_chat_claim",
@@ -79,10 +79,28 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             ):
                 return True
             
+            human_delay(CONFIG['timings']['menu_animation'])
+            
+            if not find_and_tap_template(
+                self.device_id,
+                "dig_dig_dig",
+                error_msg="Could not find dig_dig_dig icon",
+            ):
+                return True
+            
+            human_delay(CONFIG['timings']['menu_animation'])
+            
+            if not find_and_tap_template(
+                self.device_id,
+                "march",
+                error_msg="Could not find dig march icon",
+            ):
+                return True
+            
             claim_btn = wait_for_image(
                 self.device_id,
                 "dig_claim",
-                timeout=60,
+                timeout=self.options.get("wait_for_dig", 60),
                 interval=0.5
             )
             

@@ -14,14 +14,17 @@
       },      
       "rally": {
         "handler": "src.automation.routines.rally.RallyRoutine",
-        "interval": 2,
+        "interval": 3,
         "options": {
           "only_golden": true
         }
       },
       "dig": {
         "handler": "src.automation.routines.checkForDigs.CheckForDigsRoutine",
-        "interval": 5
+        "interval": 5,
+        "options": {
+          "wait_for_dig": 10
+        }
       },
       "secretary": {
         "handler": "src.automation.routines.secretary.SecretaryRoutine",

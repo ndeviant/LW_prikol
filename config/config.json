@@ -1,6 +1,6 @@
 {
   "package_name": "com.fun.lastwar.gp",
-  "sleep_multiplier": 0.875,
+  "sleep_multiplier": 1,
   "debug_mode": false,
   "max_retries": 3,
   "max_home_attempts": 15,
@@ -130,7 +130,7 @@
     },
     "home": {
       "path": "templates/ui/home.png",
-      "threshold": 0.8
+      "threshold": 0.95
     },    
     "base": {
       "path": "templates/ui/base.png",
@@ -223,6 +223,10 @@
     "dig_dig": {
       "path": "templates/dig/dig_dig.png",
       "threshold": 0.75
+    },    
+    "dig_dig_dig": {
+      "path": "templates/dig/dig_dig_dig.png",
+      "threshold": 0.75
     },
     "dig_claim": {
       "path": "templates/dig/dig_claim.png",
@@ -263,10 +267,10 @@
     "exp": {
       "path": "templates/rss/exp.png",
       "threshold": 0.75
-    },    
+    },
     "rallies": {
       "path": "templates/rally/rallies.png",
-      "threshold": 0.65
+      "threshold": 0.9
     },     
     "golden_boss": {
       "path": "templates/rally/golden_boss.png",
@@ -331,7 +335,7 @@
       "dig": {
         "content": "<:digEmote:1305924160949846106> **NEW DIG!**",
         "embed_title": ":zap: Action Required",
-        "embed_value": ":flag_us: A new dig has been posted! Get digging!\n",
+        "embed_value": ":flag_us: A new dig has been posted! Get digging!\n [Android](https://play.google.com/store/apps/details?id=com.fun.lastwar.gp)    [iOS](https://apps.apple.com/app/last-war-survival/id6448786147)\n",
         "embed_color": "0xCC0000"
       },
       "rss": {

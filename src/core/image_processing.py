@@ -170,16 +170,19 @@ def find_all_templates(
     
 def wait_for_image(
     device_id: str,
-    template_name: str,
+    template_name: str | list[str],
     timeout: float = 120.0,
     interval: float = 1.0
 ) -> Optional[Tuple[int, int]]:
     """Wait for template to appear in screenshot"""
     start_time = time.time()
+    template_name_list = template_name if isinstance(template_name, list) else [template_name]
     while time.time() - start_time < timeout:
-        coords = find_template(device_id, template_name)
-        if coords:
-            return coords
+        coords = None
+        for tmp in template_name_list:
+            coords = find_template(device_id, tmp)
+            if coords:
+                return coords
         time.sleep(interval)
     return None
 

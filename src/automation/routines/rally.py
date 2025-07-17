@@ -23,14 +23,14 @@ class RallyRoutine(TimeCheckRoutine):
         self.automation.game_state["is_home"] = False;
         human_delay(CONFIG['timings']['menu_animation'])
 
-        if (self.options.get("only_golden")):
-            find_and_tap_template(
-                self.device_id,
-                "join_golden_rally",
-                error_msg="Could not find join golden boss rally",
-                offset=(-30, 0)
-            )     
-        else:
+        find_and_tap_template(
+            self.device_id,
+            "join_golden_rally",
+            error_msg="Could not find join golden boss rally",
+            offset=(-30, 0)
+        )
+
+        if not (self.options.get("only_golden")):
             find_and_tap_template(
                 self.device_id,
                 "join_de_rally",

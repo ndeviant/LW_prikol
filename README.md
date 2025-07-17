@@ -5,8 +5,10 @@ MEMU Player emulator. If you use my fork, set the display as follows:
 * Resolution 1920 x 1080
 * DPI 240
 
+```
 adb connect localhost:21503
 python cli.py auto # --debug
+```
 
 ## Game Automation
 

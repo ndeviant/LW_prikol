@@ -134,12 +134,6 @@ def navigate_home(device_id: str, force: bool = False) -> bool:
         # Press back until we find home screen
         max_attempts = CONFIG.get('max_home_attempts', 10)
         for attempt in range(max_attempts):
-            # Take screenshot and look for base icon
-            find_and_tap_template(
-                device_id, 
-                "base"
-            )
-
             # Not found, press back and wait
             press_back(device_id)
             human_delay(CONFIG['timings']['menu_animation'])
@@ -154,7 +148,13 @@ def navigate_home(device_id: str, force: bool = False) -> bool:
                     press_back(device_id)
                     human_delay(CONFIG['timings']['menu_animation'])
                     quit_loc = find_template(device_id, "quit")
-                    
+
+                # Take screenshot and look for base icon
+                find_and_tap_template(
+                    device_id, 
+                    "base"
+                )
+                
                 return True
                 
             # Not found, press back and wait
