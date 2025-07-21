@@ -14,7 +14,7 @@
       },      
       "rally": {
         "handler": "src.automation.routines.rally.RallyRoutine",
-        "interval": 3,
+        "interval": null,
         "options": {
           "only_golden": true
         }
@@ -23,7 +23,9 @@
         "handler": "src.automation.routines.checkForDigs.CheckForDigsRoutine",
         "interval": 5,
         "options": {
-          "wait_for_dig": 10
+          "auto_claim": true,
+          "wait_for_dig": 240,
+          "chat_search_swipes": 5
         }
       },
       "secretary": {

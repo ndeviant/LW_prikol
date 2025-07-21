@@ -38,7 +38,8 @@ def _take_and_load_screenshot(device_id: str) -> Optional[np.ndarray]:
 
 def find_template(
     device_id: str,
-    template_name: str
+    template_name: str,
+    make_new_screen: bool = True,
 ) -> Optional[Tuple[int, int]]:
     """Find template in image and return center coordinates"""
     try:
@@ -52,9 +53,10 @@ def find_template(
         app_logger.debug(f"Template loaded successfully. Shape: {template.shape}")
         
         # Take screenshot first
-        if not take_screenshot(device_id):
-            app_logger.error("Failed to take screenshot")
-            return None
+        if make_new_screen:
+            if not take_screenshot(device_id):
+                app_logger.error("Failed to take screenshot")
+                return None
             
         img = cv2.imread('tmp/screen.png')
         if img is None:
@@ -240,19 +242,21 @@ def _save_debug_image(
 def find_and_tap_template(
     device_id: str, 
     template_name: str,
+    make_new_screen: bool = True,
     error_msg: Optional[str] = None,
     success_msg: Optional[str] = None,
     long_press: bool = False,
     press_duration: float = 1.0,
     critical: bool = False,
     timeout: float = None,
+    interval: float = None,
     offset: tuple[int, int] = (0,0)
 ) -> bool:
     """Find and tap a template on screen"""
     if timeout:
-        location = wait_for_image(device_id, template_name, timeout=timeout)
+        location = wait_for_image(device_id, template_name, timeout=timeout, interval=interval)
     else:
-        location = find_template(device_id, template_name)
+        location = find_template(device_id, template_name, make_new_screen=make_new_screen)
         
     if location is None:
         if error_msg:

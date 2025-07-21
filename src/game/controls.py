@@ -43,6 +43,8 @@ def handle_swipes(device_id: str, direction: str = "up", num_swipes: int = 8) ->
         )
         
         swipe_screen(device_id, start_x, start_y, end_x, end_y, duration)
+        # add recoil
+        swipe_screen(device_id, end_x, end_y, start_x, start_y, duration * 0.75)
         human_delay(CONFIG['timings']['scroll_delay'])
 
 def humanized_tap(device_id: str, x: int, y: int, critical: bool = False, delay: float = None) -> None:
@@ -165,5 +167,18 @@ def navigate_home(device_id: str, force: bool = False) -> bool:
         
     except Exception as e:
         app_logger.error(f"Error navigating home: {e}")
+        return False
+   
+def check_active_on_another_device(device_id: str) -> bool:
+    """Find another device popup"""
+    try:
+        # Check if notification is on
+        notification = find_and_tap_template(device_id, "another_device", make_new_screen=False, offset=(0, 60))
+        if notification:
+            app_logger.debug("Account is active on another device")
+            return True
+            
+    except Exception as e:
+        app_logger.error(f"Error check_active_on_another_device: {e}")
         return False
    

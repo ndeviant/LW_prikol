@@ -11,7 +11,7 @@ from src.core.adb import get_current_running_app
 from src.core.device import cleanup_temp_files, cleanup_device_screenshots
 from src.automation.state import AutomationState
 from src.automation.handler_factory import HandlerFactory
-from src.game.controls import launch_game, navigate_home
+from src.game.controls import launch_game, navigate_home, check_active_on_another_device
 import os
 import asyncio
 
@@ -270,6 +270,8 @@ class MainAutomation:
             notification_interval = 3600  # 1 hour in seconds
             
             while True:
+                check_active_on_another_device(self.device_id)
+
                 # Check if game is running first
                 current_app = get_current_running_app(self.device_id)
                 if current_app == CONFIG['package_name']:

@@ -10,6 +10,10 @@
   "screenshot_quality": 100,
   "match_threshold": 0.6,
   "ui_elements": {
+    "chat": {
+      "x": "50%",
+      "y": "97%"
+    },    
     "profile": {
       "x": "5%",
       "y": "3%"
@@ -32,9 +36,9 @@
     },
     "swipe": {
       "start_x": "50%",
-      "start_y": "30%",
+      "start_y": "40%",
       "end_x": "50%",
-      "end_y": "80%"
+      "end_y": "70%"
     }
   },
   "timings": {
@@ -43,8 +47,8 @@
     "list_animation": 1,
     "rally_animation": 2.5,
     "swipe_duration": {
-      "min": 300,
-      "max": 400
+      "min": 420,
+      "max": 500
     },
     "list_timeout": 2.0,
     "accept_timeout": 1.0,
@@ -139,6 +143,10 @@
     "start": {
       "path": "templates/ui/start.png",
       "threshold": 0.75
+    },    
+    "another_device": {
+      "path": "templates/ui/another_device.png",
+      "threshold": 0.75
     },
     "alliance": {
       "path": "templates/alliance/alliance.png",
@@ -147,6 +155,10 @@
     "alliance_tech_icon": {
       "path": "templates/alliance/alliance_tech_icon.png",
       "threshold": 0.55
+    },    
+    "alliance_chat_inactive": {
+      "path": "templates/alliance/alliance_chat_inactive.png",
+      "threshold": 0.85
     },
     "recommended_flag": {
       "path": "templates/alliance/recommended_flag.png",
@@ -219,12 +231,28 @@
     "dig_chat_start": {
       "path": "templates/dig/dig_chat_start.png",
       "threshold": 0.75
+    },    
+    "dig_chat_start_drone": {
+      "path": "templates/dig/dig_chat_start_drone.png",
+      "threshold": 0.75
     },
     "dig_dig": {
       "path": "templates/dig/dig_dig.png",
+      "threshold": 0.65
+    },
+    "dig_dig_drone": {
+      "path": "templates/dig/dig_dig_drone.png",
+      "threshold": 0.65
+    },    
+    "dig_dig_exc": {
+      "path": "templates/dig/dig_dig_exc.png",
+      "threshold": 0.65
+    },
+    "dig_dig_dig": {
+      "path": "templates/dig/dig_dig_dig.png",
       "threshold": 0.75
     },    
-    "dig_dig_dig": {
+    "dig_dig_dig_drone": {
       "path": "templates/dig/dig_dig_dig.png",
       "threshold": 0.75
     },
@@ -238,6 +266,10 @@
     },    
     "dig_chat_claim_drone": {
       "path": "templates/dig/dig_chat_claim_drone.png",
+      "threshold": 0.75
+    },    
+    "dig_claimed": {
+      "path": "templates/dig/dig_claimed.png",
       "threshold": 0.75
     },
     "rss_truck": {
@@ -334,8 +366,8 @@
     "notifications" : {
       "dig": {
         "content": "<:digEmote:1305924160949846106> **NEW DIG!**",
-        "embed_title": ":zap: Action Required",
-        "embed_value": ":flag_us: A new dig has been posted! Get digging!\n [Android](https://play.google.com/store/apps/details?id=com.fun.lastwar.gp)    [iOS](https://apps.apple.com/app/last-war-survival/id6448786147)\n",
+        "embed_title": ":zap: Action Required\n",
+        "embed_value": ":flag_us: A new dig has been posted! Get digging!\n [Android](https://play.google.com/store/apps/details?id=com.fun.lastwar.gp) | [iOS](https://apps.apple.com/app/last-war-survival/id6448786147)\n",
         "embed_color": "0xCC0000"
       },
       "rss": {

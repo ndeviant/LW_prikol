@@ -23,6 +23,8 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         ):
             return True
             
+        human_delay(CONFIG['timings']['menu_animation'])
+
         # Click alliance tech icon
         if not find_and_tap_template(
             self.device_id,

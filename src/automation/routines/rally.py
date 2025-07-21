@@ -1,12 +1,14 @@
+import json
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.image_processing import find_template, find_and_tap_template
 from src.game.controls import human_delay
 from src.core.config import CONFIG
-import json
+from src.core.logging import app_logger
 
 class RallyRoutine(TimeCheckRoutine):
     def __init__(self, device_id: str, interval: int, last_run: float = None, automation=None, **kwargs):
         super().__init__(device_id, interval, last_run, automation, **kwargs)
+        self.joined_count: int = 0
 
     def _execute(self) -> bool:
         """Check and click rally button if available"""
@@ -46,6 +48,8 @@ class RallyRoutine(TimeCheckRoutine):
             error_msg="Could not find march icon",
             offset=(0, 10)
         ):
+            self.joined_count += 1
+            app_logger.info(f"Rally joined, total count: {self.joined_count}")
             return True
 
         return True 
