@@ -32,7 +32,9 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
             error_msg="Could not find alliance_gifts icon"
         ):
             return True
-            
+        
+        human_delay(CONFIG['timings']['menu_animation'])
+
         # Click collect all button
         if find_and_tap_template(
             self.device_id,

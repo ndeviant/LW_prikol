@@ -15,7 +15,7 @@
       "y": "97%"
     },    
     "profile": {
-      "x": "5%",
+      "x": "3%",
       "y": "3%"
     },
     "secretary_menu": {
@@ -174,7 +174,11 @@
     },
     "capitol_menu": {
       "path": "templates/secretary/capitol_menu.png",
-      "threshold": 0.4
+      "threshold": 0.7
+    },    
+    "apply": {
+      "path": "templates/secretary/apply.png",
+      "threshold": 0.8
     },
     "list": {
       "path": "templates/ui/list.png",
@@ -238,6 +242,10 @@
     },
     "dig_dig": {
       "path": "templates/dig/dig_dig.png",
+      "threshold": 0.65
+    },
+    "dig_dig_drone_btn": {
+      "path": "templates/dig/dig_dig_drone_btn.png",
       "threshold": 0.65
     },
     "dig_dig_drone": {

@@ -52,6 +52,26 @@
           "day": null,
           "time": "04:50"
         }
+      },
+      "apply_secretary_development": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "tuesday",
+          "time": "5:30"
+        },
+        "options": {
+          "position": "development"
+        }
+      },
+      "apply_secretary_science": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "wednesday",
+          "time": "5:30"
+        },
+        "options": {
+          "position": "science"
+        }
       }
     }
   } 

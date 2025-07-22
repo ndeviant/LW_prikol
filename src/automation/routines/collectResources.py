@@ -33,6 +33,4 @@ class CollectResourcesRoutine(TimeCheckRoutine):
 
         self.automation.game_state["is_home"] = False;
 
-        # Send Discord notification
-        # asyncio.run(discord.send('rss'))
         return True 

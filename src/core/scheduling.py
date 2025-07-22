@@ -1,6 +1,5 @@
 from typing import TypedDict, Optional, Dict
-from datetime import datetime
-from collections import OrderedDict
+from datetime import datetime, UTC
 from src.core.logging import app_logger
 
 class CheckInfo(TypedDict):
@@ -9,7 +8,8 @@ class CheckInfo(TypedDict):
     time_to_check: int         # Interval in seconds between checks
 
 class ScheduledEvent(TypedDict):
-    last_check: Optional[float]  # Unix timestamp of last check
+    last_run: Optional[float]  # Unix timestamp of last run
+    last_check: Optional[float]  # Unix timestamp of last check (unused)
     needs_check: bool           # Whether event is currently due
     day: str                    # Day of week (e.g., 'friday')
     time: str                   # Time in 24h format (e.g., '13:50')
@@ -31,7 +31,7 @@ def update_interval_check(checks: Dict[str, CheckInfo], current_time: float) -> 
 def update_schedule(events: dict[str, ScheduledEvent], current_time: float) -> dict[str, ScheduledEvent]:
     """Update scheduled events based on day of week and time (UTC)"""
     # Convert to UTC
-    current_dt = datetime.utcfromtimestamp(current_time)
+    current_dt = datetime.fromtimestamp(current_time, UTC)
     current_day = current_dt.strftime('%A').lower()
     
     app_logger.debug(f"Current UTC time: {current_dt}, Day: {current_day}")
@@ -41,24 +41,28 @@ def update_schedule(events: dict[str, ScheduledEvent], current_time: float) -> d
         app_logger.debug(f"Current day: {current_day}, Event day: {event['day']}")
         
         # Check if day matches or if no specific day is required
-        if event["day"] is not None and current_day == event["day"].lower():
-            if event["last_check"] is not None:
-                last_check_dt = datetime.utcfromtimestamp(event["last_check"])
-                if last_check_dt.date() == current_dt.date():
-                    app_logger.debug(f"Event {event_name} already ran today (UTC)")
-                    continue
-            
-            # Parse target time (UTC)
-            target_hour, target_min = map(int, event["time"].split(':'))
-            target_dt = current_dt.replace(hour=target_hour, minute=target_min)
-            
-            # Calculate time difference in minutes
-            time_diff = abs((current_dt - target_dt).total_seconds() / 60)
-            app_logger.debug(f"Time difference for {event_name}: {time_diff:.1f} minutes (UTC)")
-            
-            # Check if within 5 minute window
-            if time_diff <= 5:
-                app_logger.info(f"Scheduling event {event_name} (within {time_diff:.1f} minute window UTC)")
-                event["needs_check"] = True
+        if event["day"] is None or current_day != event["day"].lower():
+            continue
+
+        if event["last_run"] is not None:
+            last_run_dt = datetime.fromtimestamp(event["last_run"], UTC)
+            last_run_today = last_run_dt.date() == current_dt.date()
+
+            if last_run_today:
+                app_logger.debug(f"Event {event_name} already ran today (UTC)")
+                continue
+        
+        # Parse target time (UTC)
+        target_hour, target_min = map(int, event["time"].split(':'))
+        target_dt = current_dt.replace(hour=target_hour, minute=target_min)
+        
+        # Calculate time difference in minutes
+        time_diff = abs((current_dt - target_dt).total_seconds() / 60)
+        app_logger.debug(f"Time difference for {event_name}: {time_diff:.1f} minutes (UTC)")
+        
+        # Check if within 10 minute window
+        if time_diff <= 10:
+            app_logger.info(f"Scheduling event {event_name} (within {time_diff:.1f} minute window UTC)")
+            event["needs_check"] = True
                 
     return events 

@@ -1,6 +1,7 @@
+import json
 from typing import Type, Dict, Any, Optional
 import importlib
-from src.automation.routines.routineBase import TimeCheckRoutine, RoutineBase
+from src.automation.routines.routineBase import TimeCheckRoutine, DailyRoutine, RoutineBase
 from src.core.logging import app_logger
 
 class HandlerFactory:
@@ -35,7 +36,9 @@ class HandlerFactory:
             module_path, class_name = handler_path.rsplit(".", 1)
             module = importlib.import_module(module_path)
             handler_class: Type[RoutineBase] = getattr(module, class_name)
-            
+            interval = None
+            day = None
+
             # Create handler instance based on type
             if issubclass(handler_class, TimeCheckRoutine):
                 # Time check routines need interval
@@ -44,35 +47,51 @@ class HandlerFactory:
                     app_logger.error(f"No interval specified for time check routine: {handler_path}")
                     self.failed_handlers.add(handler_path)
                     return None
-                    
-                # Filter out known configuration keys that shouldn't be passed to __init__
-                excluded_keys = {
-                    "handler", "time_to_check", "interval", 
-                    "last_check", "needs_check", "last_run"
-                }
-                init_params = {
-                    k: v for k, v in config.items() 
-                    if k not in excluded_keys
-                }
-                
-                handler = handler_class(
-                    device_id,
-                    interval,
-                    automation=automation,
-                    **init_params
-                )
-                
-                # Set last_check from saved state if available
-                if "last_check" in config:
-                    handler.last_check = config["last_check"]
-                    
-                return handler
+            
+            elif issubclass(handler_class, DailyRoutine):
+                # Daily check routines needs day
+                day = config.get("day")
+                time = config.get("time")
+                if not day:
+                    app_logger.error(f"No day specified for daily check routine: {handler_path}")
+                    self.failed_handlers.add(handler_path)
+                    return None
                 
             else:
                 # Regular automation just needs device_id
                 handler = handler_class(device_id, automation=automation)
                 
                 return handler
+                    
+            # Filter out known configuration keys that shouldn't be passed to __init__
+            excluded_keys = {
+                "handler", "time_to_check",
+                "last_check", "needs_check"
+            }
+            init_params = {
+                k: v for k, v in config.items() 
+                if k not in excluded_keys
+            }
+            
+            if issubclass(handler_class, TimeCheckRoutine):
+                handler = handler_class(
+                    device_id,
+                    automation=automation,
+                    interval=interval,
+                    **init_params
+                )
+            elif issubclass(handler_class, DailyRoutine):
+                handler = handler_class(
+                    device_id,
+                    automation=automation,
+                    **init_params
+                )
+
+            # Set last_check from saved state if available
+            if "last_check" in config:
+                handler.last_check = config["last_check"]
+                
+            return handler
                 
         except (ImportError, AttributeError) as e:
             app_logger.error(f"Failed to create handler {handler_path}: {e}")

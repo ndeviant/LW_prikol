@@ -29,12 +29,12 @@ class AutomationState:
                 json.dump(self._state, f, indent=2)
         except Exception as e:
             app_logger.error(f"Error saving state: {e}")
-            
-    def get_last_run(self, check_name: str, check_type: str = "time_checks") -> Optional[float]:
+
+    def get(self, field_name: str, check_name: str, check_type: str = "time_checks"):
         """Get last run time for a check"""
-        return self._state.get(check_type, {}).get(check_name, {}).get("last_run")
-        
-    def set_last_run(self, check_name: str, timestamp: float, check_type: str = "time_checks") -> None:
+        return self._state.get(check_type, {}).get(check_name, {}).get(field_name)
+    
+    def set(self, field_name: str, value, check_name: str, check_type: str = "time_checks") -> None:
         """Set last run time for a check"""
         from collections import OrderedDict
         
@@ -43,7 +43,7 @@ class AutomationState:
         if check_name not in self._state[check_type]:
             self._state[check_type][check_name] = {}
         
-        self._state[check_type][check_name]["last_run"] = timestamp
+        self._state[check_type][check_name][field_name] = value
         
     def get_all_checks(self, check_type: str = "time_checks") -> Dict[str, Any]:
         """Get all checks of a specific type"""

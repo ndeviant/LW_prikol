@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, UTC
 import time
 from src.core.logging import app_logger
 from typing import Optional, Dict, Any
@@ -9,7 +9,7 @@ from src.game.controls import navigate_home
 class RoutineBase(ABC):
     """Base class for all automation routines"""
 
-    def __init__(self, device_id: str, automation=None, options = None) -> None:
+    def __init__(self, device_id: str, automation=None, options=None) -> None:
         self.device_id = device_id
         self.automation = automation
         self.options = options or {}
@@ -70,16 +70,18 @@ class TimeCheckRoutine(RoutineBase):
 class DailyRoutine(RoutineBase):
     """Base class for daily scheduled routines"""
     
-    def __init__(self, device_id: str, day: str, time: str, options=None):
-        super().__init__(device_id, options=None)
+    def __init__(self, device_id: str, day: str, time: str, last_run: float = None, automation=None, options=None):
+        super().__init__(device_id, automation, options)
         self.day = day.lower()
         self.time = time
-        self.last_run = None
+        self._last_run = last_run or 0
+        self.automation = automation
         
     def should_run(self) -> bool:
-        current_dt = datetime.fromtimestamp(time.time(), datetime.UTC)
-        if self.last_run:
-            last_dt = datetime.fromtimestamp(self.last_run, datetime.UTC)
+        current_dt = datetime.fromtimestamp(time.time(), UTC)
+
+        if self._last_run:
+            last_dt = datetime.fromtimestamp(self._last_run, UTC)
             if last_dt.date() == current_dt.date():
                 return False
                 
@@ -90,7 +92,7 @@ class DailyRoutine(RoutineBase):
         target_dt = current_dt.replace(hour=target_hour, minute=target_min)
         time_diff = abs((current_dt - target_dt).total_seconds() / 60)
         
-        return time_diff <= 5
+        return time_diff <= 10
     
     def after_run(self) -> None:
-        self.last_run = time.time() 
+        self._last_run = time.time() 

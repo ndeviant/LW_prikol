@@ -84,7 +84,7 @@ class MainAutomation:
             if check_data.get("interval") is None:
                 continue
             
-            last_run = self.state.get_last_run(check_name, "time_checks")
+            last_run = self.state.get("last_run", check_name, "time_checks")
             checks[check_name] = {
                 "last_run": last_run,
                 "time_to_check": check_data["interval"],
@@ -103,7 +103,8 @@ class MainAutomation:
                 continue
             
             events[event_name] = {
-                "last_run": self.state.get_last_run(event_name, "scheduled_events"),
+                "last_run": self.state.get("last_run", event_name, "scheduled_events"),
+                "last_check": self.state.get("last_check", event_name, "scheduled_events"),
                 "day": event_data["schedule"]["day"],
                 "time": event_data["schedule"]["time"],
                 "handler": event_data["handler"],
@@ -111,19 +112,19 @@ class MainAutomation:
             }
         return events
 
-    def get_handler(self, handler_path: str, config: Dict[str, Any] = None) -> Optional[RoutineBase]:
+    def get_handler(self, routine_type: str, routine_name: str, config: Dict[str, Any] = None) -> Optional[RoutineBase]:
         """Get or create a handler instance"""
-        if handler_path not in self.handlers:
+        if routine_name not in self.handlers:
             handler = self.handler_factory.create_handler(
-                handler_path, 
+                config.get("handler"), 
                 self.device_id, 
                 config or {},
                 automation=self  # Pass self reference to the handler
             )
             if handler:
-                self.handlers[handler_path] = handler
+                self.handlers[routine_name] = handler
                 
-        return self.handlers.get(handler_path)
+        return self.handlers.get(routine_name)
 
     def handle_navigation_failure(self, consecutive_failures: int) -> None:
         """Handle navigation failures with exponential backoff"""
@@ -167,6 +168,16 @@ class MainAutomation:
                 
             except Exception as e:
                 app_logger.error(f"Unexpected error: {e}")
+                current_tb = e.__traceback__
+                while current_tb:
+                    print(f"  Frame: {current_tb.tb_frame}")
+                    print(f"  Line no: {current_tb.tb_lineno}")
+                    print(f"  Filename: {current_tb.tb_frame.f_code.co_filename}")
+                    print(f"  Function: {current_tb.tb_frame.f_code.co_name}")
+                    print(f"  Local variables: {current_tb.tb_frame.f_locals}")
+                    print("-" * 20)
+                    current_tb = current_tb.tb_next
+
                 if consecutive_failures >= 5:
                     return False
                 consecutive_failures += 1
@@ -226,11 +237,11 @@ class MainAutomation:
         for task_name, _, task_type in ordered_tasks:
             if task_type == 'time_checks':
                 check_data = self.time_checks[task_name]
-                handler = self.get_handler(check_data["handler"], check_data)
+                handler = self.get_handler(task_type, task_name, check_data)
             else:  # scheduled_events
                 event_data = self.scheduled_events[task_name]
-                handler = self.get_handler(event_data["handler"], event_data)
-                
+                handler = self.get_handler(task_type, task_name, event_data)
+
             if not handler:
                 continue
                 
@@ -253,7 +264,7 @@ class MainAutomation:
                         event_data["last_run"] = current_time
                         event_data["needs_check"] = False
                         
-                    self.state.set_last_run(task_name, current_time, task_type)
+                    self.state.set("last_run", current_time, task_name, task_type)
                     self.state.save()
                 else:
                     if task_type == 'time_checks':

@@ -73,6 +73,11 @@ class CheckForDigsRoutine(TimeCheckRoutine):
                 error_msg="Could not find dig_dig icon",
             ) or find_and_tap_template(
                 self.device_id,
+                "dig_dig_drone_btn",
+                success_msg="Found dig_dig_drone_btn icon",
+                error_msg="Could not find dig_dig_drone_btn icon",
+            ) or find_and_tap_template(
+                self.device_id,
                 "dig_dig_exc",
                 success_msg="Found dig_dig_exc icon",
                 error_msg="Could not find dig_dig_exc icon",
