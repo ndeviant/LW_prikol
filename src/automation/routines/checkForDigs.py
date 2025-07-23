@@ -66,6 +66,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             human_delay(CONFIG['timings']['menu_animation'])
             human_delay(CONFIG['timings']['rally_animation'])
 
+            # Look for all kinds of marks of ongoing dig
             if not (find_and_tap_template(
                 self.device_id,
                 "dig_dig",
@@ -73,20 +74,26 @@ class CheckForDigsRoutine(TimeCheckRoutine):
                 error_msg="Could not find dig_dig icon",
             ) or find_and_tap_template(
                 self.device_id,
-                "dig_dig_drone_btn",
-                success_msg="Found dig_dig_drone_btn icon",
-                error_msg="Could not find dig_dig_drone_btn icon",
-            ) or find_and_tap_template(
-                self.device_id,
-                "dig_dig_exc",
-                success_msg="Found dig_dig_exc icon",
-                error_msg="Could not find dig_dig_exc icon",
-                offset=(0, -40)
-            ) or find_and_tap_template(
-                self.device_id,
                 "dig_dig_drone",
                 success_msg="Found dig_dig_drone icon",
                 error_msg="Could not find dig_dig_drone icon",
+            ) or find_and_tap_template(
+                self.device_id,
+                "dig_dig_radar_icon",
+                success_msg="Found dig_dig_radar_icon icon",
+                error_msg="Could not find dig_dig_radar_icon icon",
+                offset=(0, 40)
+            ) or find_and_tap_template(
+                self.device_id,
+                "dig_dig_model_exc",
+                success_msg="Found dig_dig_model_exc icon",
+                error_msg="Could not find dig_dig_model_exc icon",
+                offset=(0, -40)
+            ) or find_and_tap_template(
+                self.device_id,
+                "dig_dig_model_drone",
+                success_msg="Found dig_dig_model_drone icon",
+                error_msg="Could not find dig_dig_model_drone icon",
                 offset=(0, -15)
             )):
                 return True

@@ -173,9 +173,12 @@ def check_active_on_another_device(device_id: str) -> bool:
     """Find another device popup"""
     try:
         # Check if notification is on
-        notification = find_and_tap_template(device_id, "another_device", make_new_screen=False, offset=(0, 60))
+        notification = find_template(device_id, "another_device", make_new_screen=False)
         if notification:
             app_logger.debug("Account is active on another device")
+            human_delay(CONFIG['timings']['another_device_wait'])
+            humanized_tap(device_id, notification[0], notification[1] + 60)
+
             return True
             
     except Exception as e:

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from datetime import datetime, UTC
 import time
 from src.core.logging import app_logger
-from typing import Optional, Dict, Any
 
 from src.game.controls import navigate_home
 

@@ -56,6 +56,7 @@
     "settle_time": 0.2,
     "home_check_interval": 3.0,
     "launch_wait": 20.0,
+    "another_device_wait": 300.0,
     "launch_max_wait": 120.0,
     "quit_check_timeout": 2.0,
     "error_delay": 5.0,
@@ -244,16 +245,20 @@
       "path": "templates/dig/dig_dig.png",
       "threshold": 0.65
     },
-    "dig_dig_drone_btn": {
-      "path": "templates/dig/dig_dig_drone_btn.png",
-      "threshold": 0.65
-    },
     "dig_dig_drone": {
       "path": "templates/dig/dig_dig_drone.png",
       "threshold": 0.65
+    },
+    "dig_dig_radar_icon": {
+      "path": "templates/dig/dig_dig_radar_icon.png",
+      "threshold": 0.65
+    },
+    "dig_dig_model_drone": {
+      "path": "templates/dig/dig_dig_model_drone.png",
+      "threshold": 0.65
     },    
-    "dig_dig_exc": {
-      "path": "templates/dig/dig_dig_exc.png",
+    "dig_dig_model_exc": {
+      "path": "templates/dig/dig_dig_model_exc.png",
       "threshold": 0.65
     },
     "dig_dig_dig": {
@@ -261,7 +266,7 @@
       "threshold": 0.75
     },    
     "dig_dig_dig_drone": {
-      "path": "templates/dig/dig_dig_dig.png",
+      "path": "templates/dig/dig_dig_dig_drone.png",
       "threshold": 0.75
     },
     "dig_claim": {
