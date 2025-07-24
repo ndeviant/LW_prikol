@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, UTC
 import time
 from src.core.logging import app_logger
-from src.game import controls
+from src.game.device import controls
 
 class RoutineBase(ABC):
     """Base class for all automation routines"""

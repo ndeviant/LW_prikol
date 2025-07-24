@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from src.game.controls.strategy import ControlStrategy
+from src.game.device.strategy import ControlStrategy
 
 # 2. Concrete Strategies
 

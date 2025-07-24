@@ -5,7 +5,7 @@ from src.core.logging import app_logger
 from src.core.config import CONFIG
 from src.core.image_processing import find_template, find_all_templates, wait_for_image, find_and_tap_template
 from src.core.device import take_screenshot
-from src.game import controls
+from src.game.device import controls
 from src.core.text_detection import (
     extract_text_from_region, 
     get_text_regions, 

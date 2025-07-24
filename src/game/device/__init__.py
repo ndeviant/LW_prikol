@@ -7,9 +7,7 @@ from .windows import WindowsControls
 
 # Re-export ControlStrategy from strategy.py
 from .strategy import ControlStrategy
-from .context import Controls
-
-controls = Controls(CONFIG["env"])
+from .controls import ControlsContext, controls
 
 # Define __all__ to explicitly list what should be imported
 # when someone does 'from src.game.controls import *'
@@ -18,6 +16,6 @@ __all__ = [
     "ControlStrategy",
     "ADBControls",
     "WindowsControls",
-    "Controls",
+    "ControlsContext",
     "controls"
 ]

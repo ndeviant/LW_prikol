@@ -1,7 +1,7 @@
 from src.automation.routines import TimeCheckRoutine
 from src.core.config import CONFIG
 from src.core.image_processing import find_and_tap_template
-from src.game import controls
+from src.game.device import controls
 
 class AllianceGiftsRoutine(TimeCheckRoutine):
     force_home: bool = True

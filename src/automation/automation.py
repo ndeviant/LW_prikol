@@ -10,7 +10,7 @@ from src.core.scheduling import update_interval_check, update_schedule
 from src.core.device import cleanup_temp_files, cleanup_device_screenshots
 from src.automation.state import AutomationState
 from src.automation.handler_factory import HandlerFactory
-from src.game import controls
+from src.game.device import controls
 import os
 import asyncio
 

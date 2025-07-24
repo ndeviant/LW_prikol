@@ -3,7 +3,7 @@ from src.core.image_processing import find_all_templates, find_and_tap_template
 from src.core.logging import app_logger
 from typing import Optional
 
-from src.game import controls
+from src.game.device import controls
 
 class MapExchangeRoutine(TimeCheckRoutine):
 

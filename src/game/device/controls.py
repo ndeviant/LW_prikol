@@ -1,19 +1,21 @@
-from typing import List, Literal, Optional
+from typing import List, Optional, Literal
 
-from src.core.config import CONFIG
+from src.game.device.strategy import ControlStrategy
+from src.game.device.adb import ADBControls
+from src.game.device.windows import WindowsControls
 from src.core.logging import app_logger
-from src.game.controls.strategy import ControlStrategy
-from src.game.controls.adb import ADBControls
-from src.game.controls.windows import WindowsControls
+from src.core.config import CONFIG
 
 # 3. Context
-class Controls:
+class ControlsContext:
     """
     The Context maintains a reference to one of the Concrete Strategy objects.
     The Context does not know the concrete class of a strategy. It should
     work with all strategies via the Strategy interface.
     """
     def __init__(self, control_type: Literal["adb", "windows"] = "adb") -> None:
+
+        
         self._control_strategy: ControlStrategy
 
         # The "setting" determines which strategy to use
@@ -76,3 +78,4 @@ class Controls:
     def human_delay(self, delay) -> None:
         return self._control_strategy.human_delay(delay)
 
+controls: ControlsContext = ControlsContext(CONFIG["env"])

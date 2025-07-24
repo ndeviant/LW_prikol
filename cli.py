@@ -9,7 +9,7 @@ from src.core.logging import setup_logging, app_logger
 from src.automation.automation import MainAutomation
 from src.core.cleanup import CleanupManager
 from src.automation.handler_factory import HandlerFactory
-from src.game import controls
+from src.game.device import controls
 
 def get_routine_config():
     try:

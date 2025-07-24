@@ -2,7 +2,7 @@ from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.logging import app_logger
 from src.core.discord_bot import discord
 from src.core.image_processing import find_and_tap_template
-from src.game import controls
+from src.game.device import controls
 from src.core.config import CONFIG
 
 class CollectResourcesRoutine(TimeCheckRoutine):

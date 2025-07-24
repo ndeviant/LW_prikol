@@ -1,8 +1,7 @@
 from src.automation.routines.routineBase import DailyRoutine
 from src.core.config import CONFIG
-from src.core.device import get_screen_size
 from src.core.image_processing import find_and_tap_template, wait_for_image
-from src.game import controls
+from src.game.device import controls
 from src.core.logging import app_logger
 
 class ApplyForSecretary(DailyRoutine):
@@ -60,7 +59,7 @@ class ApplyForSecretary(DailyRoutine):
         device_id = self.device_id
         """Open the profile menu"""
         try:
-            width, height = get_screen_size(device_id)
+            width, height = controls.get_screen_size(device_id)
             profile = CONFIG['ui_elements']['profile']
             profile_x = int(width * float(profile['x'].strip('%')) / 100)
             profile_y = int(height * float(profile['y'].strip('%')) / 100)

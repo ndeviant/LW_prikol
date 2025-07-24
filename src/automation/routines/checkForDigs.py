@@ -2,7 +2,7 @@ from src.automation.routines import TimeCheckRoutine
 from src.core.logging import app_logger
 from src.core.image_processing import find_and_tap_template, wait_for_image
 from src.core.discord_bot import discord
-from src.game import controls
+from src.game.device import controls
 from src.core.config import CONFIG
 import asyncio
 import os

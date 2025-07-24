@@ -3,7 +3,7 @@ from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.image_processing import find_template, find_and_tap_template
 from src.core.config import CONFIG
 from src.core.logging import app_logger
-from src.game import controls
+from src.game.device import controls
 
 class RallyRoutine(TimeCheckRoutine):
     def __init__(self, device_id: str, interval: int, last_run: float = None, automation=None, **kwargs):

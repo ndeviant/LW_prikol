@@ -1,11 +1,11 @@
 import random
 import time
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Literal
 
-from src.core.image_processing import find_and_tap_template, find_template
 from src.core.logging import app_logger
 from src.core.config import CONFIG
+from src.core.image_processing import find_and_tap_template, find_template
 
 # 1. Strategy Interface
 class ControlStrategy(ABC):

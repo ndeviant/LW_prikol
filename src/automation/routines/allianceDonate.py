@@ -1,6 +1,6 @@
 from src.automation.routines import TimeCheckRoutine
 from src.core.image_processing import find_and_tap_template
-from src.game import controls
+from src.game.device import controls
 from src.core.config import CONFIG
 
 class AllianceDonateRoutine(TimeCheckRoutine):

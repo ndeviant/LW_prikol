@@ -273,7 +273,7 @@ def find_and_tap_template(
     coors = (location[0] + offset[0], location[1] + offset[1])
         
     # Import here to avoid circular dependency
-    from src.game import controls
+    from src.game.device import controls
         
     if long_press:
         controls.click(coors[0], coors[1], duration=press_duration)
