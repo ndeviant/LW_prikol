@@ -1,5 +1,10 @@
 from datetime import datetime, time, UTC
 from zoneinfo import ZoneInfo
+from pathlib import Path
+
+def ensure_dir(path: str) -> None:
+    """Ensure directory exists"""
+    Path(path).mkdir(exist_ok=True)
 
 def convert_local_time_to_utc(local_time_str: str) -> datetime:
     """

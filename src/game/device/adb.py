@@ -1,5 +1,4 @@
 import os
-from random import random
 import re
 import subprocess
 import time
@@ -7,8 +6,9 @@ import traceback
 from typing import List, Optional
 
 from src.core.config import CONFIG
+from src.core.helpers import ensure_dir
 from src.core.logging import app_logger
-from src.game.device.strategy import ControlStrategy
+from .strategy import ControlStrategy
 
 # 2. Concrete Strategies
 class ADBControls(ControlStrategy):
@@ -282,3 +282,43 @@ class ADBControls(ControlStrategy):
         except subprocess.CalledProcessError as e:
             app_logger.exception(f"Failed to get current running app: {e}")
             return None
+        
+    def take_screenshot(self) -> bool:
+        """Take screenshot and pull to local tmp directory"""
+        try:
+            ensure_dir("tmp")
+            
+            # Take screenshot on device
+            cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} shell screencap -p /sdcard/screen.png"
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                app_logger.error(f"Failed to take screenshot: {result.stderr}")
+                return False
+                
+            # Pull screenshot to local tmp directory
+            cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} pull /sdcard/screen.png tmp/screen.png"
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                app_logger.error(f"Failed to pull screenshot: {result.stderr}")
+                return False
+                
+            # Clean up device screenshots
+            self.cleanup_device_screenshots()
+            return True
+            
+        except Exception as e:
+            app_logger.error(f"Error taking screenshot: {e}")
+            return False
+
+    def cleanup_device_screenshots(self) -> None:
+        """Clean up screenshots from device"""
+        try:
+            cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} shell rm -f /sdcard/screen*.png"
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode == 0:
+                app_logger.debug("Cleaned up device screenshots")
+            else:
+                app_logger.warning(f"Failed to clean device screenshots: {result.stderr}")
+        except Exception as e:
+            app_logger.error(f"Error cleaning device screenshots: {e}")
+

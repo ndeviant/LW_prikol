@@ -5,8 +5,9 @@ import cv2
 import pytesseract
 import re
 from typing import Tuple, Optional, Union, List, Dict, Any
+
+from src.game.device import controls
 from .logging import app_logger
-from .device import take_screenshot, get_screen_size
 from .image_processing import _load_template, _take_and_load_screenshot, find_template, find_all_templates
 from .config import CONFIG
 from .debug import save_debug_region
@@ -24,7 +25,7 @@ def get_text_regions(
     existing_screenshot: Optional[np.ndarray] = None
 ) -> Tuple[Tuple[int, int, int, int], Tuple[int, int, int, int], Optional[np.ndarray]]:
     """Calculate regions for alliance tag and name extraction based on bracket location"""
-    width, height = get_screen_size(device_id)
+    width, height = controls.get_screen_size()
     
     if existing_screenshot is not None:
         img = existing_screenshot
@@ -64,7 +65,7 @@ def get_text_regions(
         y2 = min(height, y1 + min_height)
     
     # Take screenshot and crop to search region
-    if not take_screenshot(device_id):
+    if not controls.take_screenshot():
         return (0, 0, 0, 0), (0, 0, 0, 0), None
         
     img = cv2.imread('tmp/screen.png')
@@ -160,7 +161,7 @@ def clean_text(text: str) -> str:
 
 def extract_text_from_region(device_id: str, region: Tuple[int, int, int, int], languages: Union[str, List[str]] = 'eng', img: Optional[np.ndarray] = None) -> str:
     if img is None:
-        if not take_screenshot(device_id):
+        if not controls.take_screenshot():
             return "", ""
         img = cv2.imread('tmp/screen.png')
         if img is None:

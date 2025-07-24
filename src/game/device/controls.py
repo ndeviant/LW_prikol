@@ -1,8 +1,8 @@
 from typing import List, Optional, Literal
 
-from src.game.device.strategy import ControlStrategy
-from src.game.device.adb import ADBControls
-from src.game.device.windows import WindowsControls
+from .strategy import ControlStrategy
+from .adb import ADBControls
+from .windows import WindowsControls
 from src.core.logging import app_logger
 from src.core.config import CONFIG
 
@@ -75,7 +75,16 @@ class ControlsContext:
     def simulate_shake(self) -> None:
         return self._control_strategy.simulate_shake()
 
+    def take_screenshot(self) -> bool:
+        return self._control_strategy.take_screenshot()
+
+    def cleanup_device_screenshots(self) -> None:
+        return self._control_strategy.cleanup_device_screenshots()
+
     def human_delay(self, delay) -> None:
         return self._control_strategy.human_delay(delay)
-
+    
+    def cleanup_temp_files(self) -> None:
+        return self._control_strategy.cleanup_temp_files()
+    
 controls: ControlsContext = ControlsContext(CONFIG["env"])

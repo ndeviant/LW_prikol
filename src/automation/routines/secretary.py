@@ -4,7 +4,6 @@ from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.logging import app_logger
 from src.core.config import CONFIG
 from src.core.image_processing import find_template, find_all_templates, wait_for_image, find_and_tap_template
-from src.core.device import take_screenshot
 from src.game.device import controls
 from src.core.text_detection import (
     extract_text_from_region, 
@@ -181,7 +180,7 @@ class SecretaryRoutine(TimeCheckRoutine):
                     topmost_accept = accept_locations[0]
                     
                     if len(CONTROL_LIST['whitelist']['alliance']) > 0:
-                        if not take_screenshot(self.device_id):
+                        if not controls.take_screenshot():
                             break
 
                         current_screenshot = cv2.imread('tmp/screen.png')

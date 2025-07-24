@@ -6,7 +6,6 @@ import time
 from typing import Optional, Tuple
 
 from .logging import app_logger
-from .device import take_screenshot
 from .config import CONFIG
 import os
 
@@ -25,8 +24,9 @@ def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[d
     return template, template_config
 
 def _take_and_load_screenshot(device_id: str) -> Optional[np.ndarray]:
+    from src.game.device import controls
     """Take and load a screenshot"""
-    if not take_screenshot(device_id):
+    if not controls.take_screenshot():
         app_logger.error("Failed to take screenshot")
         return None
         
@@ -43,6 +43,8 @@ def find_template(
     make_new_screen: bool = True,
 ) -> Optional[Tuple[int, int]]:
     """Find template in image and return center coordinates"""
+    from src.game.device import controls
+
     try:
         app_logger.debug(f"Looking for template: {template_name}")
         
@@ -55,7 +57,7 @@ def find_template(
         
         # Take screenshot first
         if make_new_screen:
-            if not take_screenshot(device_id):
+            if not controls.take_screenshot():
                 app_logger.error("Failed to take screenshot")
                 return None
             

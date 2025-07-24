@@ -1,7 +1,7 @@
 import random
 import time
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union, Literal
+from typing import List, Optional, Union
 
 from src.core.logging import app_logger
 from src.core.config import CONFIG
@@ -254,6 +254,14 @@ class ControlStrategy(ABC):
         """Simulates a shake gesture on the device."""
         pass
     
+    @abstractmethod
+    def take_screenshot(self) -> bool:
+        """Take screenshot and pull to local tmp directory"""
+
+    @abstractmethod
+    def cleanup_device_screenshots(self) -> None:
+        """Clean up screenshots from device"""
+
     """Common functions"""
     def human_delay(self, delay: Union[float, str]):
         """
@@ -277,3 +285,32 @@ class ControlStrategy(ABC):
         final_delay = actual_delay * CONFIG.get('sleep_multiplier', 1.0)
         """Add a human-like delay between actions"""
         time.sleep(final_delay)
+
+    def cleanup_temp_files(self) -> None:
+        """Clean up temporary files"""
+        return
+        try:
+            # Remove entire tmp directory and its contents recursively
+            tmp_dir = Path("tmp")
+            if tmp_dir.exists():
+                for item in tmp_dir.iterdir():
+                    try:
+                        if item.is_file():
+                            item.unlink()
+                            app_logger.debug(f"Cleaned up temporary file: {item}")
+                        elif item.is_dir():
+                            shutil.rmtree(item, ignore_errors=True)
+                            app_logger.debug(f"Cleaned up temporary directory: {item}")
+                    except Exception as e:
+                        app_logger.warning(f"Failed to delete {item}: {e}")
+                
+                try:
+                    tmp_dir.rmdir()
+                    app_logger.debug("Cleaned up main temporary directory")
+                except Exception as e:
+                    app_logger.warning(f"Failed to delete tmp directory: {e}")
+        except Exception as e:
+            app_logger.error(f"Error cleaning temporary files: {e}")
+
+
+

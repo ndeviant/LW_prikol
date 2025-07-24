@@ -7,7 +7,6 @@ from src.automation.routines.routineBase import RoutineBase
 from src.core.config import CONFIG
 from src.core.logging import app_logger, setup_logging
 from src.core.scheduling import update_interval_check, update_schedule
-from src.core.device import cleanup_temp_files, cleanup_device_screenshots
 from src.automation.state import AutomationState
 from src.automation.handler_factory import HandlerFactory
 from src.game.device import controls
@@ -39,8 +38,8 @@ class MainAutomation:
         """Cleanup resources"""
         try:
             app_logger.info("Cleaning up resources...")
-            cleanup_temp_files()
-            cleanup_device_screenshots(self.device_id)
+            controls.cleanup_temp_files()
+            controls.cleanup_device_screenshots()
         except Exception as e:
             app_logger.error(f"Error during cleanup: {e}")
             
