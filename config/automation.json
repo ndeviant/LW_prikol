@@ -24,7 +24,7 @@
         "interval": 5,
         "options": {
           "auto_claim": true,
-          "wait_for_dig": 240,
+          "wait_for_dig": 420,
           "chat_search_swipes": 5
         }
       },
