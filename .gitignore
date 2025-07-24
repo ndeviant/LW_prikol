@@ -11,4 +11,4 @@ state/*
 
 # Environment variables
 .env
-
+.vscode
