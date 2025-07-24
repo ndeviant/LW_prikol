@@ -1,6 +1,5 @@
 {
-  "env": "adb",
-  "package_name": "com.fun.lastwar.gp",
+  "env": "windows",
   "sleep_multiplier": 1,
   "debug_mode": false,
   "max_retries": 3,
@@ -380,7 +379,12 @@
       }
     }
   },
+  "windows": {
+    "app_name": "Last War-Survival Game",
+    "executable_path": "D:\\Apps\\_Games\\TheLastWar\\app-1.0.170\\LastWar.exe"
+  },
   "adb": {
+    "package_name": "com.fun.lastwar.gp",
     "host": "",
     "port": -1,
     "binary_path": "adb",

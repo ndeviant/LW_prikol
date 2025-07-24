@@ -75,14 +75,9 @@ def main():
     args = parser.parse_args()
     setup_logging()
     
-    if (controls.get_connected_device):
-        device_id = controls.get_connected_device()
-        if not device_id:
-            app_logger.error("No devices found. Please check:")
-            app_logger.error("1. Device is connected via USB")
-            app_logger.error("2. USB debugging is enabled")
-            app_logger.error("3. Computer is authorized for USB debugging")
-            sys.exit(1)
+    device_id = controls.get_connected_device()
+    if not device_id:
+        sys.exit(1)
     
     app_logger.info(f"Connected to device: {device_id}")
     

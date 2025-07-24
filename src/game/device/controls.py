@@ -69,9 +69,6 @@ class ControlsContext:
     def get_connected_device(self) -> Optional[str]:
         return self._control_strategy.get_connected_device()
 
-    def get_current_running_app(self) -> Optional[str]:
-        return self._control_strategy.get_current_running_app()
-
     def simulate_shake(self) -> None:
         return self._control_strategy.simulate_shake()
 

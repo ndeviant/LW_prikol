@@ -118,9 +118,9 @@ class ControlStrategy(ABC):
 
     def launch_game(self):
         """Launch the game"""
-        self.force_stop_package(CONFIG['package_name'])
+        self.force_stop_package()
         time.sleep(CONFIG['timings']['app_close_wait'])
-        self.launch_package(CONFIG['package_name'])
+        self.launch_package()
         
         start_time = time.time()
         while time.time() - start_time < CONFIG['timings']['launch_max_wait']:
@@ -242,11 +242,6 @@ class ControlStrategy(ABC):
     @abstractmethod
     def get_connected_device(self) -> Optional[str]:
         """Returns the ID of the currently connected device, or None if none."""
-        pass
-
-    @abstractmethod
-    def get_current_running_app(self) -> Optional[str]:
-        """Returns the package name of the currently running foreground application."""
         pass
 
     @abstractmethod

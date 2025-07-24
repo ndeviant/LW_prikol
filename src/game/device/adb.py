@@ -12,15 +12,15 @@ from .strategy import ControlStrategy
 
 # 2. Concrete Strategies
 class ADBControls(ControlStrategy):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.device_id = self.get_connected_device()
 
     @property
     def is_app_running(self) -> bool:
         # Check if game is running first
         current_app = self.get_current_running_app()
-        if current_app == CONFIG['package_name']:
+        if current_app == CONFIG['adb']['package_name']:
             return True
 
     """
@@ -47,10 +47,10 @@ class ADBControls(ControlStrategy):
             app_logger.error(f"Failed to execute long press on device {device_id}")
             return False
 
-    def _perform_swipe(self, start_x: int, start_y: int, end_x: int, end_y: int, duration: int = 300) -> bool:
+    def _perform_swipe(self, start_x: int, start_y: int, end_x: int, end_y: int, duration_ms: int = 300) -> bool:
         """Swipe screen from start to end coordinates"""
         try:
-            cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} shell input swipe {start_x} {start_y} {end_x} {end_y} {duration}"
+            cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} shell input swipe {start_x} {start_y} {end_x} {end_y} {duration_ms}"
             result = subprocess.run(cmd, capture_output=True, text=True)
             return result.returncode == 0
             
@@ -139,7 +139,7 @@ class ADBControls(ControlStrategy):
         except Exception as e:
             raise RuntimeError(f"Failed to get screen size: {e}")
 
-    def launch_package(self, package_name: str = CONFIG['package_name']):
+    def launch_package(self, package_name: str = CONFIG['adb']['package_name']):
         """Launch an app package"""
         subprocess.run(
             [CONFIG.adb["binary_path"], '-s', self.device_id, 'shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'],
@@ -147,7 +147,7 @@ class ADBControls(ControlStrategy):
             stderr=subprocess.DEVNULL
         )
 
-    def force_stop_package(self, package_name: str = CONFIG['package_name']):
+    def force_stop_package(self, package_name: str = CONFIG['adb']['package_name']):
         """Force stop an app package"""
         subprocess.run([CONFIG.adb["binary_path"], '-s', self.device_id, 'shell', 'am', 'force-stop', package_name])
 
@@ -255,7 +255,10 @@ class ADBControls(ControlStrategy):
 
         devices = self.get_device_list()
         if not devices:
-            app_logger.error("No devices connected")
+            app_logger.error("No devices found. Please check:")
+            app_logger.error("1. Device is connected via USB")
+            app_logger.error("2. USB debugging is enabled")
+            app_logger.error("3. Computer is authorized for USB debugging")
             return None
         if len(devices) > 1:
             app_logger.warning(f"Multiple devices found, using first one: {devices[0]}")
