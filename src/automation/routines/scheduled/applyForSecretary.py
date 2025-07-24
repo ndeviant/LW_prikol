@@ -59,7 +59,7 @@ class ApplyForSecretary(DailyRoutine):
         device_id = self.device_id
         """Open the profile menu"""
         try:
-            width, height = controls.get_screen_size(device_id)
+            width, height = controls.get_screen_size()
             profile = CONFIG['ui_elements']['profile']
             profile_x = int(width * float(profile['x'].strip('%')) / 100)
             profile_y = int(height * float(profile['y'].strip('%')) / 100)
