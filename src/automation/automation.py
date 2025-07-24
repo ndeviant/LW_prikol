@@ -7,11 +7,10 @@ from src.automation.routines.routineBase import RoutineBase
 from src.core.config import CONFIG
 from src.core.logging import app_logger, setup_logging
 from src.core.scheduling import update_interval_check, update_schedule
-from src.core.adb import get_current_running_app
 from src.core.device import cleanup_temp_files, cleanup_device_screenshots
 from src.automation.state import AutomationState
 from src.automation.handler_factory import HandlerFactory
-from src.game.controls import launch_game, navigate_home, check_active_on_another_device
+from src.game import controls
 import os
 import asyncio
 
@@ -279,13 +278,13 @@ class MainAutomation:
             base_sleep = CONFIG['timings']['home_check_interval']
             last_notification_time = 0
             notification_interval = 3600  # 1 hour in seconds
-            
+
             while True:
-                check_active_on_another_device(self.device_id)
+   
+                controls.check_active_on_another_device()
 
                 # Check if game is running first
-                current_app = get_current_running_app(self.device_id)
-                if current_app == CONFIG['package_name']:
+                if controls.is_app_running:
                     return True
                 
                 app_logger.info("Game is not running, launching game")
@@ -313,7 +312,7 @@ class MainAutomation:
                 
                 app_logger.debug(f"Navigation failed, waiting {sleep_time}s before retry {retry_count}")
                 time.sleep(sleep_time)
-                launch_game(self.device_id)
+                controls.launch_game()
                 
                 # Reset retry count after it hits max to prevent sleep time from growing indefinitely
                 if retry_count >= CONFIG['max_home_attempts']:
@@ -348,9 +347,9 @@ class MainAutomation:
             app_logger.info(f"Launching game in {sleep_time} seconds")
             time.sleep(sleep_time)
             
-            if launch_game(self.device_id):
+            if controls.launch_game():
                 app_logger.info("Game launched successfully")
-                if navigate_home(self.device_id, force=True):
+                if controls.navigate_home(force=True):
                     self.game_state["is_home"] = True
                     return True
                 

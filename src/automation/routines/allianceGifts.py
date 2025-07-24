@@ -1,8 +1,7 @@
 from src.automation.routines import TimeCheckRoutine
-from src.core.adb import press_back
 from src.core.config import CONFIG
 from src.core.image_processing import find_and_tap_template
-from src.game.controls import human_delay
+from src.game import controls
 
 class AllianceGiftsRoutine(TimeCheckRoutine):
     force_home: bool = True
@@ -23,7 +22,7 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         ):
             return True
             
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay(CONFIG['timings']['menu_animation'])
 
         # Click alliance tech icon
         if not find_and_tap_template(
@@ -33,7 +32,7 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         ):
             return True
         
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay(CONFIG['timings']['menu_animation'])
 
         # Click collect all button
         if find_and_tap_template(
@@ -42,9 +41,9 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
             error_msg="No claim all button found"
         ):
             # Clear claim message
-            human_delay(CONFIG['timings']['menu_animation'])
-            press_back(self.device_id)
-            human_delay(CONFIG['timings']['menu_animation'])
+            controls.human_delay(CONFIG['timings']['menu_animation'])
+            controls.press_back()
+            controls.human_delay(CONFIG['timings']['menu_animation'])
         
         # Donate with long press
         if not find_and_tap_template(

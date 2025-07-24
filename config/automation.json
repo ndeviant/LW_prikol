@@ -72,6 +72,16 @@
         "options": {
           "position": "science"
         }
+      },
+      "apply_secretary_interior": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "thursday",
+          "time": "00:15"
+        },
+        "options": {
+          "position": "interior"
+        }
       }
     }
   } 

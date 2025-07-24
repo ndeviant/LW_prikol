@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, UTC
 import time
 from src.core.logging import app_logger
-
-from src.game.controls import navigate_home
+from src.game import controls
 
 class RoutineBase(ABC):
     """Base class for all automation routines"""
@@ -22,8 +21,8 @@ class RoutineBase(ABC):
         """Start the automation sequence with home navigation"""
         try:
             if not self.automation.game_state["is_home"]:
-                if not navigate_home(self.device_id, True):
-                    app_logger.error("Failed to navigate home after clearing dig")
+                if not controls.navigate_home(True):
+                    app_logger.error("Failed to navigate home after on start")
                     return False
             self.automation.game_state["is_home"] = True
             return self._execute()

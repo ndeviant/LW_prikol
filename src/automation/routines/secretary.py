@@ -5,8 +5,7 @@ from src.core.logging import app_logger
 from src.core.config import CONFIG
 from src.core.image_processing import find_template, find_all_templates, wait_for_image, find_and_tap_template
 from src.core.device import take_screenshot
-from src.core.adb import get_screen_size, press_back
-from src.game.controls import human_delay, humanized_tap, handle_swipes
+from src.game import controls
 from src.core.text_detection import (
     extract_text_from_region, 
     get_text_regions, 
@@ -42,7 +41,7 @@ class SecretaryRoutine(TimeCheckRoutine):
             critical=True
         ):  
             return False
-        handle_swipes(self.device_id, direction="down", num_swipes=1)
+        controls.swipe(direction="down", num_swipes=1)
         return self.process_all_secretary_positions()
 
     def find_accept_buttons(self) -> list[Tuple[int, int]]:
@@ -90,11 +89,11 @@ class SecretaryRoutine(TimeCheckRoutine):
     def open_profile_menu(self, device_id: str) -> bool:
         """Open the profile menu"""
         try:
-            width, height = get_screen_size(device_id)
+            width, height = controls.get_screen_size()
             profile = CONFIG['ui_elements']['profile']
             profile_x = int(width * float(profile['x'].strip('%')) / 100)
             profile_y = int(height * float(profile['y'].strip('%')) / 100)
-            humanized_tap(device_id, profile_x, profile_y)
+            controls.click(profile_x, profile_y)
 
             # Look for notification indicators
             notification = wait_for_image(
@@ -104,9 +103,9 @@ class SecretaryRoutine(TimeCheckRoutine):
             )
             
             if notification:
-                humanized_tap(device_id, notification[0], notification[1])
-                press_back(device_id)
-                human_delay(CONFIG['timings']['menu_animation'])
+                controls.click(notification[0], notification[1])
+                controls.press_back()
+                controls.human_delay(CONFIG['timings']['menu_animation'])
 
             return True
         except Exception as e:
@@ -121,8 +120,8 @@ class SecretaryRoutine(TimeCheckRoutine):
                 if self.verify_secretary_menu():
                     return True
                     
-                press_back(self.device_id)
-                human_delay(CONFIG['timings']['menu_animation'])
+                controls.press_back()
+                controls.human_delay(CONFIG['timings']['menu_animation'])
                 
             app_logger.error("Failed to return to secretary menu")
             return False
@@ -151,7 +150,7 @@ class SecretaryRoutine(TimeCheckRoutine):
             ):
                 return True  # Continue with next position
             
-            human_delay(CONFIG['timings']['tap_delay'])
+            controls.human_delay(CONFIG['timings']['tap_delay'])
             
             # Find and click list button
             if not find_and_tap_template(
@@ -167,8 +166,8 @@ class SecretaryRoutine(TimeCheckRoutine):
             if accept_locations:
                 # Scroll to top if needed
                 if len(accept_locations) > 5:
-                    handle_swipes(self.device_id, direction="up")
-                    human_delay(CONFIG['timings']['settle_time'] * 2)
+                    controls.swipe(direction="up")
+                    controls.human_delay(CONFIG['timings']['settle_time'] * 2)
                     accept_locations = self.find_accept_buttons()
                 
                 processed = 0
@@ -206,7 +205,7 @@ class SecretaryRoutine(TimeCheckRoutine):
                         )
 
                         if alliance_text in CONTROL_LIST['whitelist']['alliance']:
-                            humanized_tap(self.device_id, topmost_accept[0], topmost_accept[1])
+                            controls.click(topmost_accept[0], topmost_accept[1])
                             app_logger.debug(f"Tapping accept at coordinates: ({topmost_accept[0]}, {topmost_accept[1]})")
                             app_logger.info(f"Accepted candidate with alliance: {alliance_text} for {name}")
                             accepted += 1
@@ -226,7 +225,7 @@ class SecretaryRoutine(TimeCheckRoutine):
                                 reject_button = reject_buttons[0]
                                 # Verify it's aligned with our accept button vertically
                                 if abs(reject_button[1] - topmost_accept[1]) <= 10:  # 10 pixel tolerance
-                                    humanized_tap(self.device_id, reject_button[0], reject_button[1])
+                                    controls.click(reject_button[0], reject_button[1])
                                     app_logger.debug(f"Tapping reject at coordinates: ({reject_button[0]}, {reject_button[1]})")
                                     if not find_and_tap_template(
                                         self.device_id,
@@ -246,10 +245,10 @@ class SecretaryRoutine(TimeCheckRoutine):
                                     continue
                     else:
                         # No whitelist - accept all
-                        humanized_tap(self.device_id, topmost_accept[0], topmost_accept[1])
+                        controls.click(topmost_accept[0], topmost_accept[1])
                     
                     processed += 1
-                    human_delay(CONFIG['timings']['settle_time'])
+                    controls.human_delay(CONFIG['timings']['settle_time'])
                                 
             # Exit menus with verification
             if not self.exit_to_secretary_menu():
@@ -330,7 +329,7 @@ class SecretaryRoutine(TimeCheckRoutine):
             ):
                 raise RuntimeError('secretary not accessible')
             
-            human_delay(CONFIG['timings']['tap_delay'])
+            controls.human_delay(CONFIG['timings']['tap_delay'])
             
             # Find list button
             if not find_template(

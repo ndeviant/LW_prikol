@@ -1,9 +1,8 @@
 from src.automation.routines.routineBase import DailyRoutine
-from src.core.adb import press_back
 from src.core.config import CONFIG
 from src.core.device import get_screen_size
 from src.core.image_processing import find_and_tap_template, wait_for_image
-from src.game.controls import handle_swipes, human_delay, humanized_tap
+from src.game import controls
 from src.core.logging import app_logger
 
 class ApplyForSecretary(DailyRoutine):
@@ -30,8 +29,8 @@ class ApplyForSecretary(DailyRoutine):
             ):  
                 return False
             
-            handle_swipes(self.device_id, direction="down", num_swipes=1)
-            human_delay(CONFIG['timings']['menu_animation'])
+            controls.swipe(direction="down", num_swipes=1)
+            controls.human_delay(CONFIG['timings']['menu_animation'])
 
             if not find_and_tap_template(
                 self.device_id,
@@ -41,7 +40,7 @@ class ApplyForSecretary(DailyRoutine):
             ):
                 return False
                         
-            human_delay(CONFIG['timings']['menu_animation'])
+            controls.human_delay(CONFIG['timings']['menu_animation'])
 
             if not find_and_tap_template(
                 self.device_id,
@@ -65,7 +64,7 @@ class ApplyForSecretary(DailyRoutine):
             profile = CONFIG['ui_elements']['profile']
             profile_x = int(width * float(profile['x'].strip('%')) / 100)
             profile_y = int(height * float(profile['y'].strip('%')) / 100)
-            humanized_tap(device_id, profile_x, profile_y)
+            controls.click(profile_x, profile_y)
 
             # Look for notification indicators
             notification = wait_for_image(
@@ -75,9 +74,9 @@ class ApplyForSecretary(DailyRoutine):
             )
             
             if notification:
-                humanized_tap(device_id, notification[0], notification[1])
-                press_back(device_id)
-                human_delay(CONFIG['timings']['menu_animation'])
+                controls.click(notification[0], notification[1])
+                controls.press_back()
+                controls.human_delay(CONFIG['timings']['menu_animation'])
 
             return True
         

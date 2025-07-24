@@ -1,4 +1,5 @@
 {
+  "env": "adb",
   "package_name": "com.fun.lastwar.gp",
   "sleep_multiplier": 1,
   "debug_mode": false,
@@ -89,19 +90,7 @@
   "control_list": {
     "whitelist": {
       "alliance": [
-        "Brn",
-        "sTAR",
-        "twr",
-        "UbRg",
-        "Trol",
-        "trol",
-        "wxp",
-        "NzC",
-        "krw",
-        "FZL",
-        "rhw",
-        "s8UP",
-        "ssUP"
+        "Brn"
       ]
     },
     "blacklist": {

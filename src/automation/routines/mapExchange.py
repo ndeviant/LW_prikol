@@ -1,8 +1,9 @@
 from src.automation.routines import TimeCheckRoutine
 from src.core.image_processing import find_all_templates, find_and_tap_template
-from src.game.controls import humanized_tap
 from src.core.logging import app_logger
 from typing import Optional
+
+from src.game import controls
 
 class MapExchangeRoutine(TimeCheckRoutine):
 
@@ -83,7 +84,7 @@ class MapExchangeRoutine(TimeCheckRoutine):
                 app_logger.debug("No more valid exchange locations")
                 return True
             
-            humanized_tap(self.device_id, next_location[0], next_location[1])
+            controls.click(next_location[0], next_location[1])
 
             if not find_and_tap_template(
                 self.device_id,

@@ -1,6 +1,6 @@
 from src.automation.routines import TimeCheckRoutine
 from src.core.image_processing import find_and_tap_template
-from src.game.controls import human_delay
+from src.game import controls
 from src.core.config import CONFIG
 
 class AllianceDonateRoutine(TimeCheckRoutine):
@@ -22,7 +22,7 @@ class AllianceDonateRoutine(TimeCheckRoutine):
         ):
             return True
             
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay('menu_animation')
 
         # Click alliance tech icon
         if not find_and_tap_template(
@@ -32,7 +32,7 @@ class AllianceDonateRoutine(TimeCheckRoutine):
         ):
             return True
             
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay('menu_animation')
 
         # Click recommended flag
         if not find_and_tap_template(
@@ -42,7 +42,7 @@ class AllianceDonateRoutine(TimeCheckRoutine):
         ):
             return True
             
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay('menu_animation')
 
         # Donate with long press
         if not find_and_tap_template(

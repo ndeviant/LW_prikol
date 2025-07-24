@@ -2,9 +2,8 @@ from src.automation.routines import TimeCheckRoutine
 from src.core.logging import app_logger
 from src.core.image_processing import find_and_tap_template, wait_for_image
 from src.core.discord_bot import discord
-from src.game.controls import human_delay, humanized_tap, handle_swipes
+from src.game import controls
 from src.core.config import CONFIG
-from src.core.adb import get_screen_size, press_back
 import asyncio
 import os
 
@@ -63,8 +62,8 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             
             self.unclaimed_dig = True
             
-            human_delay(CONFIG['timings']['menu_animation'])
-            human_delay(CONFIG['timings']['rally_animation'])
+            controls.human_delay(CONFIG['timings']['menu_animation'])
+            controls.human_delay(CONFIG['timings']['rally_animation'])
 
             # Look for all kinds of marks of ongoing dig
             if not (find_and_tap_template(
@@ -98,7 +97,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             )):
                 return True
             
-            human_delay(CONFIG['timings']['rally_animation'])
+            controls.human_delay(CONFIG['timings']['rally_animation'])
 
             if not (find_and_tap_template(
                 self.device_id,
@@ -111,7 +110,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             )):
                 return True
             
-            human_delay(CONFIG['timings']['menu_animation'])
+            controls.human_delay(CONFIG['timings']['menu_animation'])
             
             if not find_and_tap_template(
                 self.device_id,
@@ -132,7 +131,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
 
             if claim_btn:
                 self.unclaimed_dig = False
-                humanized_tap(self.device_id, claim_btn[0], claim_btn[1])
+                controls.click(claim_btn[0], claim_btn[1])
                 self.claimed_count += 1
                 app_logger.info(f"Dig claimed, total count: {self.claimed_count}")
 
@@ -145,12 +144,12 @@ class CheckForDigsRoutine(TimeCheckRoutine):
     def open_alli_chat(self, device_id: str) -> bool:
         """Open the alliance chat"""
         try:
-            width, height = get_screen_size(device_id)
+            width, height = controls.get_screen_size()
             chat = CONFIG['ui_elements']['chat']
             chat_x = int(width * float(chat['x'].strip('%')) / 100)
             chat_y = int(height * float(chat['y'].strip('%')) / 100)
-            humanized_tap(device_id, chat_x, chat_y)
-            human_delay(CONFIG['timings']['menu_animation'])
+            controls.click(chat_x, chat_y)
+            controls.human_delay(CONFIG['timings']['menu_animation'])
 
             # Check if alliance chat is not selected
             alli_chat_inactive = wait_for_image(
@@ -160,8 +159,8 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             )
             
             if alli_chat_inactive:
-                humanized_tap(device_id, alli_chat_inactive[0], alli_chat_inactive[1])
-                human_delay(CONFIG['timings']['menu_animation'])
+                controls.click(alli_chat_inactive[0], alli_chat_inactive[1])
+                controls.human_delay(CONFIG['timings']['menu_animation'])
 
             return True
         
@@ -182,7 +181,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             success_msg="Found dig_chat_claim_drone icon",
             offset=(0, 15)
         )):
-            human_delay(CONFIG['timings']['rally_animation'])
+            controls.human_delay(CONFIG['timings']['rally_animation'])
 
             if find_and_tap_template(
                     self.device_id,
@@ -210,8 +209,8 @@ class CheckForDigsRoutine(TimeCheckRoutine):
         if self.claim_dig_from_chat():
             return True
         for _ in range(chat_search_swipes):
-            handle_swipes(self.device_id, direction="up", num_swipes=1)
-            human_delay(CONFIG['timings']['menu_animation'])
+            controls.swipe(direction="up", num_swipes=1)
+            controls.human_delay(CONFIG['timings']['menu_animation'])
             if self.claim_dig_from_chat():
                 return True
 

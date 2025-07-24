@@ -1,9 +1,8 @@
 from src.automation.routines.routineBase import TimeCheckRoutine
-from src.core.adb import simulate_shake
 from src.core.logging import app_logger
 from src.core.discord_bot import discord
 from src.core.image_processing import find_and_tap_template
-from src.game.controls import human_delay
+from src.game import controls
 from src.core.config import CONFIG
 
 class CollectResourcesRoutine(TimeCheckRoutine):
@@ -13,7 +12,7 @@ class CollectResourcesRoutine(TimeCheckRoutine):
         
     def _execute_internal(self) -> bool:
         print("Collecting resources todo")
-        #simulate_shake(self.device_id)
+        controls.simulate_shake()
 
         if not find_and_tap_template(
             self.device_id,
@@ -22,7 +21,7 @@ class CollectResourcesRoutine(TimeCheckRoutine):
         ):
             return True   
 
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay(CONFIG['timings']['menu_animation'])
         
         if not find_and_tap_template(
             self.device_id,

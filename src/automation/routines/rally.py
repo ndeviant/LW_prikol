@@ -1,9 +1,9 @@
 import json
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.image_processing import find_template, find_and_tap_template
-from src.game.controls import human_delay
 from src.core.config import CONFIG
 from src.core.logging import app_logger
+from src.game import controls
 
 class RallyRoutine(TimeCheckRoutine):
     def __init__(self, device_id: str, interval: int, last_run: float = None, automation=None, **kwargs):
@@ -23,7 +23,7 @@ class RallyRoutine(TimeCheckRoutine):
             return True
         
         self.automation.game_state["is_home"] = False;
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay(CONFIG['timings']['menu_animation'])
 
         find_and_tap_template(
             self.device_id,
@@ -40,7 +40,7 @@ class RallyRoutine(TimeCheckRoutine):
                 offset=(-30, 0)
             )
         
-        human_delay(CONFIG['timings']['rally_animation'])
+        controls.human_delay(CONFIG['timings']['rally_animation'])
 
         if not find_and_tap_template(
             self.device_id,

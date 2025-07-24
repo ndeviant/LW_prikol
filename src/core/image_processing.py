@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import time
 from typing import Optional, Tuple
+
 from .logging import app_logger
 from .device import take_screenshot
 from .config import CONFIG
@@ -272,11 +273,11 @@ def find_and_tap_template(
     coors = (location[0] + offset[0], location[1] + offset[1])
         
     # Import here to avoid circular dependency
-    from src.game.controls import humanized_tap, humanized_long_press
+    from src.game import controls
         
     if long_press:
-        humanized_long_press(device_id, coors[0], coors[1], duration=press_duration)
+        controls.click(coors[0], coors[1], duration=press_duration)
     else:
-        humanized_tap(device_id, coors[0], coors[1])
+        controls.click(coors[0], coors[1])
         
     return True
