@@ -1,5 +1,7 @@
 from typing import List, Optional, Literal
 
+import numpy as np
+
 from .strategy import ControlStrategy
 from .adb import ADBControls
 from .windows import WindowsControls
@@ -8,13 +10,21 @@ from src.core.config import CONFIG
 
 # 3. Context
 class ControlsContext:
+    _instance: Optional['ControlsContext'] = None
+    _initialized: bool = False
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
     """
     The Context maintains a reference to one of the Concrete Strategy objects.
     The Context does not know the concrete class of a strategy. It should
     work with all strategies via the Strategy interface.
     """
     def __init__(self, control_type: Literal["adb", "windows"] = "adb") -> None:
-
+        if self._initialized:
+            return
         
         self._control_strategy: ControlStrategy
 
@@ -72,7 +82,7 @@ class ControlsContext:
     def simulate_shake(self) -> None:
         return self._control_strategy.simulate_shake()
 
-    def take_screenshot(self) -> bool:
+    def take_screenshot(self) -> Optional[np.ndarray]:
         return self._control_strategy.take_screenshot()
 
     def cleanup_device_screenshots(self) -> None:

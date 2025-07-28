@@ -11,14 +11,15 @@ import os
 
 def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[dict]]:
     """Load template and its config"""
-    template_config = CONFIG['templates'].get(template_name)
+    template_config = CONFIG.get(f"templates.{template_name}")
+    template_path = template_config['path'].format(env=CONFIG["env"])
     if not template_config:
         app_logger.error(f"Template {template_name} not found in config")
         return None, None
         
-    template = cv2.imread(f"config/{template_config['path']}")
+    template = cv2.imread(f"config/{template_path}")
     if template is None:
-        app_logger.error(f"Failed to load template: config/{template_config['path']}")
+        app_logger.error(f"Failed to load template: config/{template_path}")
         return None, None
         
     return template, template_config
@@ -26,16 +27,7 @@ def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[d
 def _take_and_load_screenshot(device_id: str) -> Optional[np.ndarray]:
     from src.game.device import controls
     """Take and load a screenshot"""
-    if not controls.take_screenshot():
-        app_logger.error("Failed to take screenshot")
-        return None
-        
-    img = cv2.imread('tmp/screen.png')
-    if img is None:
-        app_logger.error("Failed to load screenshot")
-        return None
-        
-    return img
+    return controls.take_screenshot()
 
 def find_template(
     device_id: str,
@@ -57,11 +49,10 @@ def find_template(
         
         # Take screenshot first
         if make_new_screen:
-            if not controls.take_screenshot():
-                app_logger.error("Failed to take screenshot")
-                return None
-            
-        img = cv2.imread('tmp/screen.png')
+            img = controls.take_screenshot()
+        else:
+            img = cv2.imread('tmp/screen.png')
+
         if img is None:
             app_logger.debug("Failed to load screenshot")
             return None

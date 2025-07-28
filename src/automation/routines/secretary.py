@@ -180,10 +180,11 @@ class SecretaryRoutine(TimeCheckRoutine):
                     topmost_accept = accept_locations[0]
                     
                     if len(CONTROL_LIST['whitelist']['alliance']) > 0:
-                        if not controls.take_screenshot():
+                        current_screenshot = controls.take_screenshot()
+
+                        if not current_screenshot:
                             break
 
-                        current_screenshot = cv2.imread('tmp/screen.png')
                         if current_screenshot is None:
                             break
 

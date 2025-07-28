@@ -4,6 +4,7 @@ import time
 import os
 import re
 import traceback
+import numpy as np
 import pywinauto
 from pywinauto import Desktop, Application, findwindows 
 from pywinauto.keyboard import send_keys
@@ -24,6 +25,8 @@ class WindowsControls(ControlStrategy):
         self.device_id = os.getlogin()
         self.app_name = CONFIG['windows']['app_name']
         self.executable_path = CONFIG['windows']['executable_path']
+        self.process_name = CONFIG['windows']['process_name']
+        self.pid: int = None
 
         self.app = None # pywinauto.Application instance
         self.main_window = None # pywinauto.WindowSpecification or Wrapper object for the main app window
@@ -36,13 +39,28 @@ class WindowsControls(ControlStrategy):
     def _connect_to_lastwar_app(self) -> bool:
         """Helper to connect to the LastWar application and get its main window."""
 
-        if not (self.app_name or self.executable_path):
+        if not (self.app_name or self.executable_path or self.process_name):
             app_logger.error("[Windows] No application identifier (name, path, or process name) configured for LastWar.")
             return False
 
         try:
             # Prioritize connecting by process name or path for robustness
-            if self.executable_path:
+            if self.process_name:
+                app_logger.debug(f"[Windows] Attempting to connect to LastWar by process name: {self.process_name}")
+                # Find PID first using psutil for reliability
+                import psutil # Ensure psutil is installed
+                pid = None
+                for proc in psutil.process_iter(['pid', 'name']):
+                    if proc.info['name'].lower() == self.process_name.lower():
+                        pid = proc.info['pid']
+                        break
+                if pid:
+                    self.pid = pid
+                    self.app = Application(backend="uia").connect(process=pid, timeout=10)
+                else:
+                    app_logger.warning(f"[Windows] Process '{self.process_name}' not found. Cannot connect.")
+                    return False
+            elif self.executable_path:
                 app_logger.debug(f"[Windows] Attempting to connect to LastWar by path: {self.executable_path}")
                 self.app = Application(backend="uia").connect(path=self.executable_path, timeout=10)
             elif self.app_name:
@@ -81,27 +99,20 @@ class WindowsControls(ControlStrategy):
             self.main_window = None
             return False
 
-
     @property
     def is_app_running(self) -> bool:
-        """Check if the target application is running on Windows."""
-        try:
-            # Try to connect to the application by title or process name
-            # Assuming CONFIG['app_name'] or CONFIG['app_executable'] holds the target app info
-            app_name = CONFIG.get('windows', {}).get('app_name')
-            if not app_name:
-                app_logger.warning("[Windows] No application name configured for 'is_app_running'.")
+        """Check if the target LastWar application is running and connected."""
+        if self.app and self.app.is_process_running():
+            try:
+                # Try to refresh the window reference to ensure it's still valid
+                self.main_window.wrapper_object() # Accessing wrapper_object can re-validate
+                app_logger.debug(f"[Windows] LastWar app is running and connected.")
+                return True
+            except Exception:
+                app_logger.debug("[Windows] LastWar app process is running, but window reference is stale.")
                 return False
-            
-            # This is a heuristic, connecting might raise if not found
-            app = Application(backend="uia").connect(title_re=f".*{re.escape(app_name)}.*", timeout=1)
-            # Or by process name: app = Application(backend="uia").connect(path=app_executable_path, timeout=1)
-            app_logger.debug(f"[Windows] App '{app_name}' is running.")
-            return True
-        
-        except Exception:
-            app_logger.debug(f"[Windows] App '{app_name}' is not running.")
-            return False
+        app_logger.debug("[Windows] LastWar app process is not running.")
+        return False
 
     def _perform_click(self, x: int, y: int, duration_ms: int = 0) -> bool:
         """Execute a click/long press at coordinates using pyautogui."""
@@ -165,27 +176,32 @@ class WindowsControls(ControlStrategy):
             return False
 
     def get_screen_size(self) -> tuple[int, int]:
-        """Get Windows screen resolution using pyautogui."""
+        """Get the size of the LastWar app window."""
+        if not self.main_window:
+            app_logger.error("[Windows] Cannot get screen size: LastWar app window not connected.")
+            raise RuntimeError("LastWar app window not connected to get size.")
         try:
-            width, height = pyautogui.size()
-            app_logger.debug(f"[Windows] Screen size: {width}x{height}")
+            rect = self.main_window.rectangle()
+            width = rect.width()
+            height = rect.height()
+            app_logger.debug(f"[Windows] LastWar window size: {width}x{height}")
             return width, height
         except Exception as e:
-            app_logger.error(f"[Windows] Failed to get screen size: {e}")
+            app_logger.error(f"[Windows] Failed to get LastWar window size: {e}")
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
-            raise RuntimeError(f"Failed to get screen size: {e}")
+            raise RuntimeError(f"Failed to get LastWar window size: {e}")
 
-    def launch_package(self, package_name: str = CONFIG.get('windows', {}).get('executable_path', '')) -> bool:
+    def launch_package(self, executable_path: str = CONFIG.get('windows', {}).get('executable_path', '')) -> bool:
         """Launch an application on Windows."""
         try:
-            if not package_name:
+            if not executable_path:
                 app_logger.error("[Windows] No executable path configured for launching application.")
                 return False
-            Application(backend="uia").start(package_name)
-            app_logger.info(f"[Windows] Launched application: {package_name}")
+            Application(backend="uia").start(executable_path)
+            app_logger.info(f"[Windows] Launched application: {executable_path}")
             return True
         except Exception as e:
-            app_logger.error(f"[Windows] Failed to launch application {package_name}: {e}")
+            app_logger.error(f"[Windows] Failed to launch application {executable_path}: {e}")
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
             return False
 
@@ -234,15 +250,19 @@ class WindowsControls(ControlStrategy):
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
             return None
 
-    def take_screenshot(self) -> bool:
-        """Take screenshot of the entire screen using pyautogui and save to tmp/screen.png."""
+    def take_screenshot(self) -> Optional[np.ndarray]:
+        """Take screenshot of the LastWar app window and save to tmp/screen.png."""
+        if not self.main_window:
+            app_logger.error("[Windows] Cannot take screenshot: LastWar app window not connected.")
+            return False
         try:
             ensure_dir("tmp")
-            screenshot = pyautogui.screenshot()
+            # Capture screenshot of the specific window
+            screenshot = self.main_window.capture_as_image()
             screenshot.save('tmp/screen.png')
             return True
         except Exception as e:
-            app_logger.error(f"[Windows] Error taking screenshot: {e}")
+            app_logger.error(f"[Windows] Error taking LastWar app screenshot: {e}")
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
             return False
         

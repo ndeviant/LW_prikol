@@ -1,5 +1,6 @@
 """Logging configuration"""
 
+import io
 import logging
 import sys
 from pathlib import Path
@@ -13,8 +14,11 @@ file_handler.setFormatter(logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 ))
 
+# Create a TextIOWrapper for sys.stdout with UTF-8 encoding
+utf8_stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 # Configure console handler
-console_handler = logging.StreamHandler(sys.stdout)
+console_handler = logging.StreamHandler(utf8_stdout)
 console_handler.setFormatter(logging.Formatter(
     '%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%H:%M:%S'

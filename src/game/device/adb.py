@@ -3,17 +3,25 @@ import re
 import subprocess
 import time
 import traceback
+from pathlib import Path
 from typing import List, Optional
+import numpy as np
+from typing import Optional
+import concurrent.futures
+import cv2
 
 from src.core.config import CONFIG
 from src.core.helpers import ensure_dir
 from src.core.logging import app_logger
 from .strategy import ControlStrategy
 
+file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+
 # 2. Concrete Strategies
 class ADBControls(ControlStrategy):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.device_id = None
         self.device_id = self.get_connected_device()
 
     @property
@@ -26,7 +34,7 @@ class ADBControls(ControlStrategy):
     """
     A Concrete Strategy for controlling a device via ADB commands.
     """
-    def _perform_click(self, x: int, y: int, duration: float) -> bool:
+    def _perform_click(self, x: int, y: int, duration_ms: int) -> bool:
         """Execute a long press at coordinates with specified duration
         
         Args:
@@ -39,7 +47,7 @@ class ADBControls(ControlStrategy):
         device_id: str = self.device_id
 
         try:
-            cmd = f"{CONFIG.adb['binary_path']} -s {device_id} shell input swipe {x} {y} {x} {y} {duration}"
+            cmd = f"{CONFIG.adb['binary_path']} -s {device_id} shell input swipe {x} {y} {x} {y} {duration_ms}"
             subprocess.run(cmd, shell=True, check=True)
             return True
         
@@ -252,6 +260,8 @@ class ADBControls(ControlStrategy):
 
     def get_connected_device(self) -> Optional[str]:
         """Get the first connected device ID"""
+        if (self.device_id):
+            return self.device_id
 
         devices = self.get_device_list()
         if not devices:
@@ -286,33 +296,67 @@ class ADBControls(ControlStrategy):
             app_logger.exception(f"Failed to get current running app: {e}")
             return None
         
-    def take_screenshot(self) -> bool:
-        """Take screenshot and pull to local tmp directory"""
+    def _save_image_to_disk_background(self, image_np: np.ndarray, filepath: str):
+        """Helper function to save image to disk, runs in a separate thread."""
         try:
-            ensure_dir("tmp")
-            
-            # Take screenshot on device
-            cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} shell screencap -p /sdcard/screen.png"
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            if result.returncode != 0:
-                app_logger.error(f"Failed to take screenshot: {result.stderr}")
-                return False
-                
-            # Pull screenshot to local tmp directory
-            cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} pull /sdcard/screen.png tmp/screen.png"
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            if result.returncode != 0:
-                app_logger.error(f"Failed to pull screenshot: {result.stderr}")
-                return False
-                
-            # Clean up device screenshots
-            self.cleanup_device_screenshots()
-            return True
-            
+            cv2.imwrite(str(filepath), image_np)
         except Exception as e:
-            app_logger.error(f"Error taking screenshot: {e}")
-            return False
+            app_logger.error(f"Error in background saving image to {filepath}: {e}")
 
+    def take_screenshot(self) -> Optional[np.ndarray]:
+        """
+        Takes a screenshot directly into memory, decodes it into a NumPy array,
+        returns the array, and initiates a non-blocking save to disk.
+        Returns None on failure.
+        """
+        try:
+            cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} " + 'exec-out "screencap -p 2>/dev/null"'
+            
+            result = subprocess.run(cmd, capture_output=True, text=False, check=False)
+
+            if result.returncode != 0:
+                error_output = result.stderr.decode(errors='replace').strip()
+                if error_output:
+                    app_logger.error(f"ADB command failed with return code {result.returncode}. Stderr: '{error_output}'")
+                else:
+                    app_logger.error(f"ADB command failed with return code {result.returncode}, but no stderr output.")
+                return None
+
+            screenshot_bytes = result.stdout
+            
+            if not screenshot_bytes:
+                app_logger.error("No screenshot data (0 bytes) received from device, even though ADB command succeeded.")
+                return None
+
+            # --- Decode bytes to NumPy array ---
+            np_bytes = np.frombuffer(screenshot_bytes, np.uint8)
+            image_np = cv2.imdecode(np_bytes, cv2.IMREAD_COLOR)
+
+            if image_np is None or image_np.size == 0:
+                app_logger.error(f"Failed to decode screenshot bytes into an image (invalid image data?). Bytes received: {len(screenshot_bytes)}.")
+                debug_filepath = Path("tmp") / "corrupted_screenshot_debug.bin"
+                with open(debug_filepath, "wb") as f:
+                    f.write(screenshot_bytes)
+                app_logger.error(f"Raw received bytes (length {len(screenshot_bytes)}) saved to {debug_filepath} for inspection.")
+                return None
+
+            # --- Non-blocking save to disk ---
+            ensure_dir("tmp")
+            output_filepath = 'tmp/screen.png'
+            file_save_executor.submit(self._save_image_to_disk_background, image_np, output_filepath)
+            
+            app_logger.debug(f"Screenshot captured and decoding process initiated. Saving to {output_filepath} in background.")
+            self.cleanup_device_screenshots()
+
+            return image_np
+
+        except FileNotFoundError:
+            app_logger.error(f"ADB binary not found at {CONFIG.adb['binary_path']}. Please ensure ADB is installed and in your PATH.")
+            return None
+        except Exception as e:
+            app_logger.error(f"An unexpected error occurred during screenshot capture: {e}")
+            return None
+        
     def cleanup_device_screenshots(self) -> None:
         """Clean up screenshots from device"""
         try:

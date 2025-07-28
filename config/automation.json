@@ -57,7 +57,7 @@
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
           "day": "tuesday",
-          "time": "5:30"
+          "time": "5:10"
         },
         "options": {
           "position": "development"
@@ -67,7 +67,7 @@
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
           "day": "wednesday",
-          "time": "5:30"
+          "time": "5:45"
         },
         "options": {
           "position": "science"
@@ -76,7 +76,7 @@
       "apply_secretary_interior": {
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
-          "day": "thursday",
+          "day": "monday",
           "time": "18:55"
         },
         "options": {

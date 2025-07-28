@@ -3,6 +3,8 @@ import time
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
+import numpy as np
+
 from src.core.logging import app_logger
 from src.core.config import CONFIG
 from src.core.image_processing import find_and_tap_template, find_template
@@ -250,7 +252,7 @@ class ControlStrategy(ABC):
         pass
     
     @abstractmethod
-    def take_screenshot(self) -> bool:
+    def take_screenshot(self) -> Optional[np.ndarray]:
         """Take screenshot and pull to local tmp directory"""
 
     @abstractmethod

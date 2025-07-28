@@ -1,5 +1,5 @@
 {
-  "env": "windows",
+  "env": "adb",
   "sleep_multiplier": 1,
   "debug_mode": false,
   "max_retries": 3,
@@ -98,267 +98,267 @@
   },
   "templates": {
     "left_bracket": {
-      "path": "templates/ui/left_bracket.png",
+      "path": "templates/{env}/ui/left_bracket.png",
       "threshold": 0.75
     },
     "right_bracket": {
-      "path": "templates/ui/right_bracket.png",
+      "path": "templates/{env}/ui/right_bracket.png",
       "threshold": 0.75
     },
     "accept": {
-      "path": "templates/secretary/accept.png",
+      "path": "templates/{env}/secretary/accept.png",
       "threshold": 0.6
     },
     "reject": {
-      "path": "templates/ui/reject.png",
+      "path": "templates/{env}/ui/reject.png",
       "threshold": 0.6
     },
     "confirm": {
-      "path": "templates/secretary/confirm.png",
+      "path": "templates/{env}/secretary/confirm.png",
       "threshold": 0.6
     },
     "help": {
-      "path": "templates/ui/help.png",
+      "path": "templates/{env}/ui/help.png",
       "threshold": 0.8
     },
     "home": {
-      "path": "templates/ui/home.png",
+      "path": "templates/{env}/ui/home.png",
       "threshold": 0.95
     },    
     "base": {
-      "path": "templates/ui/base.png",
+      "path": "templates/{env}/ui/base.png",
       "threshold": 0.8
     },
     "start": {
-      "path": "templates/ui/start.png",
+      "path": "templates/{env}/ui/start.png",
       "threshold": 0.75
     },    
     "another_device": {
-      "path": "templates/ui/another_device.png",
+      "path": "templates/{env}/ui/another_device.png",
       "threshold": 0.75
     },
     "alliance": {
-      "path": "templates/alliance/alliance.png",
+      "path": "templates/{env}/alliance/alliance.png",
       "threshold": 0.55
     },
     "alliance_tech_icon": {
-      "path": "templates/alliance/alliance_tech_icon.png",
+      "path": "templates/{env}/alliance/alliance_tech_icon.png",
       "threshold": 0.55
     },    
     "alliance_chat_inactive": {
-      "path": "templates/alliance/alliance_chat_inactive.png",
+      "path": "templates/{env}/alliance/alliance_chat_inactive.png",
       "threshold": 0.85
     },
     "recommended_flag": {
-      "path": "templates/alliance/recommended_flag.png",
+      "path": "templates/{env}/alliance/recommended_flag.png",
       "threshold": 0.55
     },
     "donate_button": {
-      "path": "templates/alliance/donate_button.png",
+      "path": "templates/{env}/alliance/donate_button.png",
       "threshold": 0.55
     },
     "president": {
-      "path": "templates/secretary/president.png",
+      "path": "templates/{env}/secretary/president.png",
       "threshold": 0.4
     },
     "capitol_menu": {
-      "path": "templates/secretary/capitol_menu.png",
+      "path": "templates/{env}/secretary/capitol_menu.png",
       "threshold": 0.7
     },    
     "apply": {
-      "path": "templates/secretary/apply.png",
+      "path": "templates/{env}/secretary/apply.png",
       "threshold": 0.8
     },
     "list": {
-      "path": "templates/ui/list.png",
+      "path": "templates/{env}/ui/list.png",
       "threshold": 0.6
     },
     "strategy": {
-      "path": "templates/secretary/strategy.png",
+      "path": "templates/{env}/secretary/strategy.png",
       "threshold": 0.8
     },
     "security": {
-      "path": "templates/secretary/security.png",
+      "path": "templates/{env}/secretary/security.png",
       "threshold": 0.8
     },
     "development": {
-      "path": "templates/secretary/development.png",
+      "path": "templates/{env}/secretary/development.png",
       "threshold": 0.8
     },
     "science": {
-      "path": "templates/secretary/science.png",
+      "path": "templates/{env}/secretary/science.png",
       "threshold": 0.8
     },
     "interior": {
-      "path": "templates/secretary/interior.png",
+      "path": "templates/{env}/secretary/interior.png",
       "threshold": 0.8
     },
     "military": {
-      "path": "templates/secretary/military.png",
+      "path": "templates/{env}/secretary/military.png",
       "threshold": 0.8
     },
     "administrative": {
-      "path": "templates/secretary/administrative.png",
+      "path": "templates/{env}/secretary/administrative.png",
       "threshold": 0.8
     },
     "quit": {
-      "path": "templates/ui/quit.png",
+      "path": "templates/{env}/ui/quit.png",
       "threshold": 0.65
     },
     "awesome": {
-      "path": "templates/ui/awesome.png",
+      "path": "templates/{env}/ui/awesome.png",
       "threshold": 0.75
     },
     "secret_task": {
-      "path": "templates/ui/secret_task.png",
+      "path": "templates/{env}/ui/secret_task.png",
       "threshold": 0.75
     },
     "collect": {
-      "path": "templates/ui/collect.png",
+      "path": "templates/{env}/ui/collect.png",
       "threshold": 0.75
     },
     "dig": {
-      "path": "templates/dig/dig.png",
+      "path": "templates/{env}/dig/dig.png",
       "threshold": 0.75
     },
     "dig_chat_start": {
-      "path": "templates/dig/dig_chat_start.png",
+      "path": "templates/{env}/dig/dig_chat_start.png",
       "threshold": 0.75
     },    
     "dig_chat_start_drone": {
-      "path": "templates/dig/dig_chat_start_drone.png",
+      "path": "templates/{env}/dig/dig_chat_start_drone.png",
       "threshold": 0.75
     },
     "dig_dig": {
-      "path": "templates/dig/dig_dig.png",
-      "threshold": 0.65
+      "path": "templates/{env}/dig/dig_dig.png",
+      "threshold": 0.75
     },
     "dig_dig_drone": {
-      "path": "templates/dig/dig_dig_drone.png",
-      "threshold": 0.65
+      "path": "templates/{env}/dig/dig_dig_drone.png",
+      "threshold": 0.75
     },
     "dig_dig_radar_icon": {
-      "path": "templates/dig/dig_dig_radar_icon.png",
-      "threshold": 0.65
+      "path": "templates/{env}/dig/dig_dig_radar_icon.png",
+      "threshold": 0.75
     },
     "dig_dig_model_drone": {
-      "path": "templates/dig/dig_dig_model_drone.png",
+      "path": "templates/{env}/dig/dig_dig_model_drone.png",
       "threshold": 0.65
     },    
     "dig_dig_model_exc": {
-      "path": "templates/dig/dig_dig_model_exc.png",
+      "path": "templates/{env}/dig/dig_dig_model_exc.png",
       "threshold": 0.65
     },
     "dig_dig_dig": {
-      "path": "templates/dig/dig_dig_dig.png",
+      "path": "templates/{env}/dig/dig_dig_dig.png",
       "threshold": 0.75
     },    
     "dig_dig_dig_drone": {
-      "path": "templates/dig/dig_dig_dig_drone.png",
+      "path": "templates/{env}/dig/dig_dig_dig_drone.png",
       "threshold": 0.75
     },
     "dig_claim": {
-      "path": "templates/dig/dig_claim.png",
+      "path": "templates/{env}/dig/dig_claim.png",
       "threshold": 0.75
     },
     "dig_chat_claim": {
-      "path": "templates/dig/dig_chat_claim.png",
+      "path": "templates/{env}/dig/dig_chat_claim.png",
       "threshold": 0.75
     },    
     "dig_chat_claim_drone": {
-      "path": "templates/dig/dig_chat_claim_drone.png",
+      "path": "templates/{env}/dig/dig_chat_claim_drone.png",
       "threshold": 0.75
     },    
     "dig_claimed": {
-      "path": "templates/dig/dig_claimed.png",
+      "path": "templates/{env}/dig/dig_claimed.png",
       "threshold": 0.75
     },
     "rss_truck": {
-      "path": "templates/rss/rss_truck.png",
+      "path": "templates/{env}/rss/rss_truck.png",
       "threshold": 0.75
     },
     "ore": {
-      "path": "templates/rss/ore.png",
+      "path": "templates/{env}/rss/ore.png",
       "threshold": 0.75
     },
     "screw": {
-      "path": "templates/rss/screw.png",
+      "path": "templates/{env}/rss/screw.png",
       "threshold": 0.75
     },
     "gold": {
-      "path": "templates/rss/gold.png",
+      "path": "templates/{env}/rss/gold.png",
       "threshold": 0.75
     },
     "iron": {
-      "path": "templates/rss/iron.png",
+      "path": "templates/{env}/rss/iron.png",
       "threshold": 0.75
     },
     "food": {
-      "path": "templates/rss/food.png",
+      "path": "templates/{env}/rss/food.png",
       "threshold": 0.75
     },
     "exp": {
-      "path": "templates/rss/exp.png",
+      "path": "templates/{env}/rss/exp.png",
       "threshold": 0.75
     },
     "rallies": {
-      "path": "templates/rally/rallies.png",
+      "path": "templates/{env}/rally/rallies.png",
       "threshold": 0.9
     },     
     "golden_boss": {
-      "path": "templates/rally/golden_boss.png",
+      "path": "templates/{env}/rally/golden_boss.png",
       "threshold": 0.65
     },        
     "join_de_rally": {
-      "path": "templates/rally/join_de_rally.png",
+      "path": "templates/{env}/rally/join_de_rally.png",
       "threshold": 0.85
     },         
     "join_golden_rally": {
-      "path": "templates/rally/join_golden_rally.png",
+      "path": "templates/{env}/rally/join_golden_rally.png",
       "threshold": 0.7
     },       
     "march": {
-      "path": "templates/rally/march.png",
+      "path": "templates/{env}/rally/march.png",
       "threshold": 0.7
     },    
     "DE": {
-      "path": "templates/rally/DE.png",
+      "path": "templates/{env}/rally/DE.png",
       "threshold": 0.65
     },
     "hidden_treasures": {
-      "path": "templates/hidden_treasures/hidden_treasures_tab.png",
+      "path": "templates/{env}/hidden_treasures/hidden_treasures_tab.png",
       "threshold": 0.75
     },
     "hidden_treasures_exchange": {
-      "path": "templates/hidden_treasures/hidden_treasures_exchange.png",
+      "path": "templates/{env}/hidden_treasures/hidden_treasures_exchange.png",
       "threshold": 0.75
     },
     "hidden_treasures_start_exchange": {
-      "path": "templates/hidden_treasures/hidden_treasures_start_exchange.png",
+      "path": "templates/{env}/hidden_treasures/hidden_treasures_start_exchange.png",
       "threshold": 0.75
     },
     "hidden_treasures_allies_exchange": {
-      "path": "templates/hidden_treasures/hidden_treasures_allies_exchange.png",
+      "path": "templates/{env}/hidden_treasures/hidden_treasures_allies_exchange.png",
       "threshold": 0.75
     },
     "hidden_treasures_confirm_exchange": {
-      "path": "templates/hidden_treasures/hidden_treasures_confirm_exchange.png",
+      "path": "templates/{env}/hidden_treasures/hidden_treasures_confirm_exchange.png",
       "threshold": 0.75
     },
     "has_applicant": {
-      "path": "templates/secretary/hasApplicant.png",
+      "path": "templates/{env}/secretary/hasApplicant.png",
       "threshold": 0.50
     },
     "alliance_gifts": {
-      "path": "templates/alliance/gifts.png",
+      "path": "templates/{env}/alliance/gifts.png",
       "threshold": 0.65
     },
     "alliance_claim_all": {
-      "path": "templates/alliance/claim_all.png",
+      "path": "templates/{env}/alliance/claim_all.png",
       "threshold": 0.65
     },
     "alliance_gift_premium": {
-      "path": "templates/alliance/premium.png",
+      "path": "templates/{env}/alliance/premium.png",
       "threshold": 0.65
     }
   },
@@ -381,7 +381,8 @@
   },
   "windows": {
     "app_name": "Last War-Survival Game",
-    "executable_path": "D:\\Apps\\_Games\\TheLastWar\\app-1.0.170\\LastWar.exe"
+    "process_name": "LastWar.exe",
+    "executable_path": "D:\\Apps\\_Games\\TheLastWar\\Launch.exe"
   },
   "adb": {
     "package_name": "com.fun.lastwar.gp",

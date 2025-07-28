@@ -33,7 +33,21 @@ class ConfigManager:
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get value from main config with default"""
-        return self._config.get(key, default)
+        nested_value = self.get_nested_value(self._config, key) or default
+
+        return nested_value
+
+    def get_nested_value(self, d: Dict, path: str):
+        keys = path.split('.')
+        current_value = d
+        for key in keys:
+            if isinstance(current_value, dict):
+                current_value = current_value.get(key)
+                if current_value is None: # Key not found at this level
+                    return None
+            else: # Path continues but current_value is not a dict
+                return None
+        return current_value
 
     @property
     def time_checks(self) -> Dict[str, Any]:
@@ -54,6 +68,7 @@ class ConfigManager:
     @property
     def adb(self) -> Dict[str, Any]:
         return self._config.get('adb', {
+            "package_name": "com.fun.lastwar.gp",
             "host": "",
             "port": -1,
             "binary_path": "adb",
