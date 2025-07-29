@@ -1,12 +1,10 @@
 {
-  "env": "adb",
-  "sleep_multiplier": 1,
+  "env": "windows",
+  "sleep_multiplier": 0.8,
   "debug_mode": false,
   "max_retries": 3,
   "max_home_attempts": 15,
   "retry_delay": 1.0,
-  "collect_resources_interval": 300,
-  "donate_alliance_interval": null,
   "screenshot_quality": 100,
   "match_threshold": 0.6,
   "ui_elements": {
@@ -55,7 +53,7 @@
     "scroll_delay": 0.3,
     "settle_time": 0.2,
     "home_check_interval": 3.0,
-    "launch_wait": 20.0,
+    "launch_wait": 10.0,
     "another_device_wait": 300.0,
     "launch_max_wait": 120.0,
     "quit_check_timeout": 2.0,

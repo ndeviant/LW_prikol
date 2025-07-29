@@ -24,7 +24,8 @@
         "interval": 5,
         "options": {
           "auto_claim": true,
-          "wait_for_dig": 240,
+          "wait_for_dig": 420,
+          "wait_for_dig_interval": 0.25,
           "chat_search_swipes": 5
         }
       },
@@ -76,8 +77,8 @@
       "apply_secretary_interior": {
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
-          "day": "monday",
-          "time": "18:55"
+          "day": "tuesday",
+          "time": "15:35"
         },
         "options": {
           "position": "interior"

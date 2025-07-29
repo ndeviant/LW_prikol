@@ -1,21 +1,25 @@
+import json
 import subprocess
 from typing import Any, List, Optional, Union
 import time
 import os
 import re
 import traceback
+import cv2
 import numpy as np
 import pywinauto
 from pywinauto import Desktop, Application, findwindows 
 from pywinauto.keyboard import send_keys
 import pyautogui # For simpler mouse/keyboard actions not directly covered by pywinauto's element methods
-from PIL import Image # pyautogui uses PIL for screenshots
+import concurrent.futures
 
 from src.core.config import CONFIG
 from src.core.helpers import ensure_dir
 from src.core.logging import app_logger
 
 from .strategy import ControlStrategy
+
+file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
 # 2. Concrete Strategies
 
@@ -26,11 +30,12 @@ class WindowsControls(ControlStrategy):
         self.app_name = CONFIG['windows']['app_name']
         self.executable_path = CONFIG['windows']['executable_path']
         self.process_name = CONFIG['windows']['process_name']
+        self.backend = CONFIG['windows'].get('backend', "win32") # Use 'uia' for modern apps, 'win32' for older ones
         self.pid: int = None
 
         self.app = None # pywinauto.Application instance
         self.main_window = None # pywinauto.WindowSpecification or Wrapper object for the main app window
-        self.desktop = Desktop(backend="win32") # Use 'uia' for modern apps, 'win32' for older ones
+        self.desktop = Desktop(backend=self.backend) 
 
         # Attempt to connect to the LastWar application immediately
         self._connect_to_lastwar_app()
@@ -56,16 +61,16 @@ class WindowsControls(ControlStrategy):
                         break
                 if pid:
                     self.pid = pid
-                    self.app = Application(backend="uia").connect(process=pid, timeout=10)
+                    self.app = Application(backend=self.backend).connect(process=pid, timeout=10)
                 else:
                     app_logger.warning(f"[Windows] Process '{self.process_name}' not found. Cannot connect.")
                     return False
             elif self.executable_path:
                 app_logger.debug(f"[Windows] Attempting to connect to LastWar by path: {self.executable_path}")
-                self.app = Application(backend="uia").connect(path=self.executable_path, timeout=10)
+                self.app = Application(backend=self.backend).connect(path=self.executable_path, timeout=10)
             elif self.app_name:
                 app_logger.debug(f"[Windows] Attempting to connect to LastWar by title_re: .*{re.escape(self.app_name)}.*")
-                self.app = Application(backend="uia").connect(title_re=f".*{re.escape(self.app_name)}.*", timeout=10)
+                self.app = Application(backend=self.backend).connect(title_re=f".*{re.escape(self.app_name)}.*", timeout=10)
             else:
                 app_logger.error("[Windows] No valid connection criteria for LastWar app.")
                 return False
@@ -74,6 +79,7 @@ class WindowsControls(ControlStrategy):
             # Use wait_until_passes to ensure the window is ready
             self.main_window = self.app.top_window() # This gets the WindowSpecification
             self.main_window.wait('ready', timeout=5) # Wait for the window to be ready (visible, enabled)
+            self.main_window.set_focus()
             
             app_logger.info(f"[Windows] Successfully connected to LastWar app: '{self.main_window.window_text()}' (PID: {self.app.process})")
             return True
@@ -161,7 +167,7 @@ class WindowsControls(ControlStrategy):
             
     def simulate_shake(self) -> bool:
         """No direct equivalent for simulating shake on Windows desktop. No-op."""
-        app_logger.info("[Windows] Simulate shake is not applicable for Windows desktop automation. Skipping.")
+        app_logger.debug("[Windows] Simulate shake is not applicable for Windows desktop automation. Skipping.")
         return True # Return True as it's not an error, just not implemented
 
     def type_text(self, text: str) -> bool:
@@ -197,8 +203,11 @@ class WindowsControls(ControlStrategy):
             if not executable_path:
                 app_logger.error("[Windows] No executable path configured for launching application.")
                 return False
-            Application(backend="uia").start(executable_path)
-            app_logger.info(f"[Windows] Launched application: {executable_path}")
+            
+            Application(backend=self.backend).start(executable_path)
+            self.human_delay('launch_delay', 10.0)
+            self._connect_to_lastwar_app()
+            app_logger.debug(f"[Windows] Launched application: {executable_path}")
             return True
         except Exception as e:
             app_logger.error(f"[Windows] Failed to launch application {executable_path}: {e}")
@@ -211,14 +220,14 @@ class WindowsControls(ControlStrategy):
             if not package_name:
                 app_logger.error("[Windows] No application name configured for force stopping.")
                 return False
-            
+
             # Try to connect and kill by title (more robust) or process name
-            app = Application(backend="uia").connect(title_re=f".*{re.escape(package_name)}.*", timeout=5)
+            app = Application(backend=self.backend).connect(title_re=f".*{re.escape(package_name)}.*", timeout=1)
             app.kill()
-            app_logger.info(f"[Windows] Force stopped application: {package_name}")
+            app_logger.debug(f"[Windows] Force stopped application: {package_name}")
             return True
         except Exception as e:
-            app_logger.error(f"[Windows] Failed to force stop application {package_name}: {e}")
+            app_logger.debug(f"[Windows] Failed to force stop application {package_name}: {e}")
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
             return False
 
@@ -229,20 +238,13 @@ class WindowsControls(ControlStrategy):
 
     def get_connected_device(self) -> Optional[str]:
         """For Windows, returns the logical device ID if pywinauto can connect to desktop."""
-        try:
-            # _ = self.desktop.top_window() # Try to get any window to confirm desktop is accessible
-
-            app_logger.debug(f"[Windows] Connected to desktop: {self.device_id}")
-            return self.device_id
-        except Exception as e:
-            app_logger.error(f"[Windows] Failed to connect to desktop: {e}")
-            app_logger.debug(f"Full error details: {traceback.format_exc()}")
-            return None
+        app_logger.debug(f"[Windows] Connected to desktop: {self.device_id}")
+        return self.device_id
 
     def get_current_running_app(self) -> Optional[str]:
         """Returns the title of the currently active window on Windows."""
         try:
-            active_window = self.desktop.top_window()
+            active_window = self.desktop.active_window()
             app_logger.debug(f"[Windows] Current active app: {active_window.window_text()}")
             return active_window.window_text() # Returns the window title
         except Exception as e:
@@ -254,17 +256,24 @@ class WindowsControls(ControlStrategy):
         """Take screenshot of the LastWar app window and save to tmp/screen.png."""
         if not self.main_window:
             app_logger.error("[Windows] Cannot take screenshot: LastWar app window not connected.")
-            return False
+            return None
         try:
             ensure_dir("tmp")
-            # Capture screenshot of the specific window
-            screenshot = self.main_window.capture_as_image()
-            screenshot.save('tmp/screen.png')
-            return True
+            output_filepath = 'tmp/screen.png'
+
+            # Capture screenshot of the specific window as a PIL Image
+            pil_screenshot = self.main_window.capture_as_image()
+            # Convert PIL Image to NumPy array (RGB)
+            numpy_screenshot = np.array(pil_screenshot)
+            # Convert RGB to BGR (OpenCV's default color order) for correct color representation
+            numpy_screenshot = cv2.cvtColor(numpy_screenshot, cv2.COLOR_RGB2BGR)
+            
+            file_save_executor.submit(self._save_image_to_disk_background, numpy_screenshot, output_filepath)
+            return numpy_screenshot
         except Exception as e:
             app_logger.error(f"[Windows] Error taking LastWar app screenshot: {e}")
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
-            return False
+            return None
         
     def cleanup_device_screenshots(self) -> None:
         """No device-side screenshots to clean on Windows. This is a no-op."""

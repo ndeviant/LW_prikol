@@ -3,6 +3,7 @@ import time
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
+import cv2
 import numpy as np
 
 from src.core.logging import app_logger
@@ -30,7 +31,7 @@ class ControlStrategy(ABC):
 
 
     # Template Method: Defines the skeleton of the 'click' operation
-    def click(self, x: int, y: int, duration: float = 0.2, critical: bool = False) -> bool:
+    def click(self, x: int, y: int, duration: float = 0, critical: bool = False) -> bool:
         """Perform a humanized tap/long press with randomization
         
         Args:
@@ -40,6 +41,9 @@ class ControlStrategy(ABC):
             critical: Whether this is a critical press requiring higher precision
         """
         try:
+            if (CONFIG["env"] == "adb"):
+                duration = 0.2
+
             # Apply position randomization
             radius = CONFIG['randomization']['critical_radius'] if critical else CONFIG['randomization']['normal_radius']
             rand_x = x + random.randint(-radius, radius)
@@ -106,8 +110,6 @@ class ControlStrategy(ABC):
                 )
             
             self._perform_swipe(start_x, start_y, end_x, end_y, duration)
-            # add recoil
-            self._perform_swipe(end_x, end_y, start_x, start_y, duration * 0.75)
             self.human_delay('scroll_delay')
 
     @abstractmethod
@@ -196,12 +198,13 @@ class ControlStrategy(ABC):
     def check_active_on_another_device(self) -> bool:
         """Find another device popup"""
         try:
+            app_logger.debug("Checking if account is active on another device")
             # Check if notification is on
             notification = find_template(self.device_id, "another_device", make_new_screen=False)
             if notification:
-                app_logger.debug("Account is active on another device")
-                self.human_delay('another_device_wait')
-                self.click(notification[0], notification[1] + 60)
+                app_logger.info(f"Account is active on another device, retry in {CONFIG['timings']['another_device_wait']}s")
+                self.human_delay('another_device_wait', 300.0, 1.0)
+                self.force_stop_package()
 
                 return True
             
@@ -260,7 +263,7 @@ class ControlStrategy(ABC):
         """Clean up screenshots from device"""
 
     """Common functions"""
-    def human_delay(self, delay: Union[float, str]):
+    def human_delay(self, delay: Union[float, str], default: float = 1, multiplier: float = CONFIG.get('sleep_multiplier', 1.0)):
         """
         Add a human-like delay between actions.
         The delay can be a float (seconds) or a string key to CONFIG['timings'].
@@ -272,16 +275,24 @@ class ControlStrategy(ABC):
             try:
                 actual_delay = CONFIG['timings'][delay]
             except KeyError:
-                app_logger.warning(f"Warning: Named delay '{delay}' not found in CONFIG['timings']. Defaulting to 1.0 second.")
-                actual_delay = 1.0 # Fallback if the string key is not found
+                app_logger.debug(f"Warning: Named delay '{delay}' not found in CONFIG['timings']. Defaulting to 'default' arg.")
+                actual_delay = default # Fallback if the string key is not found
         elif isinstance(delay, (int, float)):
             # If delay is a float or int, use it directly
             actual_delay = float(delay)
 
         # Apply the sleep multiplier from CONFIG
-        final_delay = actual_delay * CONFIG.get('sleep_multiplier', 1.0)
+        final_delay = actual_delay * multiplier
         """Add a human-like delay between actions"""
         time.sleep(final_delay)
+
+                
+    def _save_image_to_disk_background(self, image_np: np.ndarray, filepath: str):
+        """Helper function to save image to disk, runs in a separate thread."""
+        try:
+            cv2.imwrite(str(filepath), image_np)
+        except Exception as e:
+            app_logger.error(f"Error in background saving image to {filepath}: {e}")
 
     def cleanup_temp_files(self) -> None:
         """Clean up temporary files"""

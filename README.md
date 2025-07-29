@@ -103,8 +103,6 @@ Before setting up, ensure you have:
   "debug_mode": false,            // Enable/disable debug logging
   "max_retries": 3,              // Maximum retry attempts for actions
   "retry_delay": 1.0,            // Delay between retries
-  "collect_resources_interval": 300,  // Seconds between resource collections
-  "donate_alliance_interval": null,   // Seconds between alliance donations (null to disable)
   "screenshot_quality": 100,      // Quality of captured screenshots
   "match_threshold": 0.8,         // Confidence threshold for template matching
   "alliance_whitelist": ["TAG1", "TAG2"],  // Alliance tags to whitelist (case-sensitive)
@@ -136,7 +134,6 @@ Before setting up, ensure you have:
    * Lower values speed up automation but may cause instability
    * Higher values increase reliability but slow down operations
 2. **Resource Management**:
-   * Set `collect_resources_interval` based on your resource generation speed
    * Use `donate_alliance_interval: null` to disable alliance donations
    * Configure `screenshot_quality` based on your storage constraints (lower = smaller files)
 3. **Error Recovery**:

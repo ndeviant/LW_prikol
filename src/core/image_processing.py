@@ -4,18 +4,26 @@ import cv2
 import numpy as np
 import time
 from typing import Optional, Tuple
+import os
 
 from .logging import app_logger
 from .config import CONFIG
-import os
 
 def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[dict]]:
     """Load template and its config"""
+    env = CONFIG["env"]
     template_config = CONFIG.get(f"templates.{template_name}")
-    template_path = template_config['path'].format(env=CONFIG["env"])
+        
     if not template_config:
         app_logger.error(f"Template {template_name} not found in config")
         return None, None
+    
+    template_path = template_config['path'].format(env=env)
+
+    # Look for a file in {env} folder, if missing use {default}
+    if not os.path.exists(f"config/{template_path}"):
+        env = "default"
+        template_path = template_config['path'].format(env=env)
         
     template = cv2.imread(f"config/{template_path}")
     if template is None:

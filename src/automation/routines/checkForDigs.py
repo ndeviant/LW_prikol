@@ -126,7 +126,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
                 self.device_id,
                 "dig_claim",
                 timeout=self.options.get("wait_for_dig", 60),
-                interval=0.5
+                interval=self.options.get("wait_for_dig_interval", 0.5),
             )
 
             if claim_btn:

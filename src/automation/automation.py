@@ -279,7 +279,6 @@ class MainAutomation:
             notification_interval = 3600  # 1 hour in seconds
 
             while True:
-   
                 controls.check_active_on_another_device()
 
                 # Check if game is running first

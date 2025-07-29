@@ -295,13 +295,6 @@ class ADBControls(ControlStrategy):
         except subprocess.CalledProcessError as e:
             app_logger.exception(f"Failed to get current running app: {e}")
             return None
-        
-    def _save_image_to_disk_background(self, image_np: np.ndarray, filepath: str):
-        """Helper function to save image to disk, runs in a separate thread."""
-        try:
-            cv2.imwrite(str(filepath), image_np)
-        except Exception as e:
-            app_logger.error(f"Error in background saving image to {filepath}: {e}")
 
     def take_screenshot(self) -> Optional[np.ndarray]:
         """
