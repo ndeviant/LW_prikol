@@ -9,7 +9,6 @@ class CheckInfo(TypedDict):
 
 class ScheduledEvent(TypedDict):
     last_run: Optional[float]  # Unix timestamp of last run
-    last_check: Optional[float]  # Unix timestamp of last check (unused)
     needs_check: bool           # Whether event is currently due
     day: str                    # Day of week (e.g., 'friday')
     time: str                   # Time in 24h format (e.g., '13:50')

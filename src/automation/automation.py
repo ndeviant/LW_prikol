@@ -102,7 +102,6 @@ class MainAutomation:
             
             events[event_name] = {
                 "last_run": self.state.get("last_run", event_name, "scheduled_events"),
-                "last_check": self.state.get("last_check", event_name, "scheduled_events"),
                 "day": event_data["schedule"]["day"],
                 "time": event_data["schedule"]["time"],
                 "handler": event_data["handler"],
