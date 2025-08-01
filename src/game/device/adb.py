@@ -1,4 +1,5 @@
 import os
+import random
 import re
 import subprocess
 import time
@@ -43,6 +44,9 @@ class ADBControls(ControlStrategy):
             y: Y coordinate
             duration: Press duration in milliseconds
         """
+
+        if not duration_ms:
+            duration_ms = int(100 * random.uniform(0.8, 1.2))
         
         device_id: str = self.device_id
 

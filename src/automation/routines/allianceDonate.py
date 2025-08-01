@@ -49,7 +49,6 @@ class AllianceDonateRoutine(TimeCheckRoutine):
             self.device_id,
             "donate_button",
             error_msg="No donate button found",
-            long_press=True,
             press_duration=15.0
         ):
             return True

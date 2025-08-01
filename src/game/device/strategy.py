@@ -1,3 +1,4 @@
+import os
 import random
 import time
 from abc import ABC, abstractmethod
@@ -120,6 +121,80 @@ class ControlStrategy(ABC):
         """
         pass   
 
+    @abstractmethod
+    def type_text(self, text: str) -> None:
+        """Types a given string of text."""
+        pass
+
+    @abstractmethod
+    def get_screen_size(self) -> tuple[int, int]:
+        """Returns the screen resolution (width, height)."""
+        pass
+
+    @abstractmethod
+    def get_device_list(self) -> List[str]:
+        """Returns a list of connected device IDs."""
+        pass
+
+    @abstractmethod
+    def launch_package(self, package_name: str) -> None:
+        """Launches a specific application package."""
+        pass
+
+    @abstractmethod
+    def force_stop_package(self, package_name: str) -> None:
+        """Forces a specific application package to stop."""
+        pass
+
+    @abstractmethod
+    def press_back(self) -> None:
+        """Simulates a 'back' button press."""
+        pass
+
+    @abstractmethod
+    def get_connected_device(self) -> Optional[str]:
+        """Returns the ID of the currently connected device, or None if none."""
+        pass
+
+    @abstractmethod
+    def simulate_shake(self) -> None:
+        """Simulates a shake gesture on the device."""
+        pass
+    
+    @abstractmethod
+    def take_screenshot(self) -> Optional[np.ndarray]:
+        """Take screenshot and pull to local tmp directory"""
+
+    @abstractmethod
+    def cleanup_device_screenshots(self) -> None:
+        """Clean up screenshots from device"""
+
+    """"""
+    """Common functions"""
+    """"""
+    def human_delay(self, delay: Union[float, str], default: float = 1, multiplier: float = CONFIG.get('sleep_multiplier', 1.0)):
+        """
+        Add a human-like delay between actions.
+        The delay can be a float (seconds) or a string key to CONFIG['timings'].
+        """
+        actual_delay: float
+
+        if isinstance(delay, str):
+            # If delay is a string, look it up in CONFIG['timings']
+            try:
+                actual_delay = CONFIG['timings'][delay]
+            except KeyError:
+                app_logger.debug(f"Warning: Named delay '{delay}' not found in CONFIG['timings']. Defaulting to 'default' arg.")
+                actual_delay = default # Fallback if the string key is not found
+        elif isinstance(delay, (int, float)):
+            # If delay is a float or int, use it directly
+            actual_delay = float(delay)
+
+        # Apply the sleep multiplier from CONFIG
+        final_delay = actual_delay * multiplier
+        """Add a human-like delay between actions"""
+        time.sleep(final_delay)
+
     def launch_game(self):
         """Launch the game"""
         self.force_stop_package()
@@ -204,6 +279,7 @@ class ControlStrategy(ABC):
             if notification:
                 app_logger.info(f"Account is active on another device, retry in {CONFIG['timings']['another_device_wait']}s")
                 self.human_delay('another_device_wait', 300.0, 1.0)
+                self.cleanup_temp_files()
                 self.force_stop_package()
 
                 return True
@@ -213,79 +289,6 @@ class ControlStrategy(ABC):
         except Exception as e:
             app_logger.error(f"Error check_active_on_another_device: {e}")
             return False
-
-    @abstractmethod
-    def type_text(self, text: str) -> None:
-        """Types a given string of text."""
-        pass
-
-    @abstractmethod
-    def get_screen_size(self) -> tuple[int, int]:
-        """Returns the screen resolution (width, height)."""
-        pass
-
-    @abstractmethod
-    def get_device_list(self) -> List[str]:
-        """Returns a list of connected device IDs."""
-        pass
-
-    @abstractmethod
-    def launch_package(self, package_name: str) -> None:
-        """Launches a specific application package."""
-        pass
-
-    @abstractmethod
-    def force_stop_package(self, package_name: str) -> None:
-        """Forces a specific application package to stop."""
-        pass
-
-    @abstractmethod
-    def press_back(self) -> None:
-        """Simulates a 'back' button press."""
-        pass
-
-    @abstractmethod
-    def get_connected_device(self) -> Optional[str]:
-        """Returns the ID of the currently connected device, or None if none."""
-        pass
-
-    @abstractmethod
-    def simulate_shake(self) -> None:
-        """Simulates a shake gesture on the device."""
-        pass
-    
-    @abstractmethod
-    def take_screenshot(self) -> Optional[np.ndarray]:
-        """Take screenshot and pull to local tmp directory"""
-
-    @abstractmethod
-    def cleanup_device_screenshots(self) -> None:
-        """Clean up screenshots from device"""
-
-    """Common functions"""
-    def human_delay(self, delay: Union[float, str], default: float = 1, multiplier: float = CONFIG.get('sleep_multiplier', 1.0)):
-        """
-        Add a human-like delay between actions.
-        The delay can be a float (seconds) or a string key to CONFIG['timings'].
-        """
-        actual_delay: float
-
-        if isinstance(delay, str):
-            # If delay is a string, look it up in CONFIG['timings']
-            try:
-                actual_delay = CONFIG['timings'][delay]
-            except KeyError:
-                app_logger.debug(f"Warning: Named delay '{delay}' not found in CONFIG['timings']. Defaulting to 'default' arg.")
-                actual_delay = default # Fallback if the string key is not found
-        elif isinstance(delay, (int, float)):
-            # If delay is a float or int, use it directly
-            actual_delay = float(delay)
-
-        # Apply the sleep multiplier from CONFIG
-        final_delay = actual_delay * multiplier
-        """Add a human-like delay between actions"""
-        time.sleep(final_delay)
-
                 
     def _save_image_to_disk_background(self, image_np: np.ndarray, filepath: str):
         """Helper function to save image to disk, runs in a separate thread."""
@@ -296,6 +299,9 @@ class ControlStrategy(ABC):
 
     def cleanup_temp_files(self) -> None:
         """Clean up temporary files"""
+        if os.path.exists("tmp/screen.png"):
+            os.remove("tmp/screen.png")
+
         return
         try:
             # Remove entire tmp directory and its contents recursively

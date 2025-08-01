@@ -54,7 +54,7 @@
     "settle_time": 0.2,
     "home_check_interval": 3.0,
     "launch_wait": 10.0,
-    "another_device_wait": 300.0,
+    "another_device_wait": 600.0,
     "launch_max_wait": 120.0,
     "quit_check_timeout": 2.0,
     "error_delay": 5.0,
@@ -133,7 +133,7 @@
     },    
     "another_device": {
       "path": "templates/{env}/ui/another_device.png",
-      "threshold": 0.75
+      "threshold": 0.85
     },
     "alliance": {
       "path": "templates/{env}/alliance/alliance.png",
@@ -303,10 +303,6 @@
       "path": "templates/{env}/rally/rallies.png",
       "threshold": 0.9
     },     
-    "golden_boss": {
-      "path": "templates/{env}/rally/golden_boss.png",
-      "threshold": 0.65
-    },        
     "join_de_rally": {
       "path": "templates/{env}/rally/join_de_rally.png",
       "threshold": 0.85

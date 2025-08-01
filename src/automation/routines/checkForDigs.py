@@ -46,6 +46,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
 
             # Check if dig is already dug up
             app_logger.info(f"Attempting to claim dig automatically")
+            controls.human_delay(CONFIG['timings']['menu_animation'])
             self.claim_dig_from_chat()
 
             # If we just start digging
@@ -103,10 +104,12 @@ class CheckForDigsRoutine(TimeCheckRoutine):
                 self.device_id,
                 "dig_dig_dig",
                 error_msg="Could not find dig_dig_dig icon",
+                success_msg="Found dig_dig_dig icon",
             ) or find_and_tap_template(
                 self.device_id,
                 "dig_dig_dig_drone",
                 error_msg="Could not find dig_dig_dig_drone icon",
+                success_msg="Found dig_dig_dig_drone icon",
             )):
                 return True
             

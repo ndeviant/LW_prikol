@@ -29,7 +29,7 @@ class RallyRoutine(TimeCheckRoutine):
             self.device_id,
             "join_golden_rally",
             error_msg="Could not find join golden boss rally",
-            offset=(-30, 0)
+            offset=(-60, 0)
         )
 
         if not (self.options.get("only_golden")):
@@ -37,7 +37,7 @@ class RallyRoutine(TimeCheckRoutine):
                 self.device_id,
                 "join_de_rally",
                 error_msg="Could not find join rally",
-                offset=(-30, 0)
+                offset=(-60, 0)
             )
         
         controls.human_delay(CONFIG['timings']['rally_animation'])
@@ -48,8 +48,9 @@ class RallyRoutine(TimeCheckRoutine):
             error_msg="Could not find march icon",
             offset=(0, 10)
         ):
-            self.joined_count += 1
-            app_logger.info(f"Rally joined, total count: {self.joined_count}")
             return True
+        
+        self.joined_count += 1
+        app_logger.info(f"Rally joined, total count: {self.joined_count}")
 
         return True 

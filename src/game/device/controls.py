@@ -43,7 +43,7 @@ class ControlsContext:
     def is_app_running(self) -> bool:
         return self._control_strategy.is_app_running
     
-    def click(self, x: int, y: int, duration: float = CONFIG['timings']['tap_delay']) -> None:
+    def click(self, x: int, y: int, duration: float = 0) -> None:
         return self._control_strategy.click(x, y, duration)
 
     def swipe(self, direction: str, num_swipes: int, duration_ms: int = CONFIG['timings']['swipe_duration']['min']) -> None:

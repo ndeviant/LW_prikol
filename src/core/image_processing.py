@@ -5,9 +5,12 @@ import numpy as np
 import time
 from typing import Optional, Tuple
 import os
+import concurrent.futures 
 
 from .logging import app_logger
 from .config import CONFIG
+
+file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
 def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[dict]]:
     """Load template and its config"""
@@ -84,7 +87,8 @@ def find_template(
             cv2.rectangle(debug_img, (max_loc[0] - padding, max_loc[1] - padding), (max_loc[0] + w + padding, max_loc[1] + h + padding), color, 3)
             cv2.putText(debug_img, f"{max_val:.3f}", (max_loc[0], max_loc[1] - padding - 5),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
-            cv2.imwrite(f'tmp/debug{"" if success else "_fail"}_find_{template_name}.png', debug_img)
+            
+            file_save_executor.submit(lambda: cv2.imwrite(f'tmp/debug{"" if success else "_fail"}_find_{template_name}.png', debug_img))
         
         # Fix the threshold comparison
         if max_val < threshold:  # Remove the incorrect "threshold - -0.16"
@@ -236,7 +240,7 @@ def _save_debug_image(
                 
         # Save debug image
         template_name = os.path.basename(template_name)
-        cv2.imwrite(f'tmp/debug_template_{template_name}.png', debug_img)
+        file_save_executor.submit(lambda: cv2.imwrite(f'tmp/debug_template_{template_name}.png', debug_img))
         
     except Exception as e:
         app_logger.error(f"Error saving debug image: {e}")
@@ -247,8 +251,7 @@ def find_and_tap_template(
     make_new_screen: bool = True,
     error_msg: Optional[str] = None,
     success_msg: Optional[str] = None,
-    long_press: bool = False,
-    press_duration: float = 1.0,
+    press_duration: float = 0,
     critical: bool = False,
     timeout: float = None,
     interval: float = None,
@@ -276,7 +279,7 @@ def find_and_tap_template(
     # Import here to avoid circular dependency
     from src.game.device import controls
         
-    if long_press:
+    if press_duration:
         controls.click(coors[0], coors[1], duration=press_duration)
     else:
         controls.click(coors[0], coors[1])

@@ -14,7 +14,7 @@
       },      
       "rally": {
         "handler": "src.automation.routines.rally.RallyRoutine",
-        "interval": null,
+        "interval": 5,
         "options": {
           "only_golden": true
         }
