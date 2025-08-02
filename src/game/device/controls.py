@@ -46,7 +46,7 @@ class ControlsContext:
     def click(self, x: int, y: int, duration: float = 0) -> None:
         return self._control_strategy.click(x, y, duration)
 
-    def swipe(self, direction: str, num_swipes: int, duration_ms: int = CONFIG['timings']['swipe_duration']['min']) -> None:
+    def swipe(self, direction: str, num_swipes: int = 1, duration_ms: int = CONFIG['timings']['swipe_duration']['min']) -> None:
         return self._control_strategy.swipe(direction, num_swipes, duration_ms)
 
     def type_text(self, text: str) -> None:

@@ -83,7 +83,8 @@ class DailyRoutine(RoutineBase):
             if last_dt.date() == current_dt.date():
                 return False
                 
-        if current_dt.strftime('%A').lower() != self.day:
+        current_week_day = current_dt.strftime('%A').lower()
+        if current_week_day != self.day:
             return False
             
         target_hour, target_min = map(int, self.time.split(':'))

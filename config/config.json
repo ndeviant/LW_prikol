@@ -111,8 +111,12 @@
       "path": "templates/{env}/ui/reject.png",
       "threshold": 0.6
     },
+    "confirm_green": {
+      "path": "templates/{env}/secretary/confirm_green.png",
+      "threshold": 0.6
+    },    
     "confirm": {
-      "path": "templates/{env}/secretary/confirm.png",
+      "path": "templates/{env}/ui/confirm.png",
       "threshold": 0.6
     },
     "help": {
@@ -130,7 +134,7 @@
     "start": {
       "path": "templates/{env}/ui/start.png",
       "threshold": 0.75
-    },    
+    },        
     "another_device": {
       "path": "templates/{env}/ui/another_device.png",
       "threshold": 0.85
@@ -215,6 +219,26 @@
       "path": "templates/{env}/ui/collect.png",
       "threshold": 0.75
     },
+    "inventory": {
+      "path": "templates/{env}/inventory/inventory.png",
+      "threshold": 0.85
+    },        
+    "use": {
+      "path": "templates/{env}/inventory/use.png",
+      "threshold": 0.85
+    },    
+    "shield_8": {
+      "path": "templates/{env}/inventory/shield_8.png",
+      "threshold": 0.85
+    },        
+    "shield_12": {
+      "path": "templates/{env}/inventory/shield_12.png",
+      "threshold": 0.85
+    },        
+    "shield_24": {
+      "path": "templates/{env}/inventory/shield_24.png",
+      "threshold": 0.85
+    },    
     "dig": {
       "path": "templates/{env}/dig/dig.png",
       "threshold": 0.75

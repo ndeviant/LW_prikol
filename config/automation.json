@@ -83,6 +83,16 @@
         "options": {
           "position": "interior"
         }
+      },
+      "apply_shield": {
+        "handler": "src.automation.routines.scheduled.applyShield.ApplyShield",
+        "schedule": {
+          "day": "saturday",
+          "time": "2:02"
+        },
+        "options": {
+          "shields": [8, 12]
+        }
       }
     }
   } 

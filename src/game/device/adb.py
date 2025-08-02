@@ -35,7 +35,7 @@ class ADBControls(ControlStrategy):
     """
     A Concrete Strategy for controlling a device via ADB commands.
     """
-    def _perform_click(self, x: int, y: int, duration_ms: int) -> bool:
+    def _perform_click(self, x: int, y: int, duration_ms: int = 200) -> bool:
         """Execute a long press at coordinates with specified duration
         
         Args:
@@ -45,9 +45,6 @@ class ADBControls(ControlStrategy):
             duration: Press duration in milliseconds
         """
 
-        if not duration_ms:
-            duration_ms = int(100 * random.uniform(0.8, 1.2))
-        
         device_id: str = self.device_id
 
         try:

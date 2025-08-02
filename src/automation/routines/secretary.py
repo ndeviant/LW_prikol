@@ -229,17 +229,17 @@ class SecretaryRoutine(TimeCheckRoutine):
                                     app_logger.debug(f"Tapping reject at coordinates: ({reject_button[0]}, {reject_button[1]})")
                                     if not find_and_tap_template(
                                         self.device_id,
-                                        "confirm",
-                                        error_msg="Failed to find confirm button",
+                                        "confirm_green",
+                                        error_msg="Failed to find confirm_green button",
                                         critical=True
                                     ):
                                         continue
                             else:
-                                # No reject buttons found, try confirm
+                                # No reject buttons found, try confirm_green
                                 if not find_and_tap_template(
                                     self.device_id,
-                                    "confirm",
-                                    error_msg="Failed to find confirm button",
+                                    "confirm_green",
+                                    error_msg="Failed to find confirm_green button",
                                     critical=True
                                 ):
                                     continue

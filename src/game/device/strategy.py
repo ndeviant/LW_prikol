@@ -32,7 +32,7 @@ class ControlStrategy(ABC):
 
 
     # Template Method: Defines the skeleton of the 'click' operation
-    def click(self, x: int, y: int, duration: float = 0, critical: bool = False) -> bool:
+    def click(self, x: int, y: int, duration: float = None, critical: bool = False) -> bool:
         """Perform a humanized tap/long press with randomization
         
         Args:
@@ -42,8 +42,8 @@ class ControlStrategy(ABC):
             critical: Whether this is a critical press requiring higher precision
         """
         try:
-            if (CONFIG["env"] == "adb"):
-                duration = 0.2
+            if (duration == None):
+                duration = 0.1
 
             # Apply position randomization
             radius = CONFIG['randomization']['critical_radius'] if critical else CONFIG['randomization']['normal_radius']

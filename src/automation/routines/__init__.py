@@ -7,3 +7,4 @@ from .allianceDonate import AllianceDonateRoutine
 from .checkForDigs import CheckForDigsRoutine
 #from .weeklyReset import WeeklyResetRoutine 
 from .scheduled.applyForSecretary import ApplyForSecretary 
+from .scheduled.applyShield import ApplyShield 
