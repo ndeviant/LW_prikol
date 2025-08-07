@@ -1,5 +1,9 @@
 {
     "time_checks": {
+      "another_device": {
+        "handler": "src.automation.routines.checkAnotherDevice.CheckAnotherDeviceRoutine",
+        "interval": 10
+      },
       "cleanup": {
         "handler": "src.automation.routines.cleanup.CleanupRoutine",
         "interval": 3600
@@ -14,7 +18,7 @@
       },      
       "rally": {
         "handler": "src.automation.routines.rally.RallyRoutine",
-        "interval": 5,
+        "interval": null,
         "options": {
           "only_golden": true
         }
@@ -24,9 +28,9 @@
         "interval": 5,
         "options": {
           "auto_claim": true,
-          "wait_for_dig": 420,
+          "wait_for_dig": 540,
           "wait_for_dig_interval": 0.25,
-          "chat_search_swipes": 5
+          "chat_search_swipes": 3
         }
       },
       "secretary": {
@@ -58,7 +62,7 @@
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
           "day": "tuesday",
-          "time": "5:10"
+          "time": "5:20"
         },
         "options": {
           "position": "development"
@@ -68,7 +72,7 @@
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
           "day": "wednesday",
-          "time": "5:45"
+          "time": "5:50"
         },
         "options": {
           "position": "science"
@@ -77,8 +81,8 @@
       "apply_secretary_interior": {
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
-          "day": "tuesday",
-          "time": "15:35"
+          "day": "thursday",
+          "time": "8:10"
         },
         "options": {
           "position": "interior"

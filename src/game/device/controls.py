@@ -55,17 +55,14 @@ class ControlsContext:
     def launch_game(self) -> None:
         return self._control_strategy.launch_game()
 
-    def launch_package(self, package_name: str) -> None:
-        return self._control_strategy.launch_package(package_name)
+    def launch_package(self, *args, **kwargs) -> None:
+        return self._control_strategy.launch_package(*args, **kwargs)
 
-    def force_stop_package(self, package_name: str) -> None:
-        return self._control_strategy.force_stop_package(package_name)
+    def force_stop_package(self, *args, **kwargs) -> None:
+        return self._control_strategy.force_stop_package(*args, **kwargs)
 
     def navigate_home(self, force: bool) -> None:
         return self._control_strategy.navigate_home(force)
-
-    def check_active_on_another_device(self) -> None:
-        return self._control_strategy.check_active_on_another_device()
 
     def get_screen_size(self) -> tuple[int, int]:
         return self._control_strategy.get_screen_size()
@@ -88,8 +85,8 @@ class ControlsContext:
     def cleanup_device_screenshots(self) -> None:
         return self._control_strategy.cleanup_device_screenshots()
 
-    def human_delay(self, delay) -> None:
-        return self._control_strategy.human_delay(delay)
+    def human_delay(self, *args, **kwargs) -> None:
+        return self._control_strategy.human_delay(*args, **kwargs)
     
     def cleanup_temp_files(self) -> None:
         return self._control_strategy.cleanup_temp_files()

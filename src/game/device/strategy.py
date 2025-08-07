@@ -269,27 +269,7 @@ class ControlStrategy(ABC):
         except Exception as e:
             app_logger.error(f"Error navigating home: {e}")
             return False
-        
-    def check_active_on_another_device(self) -> bool:
-        """Find another device popup"""
-        try:
-            app_logger.debug("Checking if account is active on another device")
-            # Check if notification is on
-            notification = find_template(self.device_id, "another_device", make_new_screen=False)
-            if notification:
-                app_logger.info(f"Account is active on another device, retry in {CONFIG['timings']['another_device_wait']}s")
-                self.human_delay('another_device_wait', 300.0, 1.0)
-                self.cleanup_temp_files()
-                self.force_stop_package()
-
-                return True
-            
-            return False
-                
-        except Exception as e:
-            app_logger.error(f"Error check_active_on_another_device: {e}")
-            return False
-                
+              
     def _save_image_to_disk_background(self, image_np: np.ndarray, filepath: str):
         """Helper function to save image to disk, runs in a separate thread."""
         try:
@@ -299,9 +279,6 @@ class ControlStrategy(ABC):
 
     def cleanup_temp_files(self) -> None:
         """Clean up temporary files"""
-        if os.path.exists("tmp/screen.png"):
-            os.remove("tmp/screen.png")
-
         return
         try:
             # Remove entire tmp directory and its contents recursively

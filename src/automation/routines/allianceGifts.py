@@ -22,7 +22,7 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         ):
             return True
             
-        controls.human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay('menu_animation')
 
         # Click alliance tech icon
         if not find_and_tap_template(
@@ -32,7 +32,7 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         ):
             return True
         
-        controls.human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay('menu_animation')
 
         # Click collect all button
         if find_and_tap_template(
@@ -41,9 +41,9 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
             error_msg="No claim all button found"
         ):
             # Clear claim message
-            controls.human_delay(CONFIG['timings']['menu_animation'])
+            controls.human_delay('menu_animation')
             controls.press_back()
-            controls.human_delay(CONFIG['timings']['menu_animation'])
+            controls.human_delay('menu_animation', multiplier=1)
         
         # Donate with long press
         if not find_and_tap_template(

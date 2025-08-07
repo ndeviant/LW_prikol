@@ -74,7 +74,6 @@ class ApplyForSecretary(DailyRoutine):
             
             if notification:
                 controls.click(notification[0], notification[1])
-                controls.press_back()
                 controls.human_delay(CONFIG['timings']['menu_animation'])
 
             return True
