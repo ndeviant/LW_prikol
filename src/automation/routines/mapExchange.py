@@ -24,7 +24,6 @@ class MapExchangeRoutine(TimeCheckRoutine):
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
         if not find_and_tap_template(
-            self.device_id,
             "secret_task",
             error_msg="Could not find secret task icon"
         ):
@@ -32,7 +31,6 @@ class MapExchangeRoutine(TimeCheckRoutine):
         
         # Click the hidden treasures tab
         if not find_and_tap_template(
-            self.device_id,
             "hidden_treasures",
             error_msg="Could not find hidden treasures tab"
         ):
@@ -40,7 +38,6 @@ class MapExchangeRoutine(TimeCheckRoutine):
         
         # Click the exchange button
         if not find_and_tap_template(
-            self.device_id,
             "hidden_treasures_exchange",
             error_msg="Could not find hidden_treasures_exchange button"
         ):
@@ -48,7 +45,6 @@ class MapExchangeRoutine(TimeCheckRoutine):
         
         # Click the allies exchange button
         if not find_and_tap_template(
-            self.device_id,
             "hidden_treasures_allies_exchange",
             error_msg="Could not find hidden_treasures_allies_exchange button"
         ):
@@ -63,7 +59,6 @@ class MapExchangeRoutine(TimeCheckRoutine):
         exchanges = 0
         refresh_list = False
         exchange_locations = find_all_templates(
-            self.device_id,
             "hidden_treasures_start_exchange"
         )
         
@@ -71,7 +66,6 @@ class MapExchangeRoutine(TimeCheckRoutine):
             # If we've already done an exchange, we need to find the next one
             if refresh_list:
                 exchange_locations = find_all_templates(
-                    self.device_id,
                     "hidden_treasures_start_exchange"
                 )
             
@@ -87,7 +81,6 @@ class MapExchangeRoutine(TimeCheckRoutine):
             controls.click(next_location[0], next_location[1])
 
             if not find_and_tap_template(
-                self.device_id,
                 "hidden_treasures_confirm_exchange",
                 error_msg="Could not find confirm button"
             ):

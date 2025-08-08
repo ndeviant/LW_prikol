@@ -12,7 +12,7 @@ def save_debug_region(device_id: str, region: Tuple[int, int, int, int], prefix:
         prefix: Prefix for saved debug image filenames
     """
     try:
-        img = _take_and_load_screenshot(device_id)
+        img = _take_and_load_screenshot()
         if img is None:
             return
             

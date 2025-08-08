@@ -88,7 +88,8 @@ class MainAutomation:
                 "time_to_check": check_data["interval"],
                 "handler": check_data["handler"],
                 "needs_check": True,
-                "options": check_data.get("options")
+                "options": check_data.get("options"),
+                "routine_name": check_name
             }
         return checks
 
@@ -105,7 +106,8 @@ class MainAutomation:
                 "day": event_data["schedule"]["day"],
                 "time": event_data["schedule"]["time"],
                 "handler": event_data["handler"],
-                "options": event_data.get("options")
+                "options": event_data.get("options"),
+                "routine_name": event_name
             }
         return events
 

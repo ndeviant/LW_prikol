@@ -21,7 +21,6 @@ class ApplyForSecretary(DailyRoutine):
 
             self.open_profile_menu()
             if not find_and_tap_template(
-                self.device_id,
                 "capitol_menu",
                 error_msg="Failed to find capitol menu",
                 critical=True
@@ -32,7 +31,6 @@ class ApplyForSecretary(DailyRoutine):
             controls.human_delay(CONFIG['timings']['menu_animation'])
 
             if not find_and_tap_template(
-                self.device_id,
                 self.options.get("position"),
                 error_msg=f"Could not find {self.options.get("position")} secretary position",
                 critical=True
@@ -42,7 +40,6 @@ class ApplyForSecretary(DailyRoutine):
             controls.human_delay(CONFIG['timings']['menu_animation'])
 
             if not find_and_tap_template(
-                self.device_id,
                 "apply",
                 error_msg=f"Could not find \"Apply\" button",
                 critical=True
@@ -56,7 +53,6 @@ class ApplyForSecretary(DailyRoutine):
             return False
     
     def open_profile_menu(self) -> bool:
-        device_id = self.device_id
         """Open the profile menu"""
         try:
             width, height = controls.get_screen_size()
@@ -67,7 +63,6 @@ class ApplyForSecretary(DailyRoutine):
 
             # Look for notification indicators
             notification = wait_for_image(
-                device_id,
                 "awesome",
                 timeout=CONFIG['timings']['menu_animation'],
             )

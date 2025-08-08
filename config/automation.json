@@ -15,6 +15,10 @@
       "help": {
         "handler": "src.automation.routines.help.HelpRoutine",
         "interval": 15
+      },            
+      "claim_secret_tasks": {
+        "handler": "src.automation.routines.claimSecretTasks.ClaimSecretTasks",
+        "interval": 30
       },      
       "rally": {
         "handler": "src.automation.routines.rally.RallyRoutine",
@@ -47,15 +51,18 @@
       },
       "collect_resources": {
         "handler": "src.automation.routines.collectResources.CollectResourcesRoutine",
-        "interval": 10000
+        "interval": 180
       }
     },
     "scheduled_events": {
-      "weekly_reset": {
-        "handler": "src.automation.routines.weeklyReset.WeeklyResetRoutine",
+      "apply_shield": {
+        "handler": "src.automation.routines.scheduled.applyShield.ApplyShield",
         "schedule": {
-          "day": null,
-          "time": "04:50"
+          "day": "saturday",
+          "time": "2:02"
+        },
+        "options": {
+          "shields": [8, 12]
         }
       },
       "apply_secretary_development": {
@@ -78,24 +85,124 @@
           "position": "science"
         }
       },
-      "apply_secretary_interior": {
+      "interior_monday_morning": {
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
-          "day": "thursday",
-          "time": "8:10"
+          "day": "monday",
+          "time": "7:15"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },         
+      "interior_monday_night": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "monday",
+          "time": "23:10"
         },
         "options": {
           "position": "interior"
         }
       },
-      "apply_shield": {
-        "handler": "src.automation.routines.scheduled.applyShield.ApplyShield",
+      "interior_tuesday_night": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
-          "day": "saturday",
-          "time": "2:02"
+          "day": "tuesday",
+          "time": "23:10"
         },
         "options": {
-          "shields": [8, 12]
+          "position": "interior"
+        }
+      },
+      "interior_wednesday_night": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "wednesday",
+          "time": "23:10"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },
+      "interior_thursday_morning": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "thursday",
+          "time": "7:15"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },         
+      "interior_thursday_night": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "thursday",
+          "time": "23:10"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },
+      "interior_friday_morning": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "friday",
+          "time": "7:15"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },
+      "interior_friday_night": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "friday",
+          "time": "23:10"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },
+      "interior_saturday_morning": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "saturday",
+          "time": "7:15"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },
+      "interior_saturday_night": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "saturday",
+          "time": "23:10"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },
+      "interior_sunday_morning": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "sunday",
+          "time": "7:15"
+        },
+        "options": {
+          "position": "interior"
+        }
+      },
+      "interior_sunday_night": {
+        "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
+        "schedule": {
+          "day": "sunday",
+          "time": "23:10"
+        },
+        "options": {
+          "position": "interior"
         }
       }
     }

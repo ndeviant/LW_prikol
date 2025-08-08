@@ -1,6 +1,6 @@
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.config import CONFIG
-from src.core.image_processing import find_and_tap_template, find_template
+from src.core.image_processing import find_template
 from src.game.device import controls
 from src.core.logging import app_logger
 
@@ -17,7 +17,7 @@ class CheckAnotherDeviceRoutine(TimeCheckRoutine):
         try:
             app_logger.debug("Checking if account is active on another device")
             # Check if notification is on
-            notification = find_template(self.device_id, "another_device")
+            notification = find_template("another_device")
             if notification:
                 total_wait_time = CONFIG['timings']['another_device_wait'] or 300
 

@@ -16,7 +16,6 @@ class AllianceDonateRoutine(TimeCheckRoutine):
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
         if not find_and_tap_template(
-            self.device_id,
             "alliance",
             error_msg="Could not find alliance icon"
         ):
@@ -26,7 +25,6 @@ class AllianceDonateRoutine(TimeCheckRoutine):
 
         # Click alliance tech icon
         if not find_and_tap_template(
-            self.device_id,
             "alliance_tech_icon",
             error_msg="Could not find alliance tech icon"
         ):
@@ -36,7 +34,6 @@ class AllianceDonateRoutine(TimeCheckRoutine):
 
         # Click recommended flag
         if not find_and_tap_template(
-            self.device_id,
             "recommended_flag",
             error_msg="No recommended tech found"
         ):
@@ -46,7 +43,6 @@ class AllianceDonateRoutine(TimeCheckRoutine):
 
         # Donate with long press
         if not find_and_tap_template(
-            self.device_id,
             "donate_button",
             error_msg="No donate button found",
             press_duration=15.0

@@ -35,13 +35,12 @@ def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[d
         
     return template, template_config
 
-def _take_and_load_screenshot(device_id: str) -> Optional[np.ndarray]:
+def _take_and_load_screenshot() -> Optional[np.ndarray]:
     from src.game.device import controls
     """Take and load a screenshot"""
     return controls.take_screenshot()
 
 def find_template(
-    device_id: str,
     template_name: str,
     make_new_screen: bool = True,
 ) -> Optional[Tuple[int, int]]:
@@ -80,29 +79,20 @@ def find_template(
         app_logger.debug(f"Match location - Max: {max_loc}, Min: {min_loc}")
 
         h, w = template.shape[:2]
-        # Save debug image
-        def saveDebugImg(success: bool = True, padding: int = 20):
-            color =  (0, 255, 0) if success else (50, 50, 255)
-            debug_img = img.copy()
-            cv2.rectangle(debug_img, (max_loc[0] - padding, max_loc[1] - padding), (max_loc[0] + w + padding, max_loc[1] + h + padding), color, 3)
-            cv2.putText(debug_img, f"{max_val:.3f}", (max_loc[0], max_loc[1] - padding - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
-            
-            file_save_executor.submit(lambda: cv2.imwrite(f'tmp/debug{"" if success else "_fail"}_find_{template_name}.png', debug_img))
-        
-        # Fix the threshold comparison
-        if max_val < threshold:  # Remove the incorrect "threshold - -0.16"
-            app_logger.debug(f"Match value {max_val:.4f} below threshold {threshold}")
-            saveDebugImg(False)
-            return None
-            
-        app_logger.debug(f"Match value {max_val:.4f} EXCEEDS threshold {threshold} !")
-        
-        saveDebugImg()
 
         # Get template dimensions and calculate center point
         center_x = max_loc[0] + w//2
         center_y = max_loc[1] + h//2
+        
+        # Fix the threshold comparison
+        if max_val < threshold:  # Remove the incorrect "threshold - -0.16"
+            app_logger.debug(f"Match value {max_val:.4f} below threshold {threshold}")
+            _save_debug_image(img, template_name, [(center_x, center_y, max_val)], None, (w, h), success=False,)
+            return None
+            
+        app_logger.debug(f"Match value {max_val:.4f} EXCEEDS threshold {threshold} !")
+        
+        _save_debug_image(img, template_name, [(center_x, center_y, max_val)], None, (w, h))
         
         app_logger.debug(f"Found match at center point: ({center_x}, {center_y})")
         return (center_x, center_y)
@@ -112,7 +102,6 @@ def find_template(
         return None
     
 def find_all_templates(
-    device_id: str,
     template_name: str,
     search_region: Tuple[int, int, int, int] = None
 ) -> list[Tuple[int, int]]:
@@ -124,7 +113,7 @@ def find_all_templates(
             
         h, w = template.shape[:2]
         
-        img = _take_and_load_screenshot(device_id)
+        img = _take_and_load_screenshot()
         if img is None:
             return []
             
@@ -167,7 +156,7 @@ def find_all_templates(
             adjusted_matches.append((x, y))
             
         # Save debug image
-        _save_debug_image(img, template_config['path'], matches, search_region, (w, h))
+        _save_debug_image(img, template_name, matches, search_region, (w, h))
         
         app_logger.debug(f"Found {len(matches)} matches for {template_name} with threshold {threshold}")
         return adjusted_matches
@@ -177,7 +166,6 @@ def find_all_templates(
         return []
     
 def wait_for_image(
-    device_id: str,
     template_name: str | list[str],
     timeout: float = 120.0,
     interval: float = 1.0
@@ -188,7 +176,7 @@ def wait_for_image(
     while time.time() - start_time < timeout:
         coords = None
         for tmp in template_name_list:
-            coords = find_template(device_id, tmp)
+            coords = find_template(tmp)
             if coords:
                 return coords
         time.sleep(interval)
@@ -216,12 +204,15 @@ def _save_debug_image(
     template_name: str,
     matches: list[Tuple[int, int, float]] = None,
     search_region: Tuple[int, int, int, int] = None,
-    template_size: Tuple[int, int] = None
+    template_size: Tuple[int, int] = None,
+    success: bool = True,
+    padding: int = 20
 ) -> None:
     """Save debug image with matches and search region highlighted"""
     try:
         debug_img = img.copy()
-        
+        color =  (0, 255, 0) if success else (50, 50, 255)
+
         # Draw search region if provided
         if search_region:
             x1, y1, x2, y2 = search_region
@@ -233,20 +224,18 @@ def _save_debug_image(
             for x, y, conf in matches:
                 rect_x = x - w//2
                 rect_y = y - h//2
-                cv2.rectangle(debug_img, (rect_x, rect_y), 
-                            (rect_x + w, rect_y + h), (0, 255, 0), 2)
-                cv2.putText(debug_img, f"{conf:.3f}", (rect_x, rect_y - 5),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                cv2.rectangle(debug_img, (rect_x - padding, rect_y - padding), 
+                            (rect_x + w + padding, rect_y + h + padding), color, 2)
+                cv2.putText(debug_img, f"{conf:.3f}", (rect_x, rect_y - padding - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
                 
         # Save debug image
-        template_name = os.path.basename(template_name)
-        file_save_executor.submit(lambda: cv2.imwrite(f'tmp/debug_template_{template_name}.png', debug_img))
+        file_save_executor.submit(lambda: cv2.imwrite(f'tmp/debug{"" if success else "_fail"}_find_{template_name}.png', debug_img))
         
     except Exception as e:
         app_logger.error(f"Error saving debug image: {e}")
 
 def find_and_tap_template(
-    device_id: str, 
     template_name: str,
     make_new_screen: bool = True,
     error_msg: Optional[str] = None,
@@ -259,9 +248,9 @@ def find_and_tap_template(
 ) -> bool:
     """Find and tap a template on screen"""
     if timeout:
-        location = wait_for_image(device_id, template_name, timeout=timeout, interval=interval)
+        location = wait_for_image(template_name, timeout=timeout, interval=interval)
     else:
-        location = find_template(device_id, template_name, make_new_screen=make_new_screen)
+        location = find_template(template_name, make_new_screen=make_new_screen)
         
     if location is None:
         if error_msg:

@@ -16,7 +16,6 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
         if not find_and_tap_template(
-            self.device_id,
             "alliance",
             error_msg="Could not find alliance icon"
         ):
@@ -24,9 +23,8 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
             
         controls.human_delay('menu_animation')
 
-        # Click alliance tech icon
+        # Click alliance gifts icon
         if not find_and_tap_template(
-            self.device_id,
             "alliance_gifts",
             error_msg="Could not find alliance_gifts icon"
         ):
@@ -36,26 +34,25 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
 
         # Click collect all button
         if find_and_tap_template(
-            self.device_id,
             "alliance_claim_all",
             error_msg="No claim all button found"
         ):
             # Clear claim message
-            controls.human_delay('menu_animation')
+            controls.human_delay(2)
             controls.press_back()
-            controls.human_delay('menu_animation', multiplier=1)
+            controls.human_delay(1)
         
-        # Donate with long press
+        # Open premium tab
         if not find_and_tap_template(
-            self.device_id,
             "alliance_gift_premium",
             error_msg="No premium tab found found"
         ):
             return True
         
+        controls.human_delay('menu_animation')
+
         # Click collect all button
         find_and_tap_template(
-            self.device_id,
             "alliance_claim_all",
             error_msg="No claim all button found"
         )

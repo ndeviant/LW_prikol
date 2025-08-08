@@ -8,7 +8,7 @@ from typing import Tuple, Optional, Union, List, Dict, Any
 
 from src.game.device import controls
 from .logging import app_logger
-from .image_processing import _load_template, _take_and_load_screenshot, find_template, find_all_templates
+from .image_processing import _load_template, _take_and_load_screenshot, find_all_templates
 from .config import CONFIG
 from .debug import save_debug_region
 import numpy as np
@@ -30,7 +30,7 @@ def get_text_regions(
     if existing_screenshot is not None:
         img = existing_screenshot
     else:
-        img = _take_and_load_screenshot(device_id)
+        img = _take_and_load_screenshot()
         if img is None:
             return (0, 0, 0, 0), (0, 0, 0, 0), None
     
@@ -77,13 +77,11 @@ def get_text_regions(
     
     # Find brackets within cropped region
     left_brackets = find_all_templates(
-        device_id,
         "left_bracket",
         search_region=(x1, y1, x2, y2)
     )
     
     right_brackets = find_all_templates(
-        device_id,
         "right_bracket",
         search_region=(x1, y1, x2, y2)
     )

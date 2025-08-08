@@ -32,9 +32,8 @@ class SecretaryRoutine(TimeCheckRoutine):
     def _execute_internal(self) -> bool:
         """Internal execution logic"""
         self.automation.game_state["is_home"] = False
-        self.open_profile_menu(self.device_id)
+        self.open_profile_menu()
         if not find_and_tap_template(
-            self.device_id,
             "capitol_menu",
             error_msg="Failed to find capitol menu",
             critical=True
@@ -47,7 +46,6 @@ class SecretaryRoutine(TimeCheckRoutine):
         """Find all accept buttons on the screen and sort by Y coordinate"""
         try:
             matches = find_all_templates(
-                self.device_id,
                 "accept"
             )
             if not matches:
@@ -68,7 +66,6 @@ class SecretaryRoutine(TimeCheckRoutine):
         """Find all reject buttons on the screen and sort by Y coordinate"""
         try:
             matches = find_all_templates(
-                self.device_id,
                 "reject"
             )
             if not matches:
@@ -85,7 +82,7 @@ class SecretaryRoutine(TimeCheckRoutine):
             app_logger.error(f"Error finding reject buttons: {e}")
             return []
     
-    def open_profile_menu(self, device_id: str) -> bool:
+    def open_profile_menu(self) -> bool:
         """Open the profile menu"""
         try:
             width, height = controls.get_screen_size()
@@ -96,7 +93,6 @@ class SecretaryRoutine(TimeCheckRoutine):
 
             # Look for notification indicators
             notification = wait_for_image(
-                device_id,
                 "awesome",
                 timeout=CONFIG['timings']['menu_animation'],
             )
@@ -132,7 +128,6 @@ class SecretaryRoutine(TimeCheckRoutine):
     def verify_secretary_menu(self) -> bool:
         """Verify we're in the secretary menu"""
         return wait_for_image(
-            self.device_id,
             "president",
             timeout=CONFIG['timings']['menu_animation']
         ) is not None
@@ -142,7 +137,6 @@ class SecretaryRoutine(TimeCheckRoutine):
         try:        
             # Find and click secretary position
             if not find_and_tap_template(
-                self.device_id,
                 name,
                 error_msg=f"Could not find {name} secretary position",
                 critical=True
@@ -153,7 +147,6 @@ class SecretaryRoutine(TimeCheckRoutine):
             
             # Find and click list button
             if not find_and_tap_template(
-                self.device_id,
                 "list",
                 error_msg="List button not found",
                 critical=True,
@@ -228,7 +221,6 @@ class SecretaryRoutine(TimeCheckRoutine):
                                     controls.click(reject_button[0], reject_button[1])
                                     app_logger.debug(f"Tapping reject at coordinates: ({reject_button[0]}, {reject_button[1]})")
                                     if not find_and_tap_template(
-                                        self.device_id,
                                         "confirm_green",
                                         error_msg="Failed to find confirm_green button",
                                         critical=True
@@ -237,7 +229,6 @@ class SecretaryRoutine(TimeCheckRoutine):
                             else:
                                 # No reject buttons found, try confirm_green
                                 if not find_and_tap_template(
-                                    self.device_id,
                                     "confirm_green",
                                     error_msg="Failed to find confirm_green button",
                                     critical=True
@@ -274,7 +265,6 @@ class SecretaryRoutine(TimeCheckRoutine):
             secretary_types = self.secretary_types + self.additionalTypes
             for position_type in secretary_types:
                 positions = find_all_templates(
-                    self.device_id,
                     position_type
                 )
                 if positions:
@@ -282,7 +272,6 @@ class SecretaryRoutine(TimeCheckRoutine):
                     app_logger.debug(f"Found {position_type} position at ({positions[0][0]}, {positions[0][1]})")
             # Find all applicant icons
             applicant_locations = find_all_templates(
-                self.device_id,
                 "has_applicant"
             )
             
@@ -322,7 +311,6 @@ class SecretaryRoutine(TimeCheckRoutine):
             app_logger.info("No positions with applicants found")\
             # ensure the game is not glitched and we can still access the secretary menu
             if not find_and_tap_template(
-                self.device_id,
                 self.secretary_types[0],
                 error_msg=f"Could not find {self.secretary_types[0]} secretary position",
                 critical=True
@@ -333,7 +321,6 @@ class SecretaryRoutine(TimeCheckRoutine):
             
             # Find list button
             if not find_template(
-                self.device_id,
                 "list",
             ):
                 raise RuntimeError('secretary not accessible')

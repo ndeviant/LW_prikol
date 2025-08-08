@@ -18,9 +18,6 @@ class ControlStrategy(ABC):
     of some algorithm. The Context uses this interface to call the algorithm
     defined by Concrete Strategies.
     """
-    # def __init__(self, device_id: str):
-    #     self.device_id = device_id
-
     @property
     @abstractmethod
     def is_app_running(self) -> str:
@@ -204,14 +201,14 @@ class ControlStrategy(ABC):
         start_time = time.time()
         while time.time() - start_time < CONFIG['timings']['launch_max_wait']:
             # Check for start button first
-            start_loc = find_template(self.device_id, "start")
+            start_loc = find_template("start")
             if start_loc:
                 app_logger.debug("Found start button, clicking it")
                 self.click(start_loc[0], start_loc[1])
                 self.human_delay('menu_animation')
             
             # Check for home icon
-            home_loc = find_template(self.device_id, "home")
+            home_loc = find_template("home")
             if home_loc:
                 app_logger.debug("Found home icon")
                 time.sleep(CONFIG['timings']['launch_wait'])
@@ -229,7 +226,7 @@ class ControlStrategy(ABC):
         try:
             # Check if already at home
             if not force:
-                home_loc = find_template(self.device_id, "home")
+                home_loc = find_template("home")
                 if home_loc:
                     app_logger.debug("Already at home screen")
                     return True
@@ -242,7 +239,7 @@ class ControlStrategy(ABC):
                 self.human_delay('menu_animation')
 
                 # Take screenshot and look for home
-                quit_loc = find_template(self.device_id, "quit")
+                quit_loc = find_template("quit")
                 if quit_loc:
                     app_logger.debug("Found quit button")
 
@@ -250,11 +247,10 @@ class ControlStrategy(ABC):
                     while quit_loc:
                         self.press_back()
                         self.human_delay('menu_animation')
-                        quit_loc = find_template(self.device_id, "quit")
+                        quit_loc = find_template("quit")
 
                     # Take screenshot and look for base icon
                     find_and_tap_template(
-                        self.device_id, 
                         "base"
                     )
                     

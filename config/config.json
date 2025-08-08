@@ -203,6 +203,10 @@
       "path": "templates/{env}/secretary/administrative.png",
       "threshold": 0.8
     },
+    "status_interior": {
+      "path": "templates/{env}/secretary/status_interior.png",
+      "threshold": 0.85
+    },
     "quit": {
       "path": "templates/{env}/ui/quit.png",
       "threshold": 0.65
@@ -214,6 +218,18 @@
     "secret_task": {
       "path": "templates/{env}/ui/secret_task.png",
       "threshold": 0.75
+    },    
+    "tasks_active": {
+      "path": "templates/{env}/ui/tasks_active.png",
+      "threshold": 0.95
+    },    
+    "tasks_claimable": {
+      "path": "templates/{env}/ui/tasks_claimable.png",
+      "threshold": 0.9
+    },    
+    "tasks_claim": {
+      "path": "templates/{env}/ui/tasks_claim.png",
+      "threshold": 0.9
     },
     "collect": {
       "path": "templates/{env}/ui/collect.png",
@@ -299,29 +315,33 @@
       "path": "templates/{env}/rss/rss_truck.png",
       "threshold": 0.75
     },
-    "ore": {
+    "rss_ore": {
       "path": "templates/{env}/rss/ore.png",
-      "threshold": 0.75
+      "threshold": 0.9
     },
-    "screw": {
+    "rss_screw": {
       "path": "templates/{env}/rss/screw.png",
-      "threshold": 0.75
+      "threshold": 0.9
     },
-    "gold": {
+    "rss_gold": {
       "path": "templates/{env}/rss/gold.png",
-      "threshold": 0.75
+      "threshold": 0.9
     },
-    "iron": {
+    "rss_iron": {
       "path": "templates/{env}/rss/iron.png",
-      "threshold": 0.75
+      "threshold": 0.9
     },
-    "food": {
+    "rss_food": {
       "path": "templates/{env}/rss/food.png",
-      "threshold": 0.75
+      "threshold": 0.9
     },
-    "exp": {
+    "rss_exp": {
       "path": "templates/{env}/rss/exp.png",
-      "threshold": 0.75
+      "threshold": 0.9
+    },    
+    "rss_drone_box": {
+      "path": "templates/{env}/rss/drone_box.png",
+      "threshold": 0.9
     },
     "rallies": {
       "path": "templates/{env}/rally/rallies.png",

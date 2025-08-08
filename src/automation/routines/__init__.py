@@ -6,6 +6,7 @@ from .secretary import SecretaryRoutine
 from .allianceDonate import AllianceDonateRoutine
 from .checkForDigs import CheckForDigsRoutine
 from .checkAnotherDevice import CheckAnotherDeviceRoutine
+from .claimSecretTasks import ClaimSecretTasks
 #from .weeklyReset import WeeklyResetRoutine 
 from .scheduled.applyForSecretary import ApplyForSecretary 
 from .scheduled.applyShield import ApplyShield 
