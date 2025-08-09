@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 import time
-from typing import Optional, Tuple
+from typing import Callable, Optional, Tuple
 import os
 import concurrent.futures 
 
@@ -56,7 +56,8 @@ def find_template(
             return None
             
         app_logger.debug(f"Template loaded successfully. Shape: {template.shape}")
-        
+        h, w = template.shape[:2]
+
         # Take screenshot first
         if make_new_screen:
             img = controls.take_screenshot()
@@ -78,8 +79,6 @@ def find_template(
         app_logger.debug(f"Match values - Max: {max_val:.4f}, Min: {min_val:.4f}, Threshold: {threshold}")
         app_logger.debug(f"Match location - Max: {max_loc}, Min: {min_loc}")
 
-        h, w = template.shape[:2]
-
         # Get template dimensions and calculate center point
         center_x = max_loc[0] + w//2
         center_y = max_loc[1] + h//2
@@ -87,12 +86,12 @@ def find_template(
         # Fix the threshold comparison
         if max_val < threshold:  # Remove the incorrect "threshold - -0.16"
             app_logger.debug(f"Match value {max_val:.4f} below threshold {threshold}")
-            _save_debug_image(img, template_name, [(center_x, center_y, max_val)], None, (w, h), success=False,)
+            _save_debug_image(img, template_name, [(center_x, center_y, max_val, False)], None)
             return None
             
         app_logger.debug(f"Match value {max_val:.4f} EXCEEDS threshold {threshold} !")
         
-        _save_debug_image(img, template_name, [(center_x, center_y, max_val)], None, (w, h))
+        _save_debug_image(img, template_name, [(center_x, center_y, max_val, True)], None)
         
         app_logger.debug(f"Found match at center point: ({center_x}, {center_y})")
         return (center_x, center_y)
@@ -103,7 +102,8 @@ def find_template(
     
 def find_all_templates(
     template_name: str,
-    search_region: Tuple[int, int, int, int] = None
+    search_region: Tuple[int, int, int, int] = None,
+    get_file_name = None
 ) -> list[Tuple[int, int]]:
     """Find all template matches in image and return center coordinates"""
     try:
@@ -128,17 +128,21 @@ def find_all_templates(
         threshold = template_config.get('threshold', CONFIG['match_threshold'])
             
         matches = []
+        failed_matches = []
         result_copy = result.copy()
         
         while True:
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_copy)
-            if max_val < threshold:
-                break
-                
+            
             # Store match with confidence
             center_x = max_loc[0] + w//2
             center_y = max_loc[1] + h//2
-            matches.append((center_x, center_y, max_val))
+
+            if max_val < threshold:
+                failed_matches.append((center_x, center_y, max_val, False))
+                break
+                
+            matches.append((center_x, center_y, max_val, True))
             
             # Suppress region
             x1_sup = max(0, max_loc[0] - w//2)
@@ -149,14 +153,14 @@ def find_all_templates(
         
         # Adjust coordinates if search region was used
         adjusted_matches = []
-        for x, y, conf in matches:
+        for x, y, conf, success in matches:
             if search_region:
                 x += search_region[0]
                 y += search_region[1]
             adjusted_matches.append((x, y))
             
         # Save debug image
-        _save_debug_image(img, template_name, matches, search_region, (w, h))
+        _save_debug_image(img, template_name, matches or failed_matches, search_region, get_file_name=get_file_name)
         
         app_logger.debug(f"Found {len(matches)} matches for {template_name} with threshold {threshold}")
         return adjusted_matches
@@ -202,16 +206,18 @@ def compare_screenshots(img1: np.ndarray, img2: np.ndarray) -> bool:
 def _save_debug_image(
     img: np.ndarray, 
     template_name: str,
-    matches: list[Tuple[int, int, float]] = None,
+    matches: list[Tuple[int, int, float, bool]] = None,
     search_region: Tuple[int, int, int, int] = None,
-    template_size: Tuple[int, int] = None,
-    success: bool = True,
-    padding: int = 20
+    padding: int = 20,
+    get_file_name: Callable[[str, bool], str] = None,
 ) -> None:
     """Save debug image with matches and search region highlighted"""
     try:
         debug_img = img.copy()
-        color =  (0, 255, 0) if success else (50, 50, 255)
+        success = False
+        template, template_config = _load_template(template_name)
+        h, w = template.shape[:2]
+        template_size = (w, h)
 
         # Draw search region if provided
         if search_region:
@@ -221,7 +227,10 @@ def _save_debug_image(
         # Draw matches if provided
         if matches and template_size:
             w, h = template_size
-            for x, y, conf in matches:
+            for x, y, conf, match_success in matches:
+                if (match_success): success = True
+                color = (0, 255, 0) if match_success else (50, 50, 255)
+
                 rect_x = x - w//2
                 rect_y = y - h//2
                 cv2.rectangle(debug_img, (rect_x - padding, rect_y - padding), 
@@ -230,7 +239,10 @@ def _save_debug_image(
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
                 
         # Save debug image
-        file_save_executor.submit(lambda: cv2.imwrite(f'tmp/debug{"" if success else "_fail"}_find_{template_name}.png', debug_img))
+        file_name = f"debug{"" if success else "_fail"}_find_{template_name}"
+        if (get_file_name):
+            file_name= get_file_name(template_name, success) or file_name
+        file_save_executor.submit(lambda: cv2.imwrite(f'tmp/{file_name}.png', debug_img))
         
     except Exception as e:
         app_logger.error(f"Error saving debug image: {e}")

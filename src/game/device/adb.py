@@ -61,6 +61,10 @@ class ADBControls(ControlStrategy):
         try:
             cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} shell input swipe {start_x} {start_y} {end_x} {end_y} {duration_ms}"
             result = subprocess.run(cmd, capture_output=True, text=True)
+            
+            hold_cmd = f"{CONFIG.adb['binary_path']} -s {self.device_id} shell input swipe {start_x} {start_y} {start_x} {start_y} {100}"
+            result = subprocess.run(hold_cmd, capture_output=True, text=True, check=True)
+            
             return result.returncode == 0
             
         except Exception as e:

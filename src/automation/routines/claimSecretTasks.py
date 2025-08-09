@@ -32,6 +32,6 @@ class ClaimSecretTasks(TimeCheckRoutine):
             return True
                     
         except Exception as e:
-            app_logger.error(f"Error applying for a shield: {e}")
+            app_logger.error(f"Error claiming secret tasks: {e}")
             return False
 

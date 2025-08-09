@@ -27,7 +27,7 @@ class ApplyForSecretary(DailyRoutine):
             ):  
                 return False
             
-            controls.swipe(direction="down", num_swipes=1)
+            controls.swipe(direction="down")
             controls.human_delay(CONFIG['timings']['menu_animation'])
 
             if not find_and_tap_template(

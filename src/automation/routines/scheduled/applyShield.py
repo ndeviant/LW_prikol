@@ -26,7 +26,7 @@ class ApplyShield(DailyRoutine):
                 if apllied_shield:
                     break
 
-                controls.swipe(direction="down", num_swipes=1)
+                controls.swipe(direction="down")
                 controls.human_delay('menu_animation')
 
             if not apllied_shield:
@@ -46,7 +46,7 @@ class ApplyShield(DailyRoutine):
             return True
                     
         except Exception as e:
-            app_logger.error(f"Error applying for a shield: {e}")
+            app_logger.error(f"Error applying a shield: {e}")
             return False
     
     def open_inventory(self) -> bool:

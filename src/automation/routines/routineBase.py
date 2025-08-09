@@ -42,7 +42,7 @@ class RoutineBase(ABC):
         
     def bind_state(self):
         self.state = StateProxy(
-            get = lambda field_name: self.automation.state.get(field_name, self.routine_name, self.routine_type),
+            get = lambda field_name, default=None: self.automation.state.get(field_name, self.routine_name, self.routine_type, default=default),
             set = lambda field_name, value: self.automation.state.set(field_name, value, self.routine_name, self.routine_type)
         )
     

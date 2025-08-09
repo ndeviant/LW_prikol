@@ -17,8 +17,8 @@ import numpy as np
 class SecretaryRoutine(TimeCheckRoutine):
     force_home: bool = True
 
-    def __init__(self, device_id: str, interval: int, last_run: float = None, automation=None):
-        super().__init__(device_id, interval, last_run, automation)
+    def __init__(self, device_id: str, routine_name: str, interval: int, last_run: float = None, automation=None):
+        super().__init__(device_id, routine_name, interval, last_run, automation)
         self.secretary_types = ["strategy", "security", "development", "science", "interior"]
         self.additionalTypes = ["military", "administrative"]
         self.capture = None
@@ -39,7 +39,7 @@ class SecretaryRoutine(TimeCheckRoutine):
             critical=True
         ):  
             return False
-        controls.swipe(direction="down", num_swipes=1)
+        controls.swipe(direction="down")
         return self.process_all_secretary_positions()
 
     def find_accept_buttons(self) -> list[Tuple[int, int]]:
@@ -158,7 +158,7 @@ class SecretaryRoutine(TimeCheckRoutine):
             if accept_locations:
                 # Scroll to top if needed
                 if len(accept_locations) > 5:
-                    controls.swipe(direction="up")
+                    controls.swipe(direction="up", num_swipes=8)
                     controls.human_delay(CONFIG['timings']['settle_time'] * 2)
                     accept_locations = self.find_accept_buttons()
                 

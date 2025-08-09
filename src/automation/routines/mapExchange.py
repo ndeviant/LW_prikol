@@ -24,7 +24,7 @@ class MapExchangeRoutine(TimeCheckRoutine):
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
         if not find_and_tap_template(
-            "secret_task",
+            "tasks_menu",
             error_msg="Could not find secret task icon"
         ):
             return False

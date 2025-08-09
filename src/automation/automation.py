@@ -307,7 +307,7 @@ class MainAutomation:
                         except Exception as e:
                             app_logger.error(f"Failed to send Discord notification: {e}")
                 
-                app_logger.debug(f"Navigation failed, waiting {sleep_time}s before retry {retry_count}")
+                app_logger.debug(f"verify_game_running failed, waiting {sleep_time}s before retry {retry_count}")
                 time.sleep(sleep_time)
                 controls.launch_game()
                 

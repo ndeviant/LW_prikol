@@ -29,6 +29,8 @@ class CheckAnotherDeviceRoutine(TimeCheckRoutine):
 
                 # Loop to show progress
                 for i in range(1, 6): # This will loop 5 times for 20%, 40%, 60%, 80%, 100%
+                    if not controls.is_app_running:
+                        return True
                     controls.human_delay(step_duration, multiplier=1.0) # Assuming human_delay takes the duration
                     remaining_time -= step_duration
 

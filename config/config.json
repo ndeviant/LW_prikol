@@ -11,7 +11,7 @@
     "chat": {
       "x": "50%",
       "y": "97%"
-    },    
+    },
     "profile": {
       "x": "3%",
       "y": "3%"
@@ -114,7 +114,7 @@
     "confirm_green": {
       "path": "templates/{env}/secretary/confirm_green.png",
       "threshold": 0.6
-    },    
+    },
     "confirm": {
       "path": "templates/{env}/ui/confirm.png",
       "threshold": 0.6
@@ -126,7 +126,7 @@
     "home": {
       "path": "templates/{env}/ui/home.png",
       "threshold": 0.95
-    },    
+    },
     "base": {
       "path": "templates/{env}/ui/base.png",
       "threshold": 0.8
@@ -134,7 +134,7 @@
     "start": {
       "path": "templates/{env}/ui/start.png",
       "threshold": 0.75
-    },        
+    },    
     "another_device": {
       "path": "templates/{env}/ui/another_device.png",
       "threshold": 0.85
@@ -146,7 +146,7 @@
     "alliance_tech_icon": {
       "path": "templates/{env}/alliance/alliance_tech_icon.png",
       "threshold": 0.55
-    },    
+    },
     "alliance_chat_inactive": {
       "path": "templates/{env}/alliance/alliance_chat_inactive.png",
       "threshold": 0.85
@@ -166,7 +166,7 @@
     "capitol_menu": {
       "path": "templates/{env}/secretary/capitol_menu.png",
       "threshold": 0.7
-    },    
+    },
     "apply": {
       "path": "templates/{env}/secretary/apply.png",
       "threshold": 0.8
@@ -215,20 +215,60 @@
       "path": "templates/{env}/ui/awesome.png",
       "threshold": 0.75
     },
-    "secret_task": {
-      "path": "templates/{env}/ui/secret_task.png",
-      "threshold": 0.75
-    },    
+    "tasks_menu": {
+      "path": "templates/{env}/secret_task/tasks_menu.png",
+      "threshold": 0.8
+    },
     "tasks_active": {
-      "path": "templates/{env}/ui/tasks_active.png",
+      "path": "templates/{env}/secret_task/tasks_active.png",
       "threshold": 0.95
-    },    
+    },
     "tasks_claimable": {
-      "path": "templates/{env}/ui/tasks_claimable.png",
+      "path": "templates/{env}/secret_task/tasks_claimable.png",
       "threshold": 0.9
-    },    
+    },
     "tasks_claim": {
-      "path": "templates/{env}/ui/tasks_claim.png",
+      "path": "templates/{env}/secret_task/tasks_claim.png",
+      "threshold": 0.9
+    },
+    "ally_tasks": {
+      "path": "templates/{env}/secret_task/ally_tasks.png",
+      "threshold": 0.9
+    },
+    "assist_constr_task_4": {
+      "path": "templates/{env}/secret_task/assist_constr_task_5.png",
+      "threshold": 0.93
+    },
+    "assist_hero_task_4": {
+      "path": "templates/{env}/secret_task/assist_hero_task_5.png",
+      "threshold": 0.93
+    },
+    "assist_science_task_4": {
+      "path": "templates/{env}/secret_task/assist_science_task_5.png",
+      "threshold": 0.93
+    },    
+    "assist_star_task_4": {
+      "path": "templates/{env}/secret_task/assist_star_task_5.png",
+      "threshold": 0.93
+    },
+    "assist_constr_task_5": {
+      "path": "templates/{env}/secret_task/assist_constr_task_5.png",
+      "threshold": 0.96
+    },
+    "assist_hero_task_5": {
+      "path": "templates/{env}/secret_task/assist_hero_task_5.png",
+      "threshold": 0.96
+    },
+    "assist_science_task_5": {
+      "path": "templates/{env}/secret_task/assist_science_task_5.png",
+      "threshold": 0.96
+    },    
+    "assist_star_task_5": {
+      "path": "templates/{env}/secret_task/assist_star_task_5.png",
+      "threshold": 0.96
+    },
+    "assisted_max": {
+      "path": "templates/{env}/secret_task/assisted_max.png",
       "threshold": 0.9
     },
     "collect": {
@@ -238,23 +278,23 @@
     "inventory": {
       "path": "templates/{env}/inventory/inventory.png",
       "threshold": 0.85
-    },        
+    },    
     "use": {
       "path": "templates/{env}/inventory/use.png",
       "threshold": 0.85
-    },    
+    },
     "shield_8": {
       "path": "templates/{env}/inventory/shield_8.png",
       "threshold": 0.85
-    },        
+    },    
     "shield_12": {
       "path": "templates/{env}/inventory/shield_12.png",
       "threshold": 0.85
-    },        
+    },    
     "shield_24": {
       "path": "templates/{env}/inventory/shield_24.png",
       "threshold": 0.85
-    },    
+    },
     "dig": {
       "path": "templates/{env}/dig/dig.png",
       "threshold": 0.75
@@ -262,7 +302,7 @@
     "dig_chat_start": {
       "path": "templates/{env}/dig/dig_chat_start.png",
       "threshold": 0.75
-    },    
+    },
     "dig_chat_start_drone": {
       "path": "templates/{env}/dig/dig_chat_start_drone.png",
       "threshold": 0.75
@@ -282,7 +322,7 @@
     "dig_dig_model_drone": {
       "path": "templates/{env}/dig/dig_dig_model_drone.png",
       "threshold": 0.65
-    },    
+    },
     "dig_dig_model_exc": {
       "path": "templates/{env}/dig/dig_dig_model_exc.png",
       "threshold": 0.65
@@ -290,7 +330,7 @@
     "dig_dig_dig": {
       "path": "templates/{env}/dig/dig_dig_dig.png",
       "threshold": 0.75
-    },    
+    },
     "dig_dig_dig_drone": {
       "path": "templates/{env}/dig/dig_dig_dig_drone.png",
       "threshold": 0.75
@@ -302,11 +342,11 @@
     "dig_chat_claim": {
       "path": "templates/{env}/dig/dig_chat_claim.png",
       "threshold": 0.75
-    },    
+    },
     "dig_chat_claim_drone": {
       "path": "templates/{env}/dig/dig_chat_claim_drone.png",
       "threshold": 0.75
-    },    
+    },
     "dig_claimed": {
       "path": "templates/{env}/dig/dig_claimed.png",
       "threshold": 0.75
@@ -338,7 +378,7 @@
     "rss_exp": {
       "path": "templates/{env}/rss/exp.png",
       "threshold": 0.9
-    },    
+    },
     "rss_drone_box": {
       "path": "templates/{env}/rss/drone_box.png",
       "threshold": 0.9
@@ -347,18 +387,22 @@
       "path": "templates/{env}/rally/rallies.png",
       "threshold": 0.9
     },     
+    "rallies_opened": {
+      "path": "templates/{env}/rally/rallies_opened.png",
+      "threshold": 0.9
+    }, 
     "join_de_rally": {
       "path": "templates/{env}/rally/join_de_rally.png",
-      "threshold": 0.85
-    },         
+      "threshold": 0.9
+    },     
     "join_golden_rally": {
       "path": "templates/{env}/rally/join_golden_rally.png",
-      "threshold": 0.7
-    },       
+      "threshold": 0.9
+    },   
     "march": {
       "path": "templates/{env}/rally/march.png",
       "threshold": 0.7
-    },    
+    },
     "DE": {
       "path": "templates/{env}/rally/DE.png",
       "threshold": 0.65
@@ -405,6 +449,7 @@
     "notifications" : {
       "dig": {
         "content": "<:digEmote:1305924160949846106> **NEW DIG!**",
+        "content_drone": "<:e01e:1262987406685245553> **DRONE DIG!**",
         "embed_title": ":zap: Action Required\n",
         "embed_value": ":flag_us: A new dig has been posted! Get digging!\n [Android](https://play.google.com/store/apps/details?id=com.fun.lastwar.gp) | [iOS](https://apps.apple.com/app/last-war-survival/id6448786147)\n",
         "embed_color": "0xCC0000"

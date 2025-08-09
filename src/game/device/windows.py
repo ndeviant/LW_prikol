@@ -142,9 +142,14 @@ class WindowsControls(ControlStrategy):
         """Swipe screen from start to end coordinates using pyautogui."""
         try:
             pyautogui.moveTo(start_x, start_y)
-            pyautogui.dragTo(end_x, end_y, duration=duration_ms / 1000.0) # pyautogui duration is in seconds
+            pyautogui.mouseDown()
+            pyautogui.dragTo(end_x, end_y, duration=duration_ms / 1000.0, mouseDownUp=False) # pyautogui duration is in seconds
+            # Hold the mouse button down for an additional 100ms at the end point
+            self.human_delay(0.078)
+            pyautogui.mouseUp()
             app_logger.debug(f"[Windows] Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y}) for {duration_ms}ms")
             return True
+
         except Exception as e:
             app_logger.error(f"[Windows] Error swiping screen: {e}")
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
@@ -205,7 +210,7 @@ class WindowsControls(ControlStrategy):
                 return False
             
             Application(backend=self.backend).start(executable_path)
-            self.human_delay('launch_delay', 10.0)
+            self.human_delay('launch_wait', 10.0)
             self._connect_to_lastwar_app()
             app_logger.debug(f"[Windows] Launched application: {executable_path}")
             return True

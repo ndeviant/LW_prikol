@@ -30,9 +30,9 @@ class AutomationState:
         except Exception as e:
             app_logger.error(f"Error saving state: {e}")
 
-    def get(self, field_name: str, check_name: str, check_type: str = "time_checks"):
+    def get(self, field_name: str, check_name: str, check_type: str = "time_checks", default=None):
         """Get last run time for a check"""
-        return self._state.get(check_type, {}).get(check_name, {}).get(field_name)
+        return self._state.get(check_type, {}).get(check_name, {}).get(field_name) or default
     
     def set(self, field_name: str, value, check_name: str, check_type: str = "time_checks") -> None:
         """Set last run time for a check"""

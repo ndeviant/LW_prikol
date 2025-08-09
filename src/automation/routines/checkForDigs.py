@@ -33,7 +33,6 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             # Open chat by clicking the dig icon
             if not find_and_tap_template(
                 "dig",
-                error_msg="Could not find dig icon",
                 success_msg="Found dig icon"
             ):
                 return True
@@ -211,15 +210,22 @@ class CheckForDigsRoutine(TimeCheckRoutine):
 
     def claim_dig_from_chat(self) -> bool:
         # Check if dig is available to claim in chat
-        if (find_and_tap_template(
+        found_dig = None
+        if self.unclaimed_dig_type == 'drone' and find_and_tap_template(
             "dig_chat_claim_drone",
             success_msg="Found dig_chat_claim_drone icon",
             offset=(0, 15)
-        )) or find_and_tap_template(
+        ):
+            found_dig = 'drone'
+
+        if self.unclaimed_dig_type == 'dig' and find_and_tap_template(
             "dig_chat_claim",
             success_msg="Found dig_chat_claim icon",
             offset=(0, 15)
         ):
+            found_dig = 'dig'
+
+        if (found_dig):
             controls.human_delay(CONFIG['timings']['rally_animation'])
 
             if find_and_tap_template(
@@ -247,18 +253,17 @@ class CheckForDigsRoutine(TimeCheckRoutine):
         self.automation.game_state["is_home"] = False;
         self.open_alli_chat()
 
-        chat_search_swipes = self.options.get("chat_search_swipes", 5);
+        chat_search_swipes = self.options.get("chat_search_swipes", 3);
 
         if self.claim_dig_from_chat():
             return True
         for _ in range(chat_search_swipes):
-            controls.swipe(direction="up", num_swipes=1)
+            controls.swipe(direction="up")
             controls.human_delay(CONFIG['timings']['menu_animation'])
             if self.claim_dig_from_chat():
                 return True
 
         app_logger.info(f"No unclaimed dig found in chat")
-        self.unclaimed_dig_type = None
         
         return False
             

@@ -15,21 +15,29 @@
       "help": {
         "handler": "src.automation.routines.help.HelpRoutine",
         "interval": 15
-      },            
+      },
       "claim_secret_tasks": {
         "handler": "src.automation.routines.claimSecretTasks.ClaimSecretTasks",
         "interval": 30
-      },      
+      },
+      "assist_secret_tasks": {
+        "handler": "src.automation.routines.assistSecretTasks.AssistSecretTasks",
+        "options": {
+          "min_star": 5,
+          "claim_types": ["star", "hero"]
+        },
+        "interval": 45
+      },
       "rally": {
         "handler": "src.automation.routines.rally.RallyRoutine",
         "interval": null,
         "options": {
-          "only_golden": true
+          "rally_types": ["golden"]
         }
       },
       "dig": {
         "handler": "src.automation.routines.checkForDigs.CheckForDigsRoutine",
-        "interval": 5,
+        "interval": 10,
         "options": {
           "auto_claim": true,
           "wait_for_dig": 540,
@@ -94,7 +102,7 @@
         "options": {
           "position": "interior"
         }
-      },         
+      },
       "interior_monday_night": {
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
@@ -134,7 +142,7 @@
         "options": {
           "position": "interior"
         }
-      },         
+      },
       "interior_thursday_night": {
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {

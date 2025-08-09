@@ -51,7 +51,6 @@ class ControlStrategy(ABC):
             duration_ms = int(duration * 1000 * random.uniform(0.9, 1.1))
             
             # Execute long press
-
             success = self._perform_click(rand_x, rand_y, duration_ms)
             if success:
                 self.human_delay('tap_delay')
@@ -71,7 +70,7 @@ class ControlStrategy(ABC):
         pass
 
     # Template Method: Defines the skeleton of the 'swipe' operation
-    def swipe(self, direction: str = "up", num_swipes: int = 8, duration_ms: int = None) -> None:
+    def swipe(self, direction: str = "up", num_swipes: int = 1, duration_ms: int = None) -> None:
         """Handle scrolling with swipes"""
         width, height = self.get_screen_size()
         
@@ -194,8 +193,9 @@ class ControlStrategy(ABC):
 
     def launch_game(self):
         """Launch the game"""
-        self.force_stop_package()
-        time.sleep(CONFIG['timings']['app_close_wait'])
+        if self.is_app_running:
+            self.force_stop_package()
+            time.sleep(CONFIG['timings']['app_close_wait'])
         self.launch_package()
         
         start_time = time.time()
@@ -212,8 +212,9 @@ class ControlStrategy(ABC):
             if home_loc:
                 app_logger.debug("Found home icon")
                 time.sleep(CONFIG['timings']['launch_wait'])
-                self.navigate_home(True)
                 return True
+            else:
+                self.navigate_home(True)
 
             #small delay between checks    
             self.human_delay(5)
