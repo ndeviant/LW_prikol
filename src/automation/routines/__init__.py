@@ -5,7 +5,6 @@ from .rally import RallyRoutine
 from .secretary import SecretaryRoutine
 from .allianceDonate import AllianceDonateRoutine
 from .checkForDigs import CheckForDigsRoutine
-from .checkAnotherDevice import CheckAnotherDeviceRoutine
 from .claimSecretTasks import ClaimSecretTasks
 from .assistSecretTasks import AssistSecretTasks
 #from .weeklyReset import WeeklyResetRoutine 

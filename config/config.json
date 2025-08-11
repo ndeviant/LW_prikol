@@ -1,12 +1,13 @@
 {
   "env": "windows",
-  "sleep_multiplier": 0.8,
   "debug_mode": false,
+  "sleep_multiplier": 0.8,
   "max_retries": 3,
   "max_home_attempts": 15,
   "retry_delay": 1.0,
   "screenshot_quality": 100,
   "match_threshold": 0.6,
+  "server_reset_utc": 2,
   "ui_elements": {
     "chat": {
       "x": "50%",
@@ -54,8 +55,8 @@
     "settle_time": 0.2,
     "home_check_interval": 3.0,
     "launch_wait": 10.0,
-    "another_device_wait": 600.0,
     "launch_max_wait": 120.0,
+    "another_device_wait": 600.0,
     "quit_check_timeout": 2.0,
     "error_delay": 5.0,
     "app_close_wait": 5

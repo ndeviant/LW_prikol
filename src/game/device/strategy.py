@@ -191,15 +191,18 @@ class ControlStrategy(ABC):
         """Add a human-like delay between actions"""
         time.sleep(final_delay)
 
-    def launch_game(self):
+    def launch_game(self) -> bool:
         """Launch the game"""
         if self.is_app_running:
             self.force_stop_package()
             time.sleep(CONFIG['timings']['app_close_wait'])
+
         self.launch_package()
         
         start_time = time.time()
         while time.time() - start_time < CONFIG['timings']['launch_max_wait']:
+            app_logger.debug("Running launch_game, looking for 'start' and 'home' icons")
+
             # Check for start button first
             start_loc = find_template("start")
             if start_loc:
@@ -211,10 +214,9 @@ class ControlStrategy(ABC):
             home_loc = find_template("home")
             if home_loc:
                 app_logger.debug("Found home icon")
-                time.sleep(CONFIG['timings']['launch_wait'])
-                return True
-            else:
+                self.human_delay('menu_animation')
                 self.navigate_home(True)
+                return True
 
             #small delay between checks    
             self.human_delay(5)
@@ -225,6 +227,8 @@ class ControlStrategy(ABC):
     def navigate_home(self, force: bool = False) -> bool:
         """Navigate to home screen"""
         try:
+            app_logger.info("Navigating home")
+
             # Check if already at home
             if not force:
                 home_loc = find_template("home")
@@ -240,31 +244,72 @@ class ControlStrategy(ABC):
                 self.human_delay('menu_animation')
 
                 # Take screenshot and look for home
-                quit_loc = find_template("quit")
-                if quit_loc:
-                    app_logger.debug("Found quit button")
+                quit_loc = find_template(
+                    "quit",                 
+                )
+                if not quit_loc:
+                    # Not found, press back and wait
+                    self.human_delay('menu_animation')
+                    continue
 
-                    # Press back again to get to home
-                    while quit_loc:
-                        self.press_back()
-                        self.human_delay('menu_animation')
-                        quit_loc = find_template("quit")
+                app_logger.debug("Found quit button")
 
-                    # Take screenshot and look for base icon
-                    find_and_tap_template(
-                        "base"
-                    )
-                    
-                    return True
-                    
-                # Not found, press back and wait
-                self.human_delay('menu_animation')
+                # Press back again to get to home
+                while quit_loc:
+                    self.press_back()
+                    self.human_delay('menu_animation')
+                    quit_loc = find_template("quit")
+                    app_logger.debug("Going back until 'quit' will not be on the screen")
+
+                # Take screenshot and look for base icon
+                find_and_tap_template(
+                    "base"
+                )
+                
+                return True
                 
             app_logger.error("Failed to find home screen after maximum attempts")
             return False
             
         except Exception as e:
             app_logger.error(f"Error navigating home: {e}")
+            return False
+        
+    def check_active_on_another_device(self) -> bool:
+        """Find another device popup"""
+        try:
+            app_logger.debug("Checking if account is active on another device")
+            # Check if notification is on
+            notification = find_template("another_device")
+
+            if not notification:
+                return False
+        
+            total_wait_time = CONFIG['timings']['another_device_wait'] or 300
+
+            app_logger.info(f"Account is active on another device, waiting for {total_wait_time}s")
+
+            # The progress step (20% of the total time)
+            step_duration = total_wait_time * 0.20
+            remaining_time = total_wait_time
+
+            # Loop to show progress
+            for i in range(1, 6): # This will loop 5 times for 20%, 40%, 60%, 80%, 100%
+                if not self.is_app_running:
+                    return True
+                self.human_delay(step_duration, multiplier=1.0) # Assuming human_delay takes the duration
+                remaining_time -= step_duration
+
+                app_logger.info(f"App will be restarted. Time remaining: {remaining_time:.1f}s")
+                
+            # The full delay is now complete
+            self.cleanup_temp_files()
+            self.force_stop_package()
+
+            return True
+                
+        except Exception as e:
+            app_logger.error(f"Error check_active_on_another_device: {e}")
             return False
               
     def _save_image_to_disk_background(self, image_np: np.ndarray, filepath: str):

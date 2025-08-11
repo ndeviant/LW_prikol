@@ -42,7 +42,7 @@ def _take_and_load_screenshot() -> Optional[np.ndarray]:
 
 def find_template(
     template_name: str,
-    make_new_screen: bool = True,
+    file_name_getter = None
 ) -> Optional[Tuple[int, int]]:
     """Find template in image and return center coordinates"""
     from src.game.device import controls
@@ -59,10 +59,7 @@ def find_template(
         h, w = template.shape[:2]
 
         # Take screenshot first
-        if make_new_screen:
-            img = controls.take_screenshot()
-        else:
-            img = cv2.imread('tmp/screen.png')
+        img = controls.take_screenshot()
 
         if img is None:
             app_logger.debug("Failed to load screenshot")
@@ -86,12 +83,12 @@ def find_template(
         # Fix the threshold comparison
         if max_val < threshold:  # Remove the incorrect "threshold - -0.16"
             app_logger.debug(f"Match value {max_val:.4f} below threshold {threshold}")
-            _save_debug_image(img, template_name, [(center_x, center_y, max_val, False)], None)
+            _save_debug_image(img, template_name, [(center_x, center_y, max_val, False)], file_name_getter=file_name_getter)
             return None
             
         app_logger.debug(f"Match value {max_val:.4f} EXCEEDS threshold {threshold} !")
         
-        _save_debug_image(img, template_name, [(center_x, center_y, max_val, True)], None)
+        _save_debug_image(img, template_name, [(center_x, center_y, max_val, True)], file_name_getter=file_name_getter)
         
         app_logger.debug(f"Found match at center point: ({center_x}, {center_y})")
         return (center_x, center_y)
@@ -103,7 +100,7 @@ def find_template(
 def find_all_templates(
     template_name: str,
     search_region: Tuple[int, int, int, int] = None,
-    get_file_name = None
+    file_name_getter = None
 ) -> list[Tuple[int, int]]:
     """Find all template matches in image and return center coordinates"""
     try:
@@ -160,7 +157,7 @@ def find_all_templates(
             adjusted_matches.append((x, y))
             
         # Save debug image
-        _save_debug_image(img, template_name, matches or failed_matches, search_region, get_file_name=get_file_name)
+        _save_debug_image(img, template_name, matches or failed_matches, search_region, file_name_getter=file_name_getter)
         
         app_logger.debug(f"Found {len(matches)} matches for {template_name} with threshold {threshold}")
         return adjusted_matches
@@ -209,7 +206,7 @@ def _save_debug_image(
     matches: list[Tuple[int, int, float, bool]] = None,
     search_region: Tuple[int, int, int, int] = None,
     padding: int = 20,
-    get_file_name: Callable[[str, bool], str] = None,
+    file_name_getter: Callable[[str, bool], str] = None,
 ) -> None:
     """Save debug image with matches and search region highlighted"""
     try:
@@ -240,8 +237,8 @@ def _save_debug_image(
                 
         # Save debug image
         file_name = f"debug{"" if success else "_fail"}_find_{template_name}"
-        if (get_file_name):
-            file_name= get_file_name(template_name, success) or file_name
+        if (file_name_getter):
+            file_name= file_name_getter(template_name, success) or file_name
         file_save_executor.submit(lambda: cv2.imwrite(f'tmp/{file_name}.png', debug_img))
         
     except Exception as e:
@@ -249,7 +246,6 @@ def _save_debug_image(
 
 def find_and_tap_template(
     template_name: str,
-    make_new_screen: bool = True,
     error_msg: Optional[str] = None,
     success_msg: Optional[str] = None,
     press_duration: float = 0,
@@ -262,7 +258,7 @@ def find_and_tap_template(
     if timeout:
         location = wait_for_image(template_name, timeout=timeout, interval=interval)
     else:
-        location = find_template(template_name, make_new_screen=make_new_screen)
+        location = find_template(template_name)
         
     if location is None:
         if error_msg:

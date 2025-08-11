@@ -37,7 +37,7 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             ):
                 return True
             
-            self.automation.game_state["is_home"] = False;
+            self.automation.game_state["is_home"] = False
                 
             # Send Discord notification
             asyncio.run(self.send_notification())

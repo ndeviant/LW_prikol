@@ -155,7 +155,7 @@ class MainAutomation:
                     continue
                     
                 consecutive_failures = 0
-                time.sleep(1)  # Prevent CPU thrashing
+                time.sleep(0.5)  # Prevent CPU thrashing
                 
             except KeyboardInterrupt:
                 app_logger.info("Received keyboard interrupt, shutting down gracefully")
@@ -280,6 +280,9 @@ class MainAutomation:
             notification_interval = 3600  # 1 hour in seconds
 
             while True:
+                if controls.check_active_on_another_device():
+                    return False
+                
                 # Check if game is running first
                 if controls.is_app_running:
                     return True
@@ -309,7 +312,8 @@ class MainAutomation:
                 
                 app_logger.debug(f"verify_game_running failed, waiting {sleep_time}s before retry {retry_count}")
                 time.sleep(sleep_time)
-                controls.launch_game()
+                if controls.launch_game():
+                    self.game_state["is_home"] = True
                 
                 # Reset retry count after it hits max to prevent sleep time from growing indefinitely
                 if retry_count >= CONFIG['max_home_attempts']:
@@ -346,9 +350,8 @@ class MainAutomation:
             
             if controls.launch_game():
                 app_logger.info("Game launched successfully")
-                if controls.navigate_home(force=True):
-                    self.game_state["is_home"] = True
-                    return True
+                self.game_state["is_home"] = True
+                return True
                 
             retry_count += 1
         

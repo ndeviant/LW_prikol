@@ -52,10 +52,10 @@ class ControlsContext:
     def type_text(self, text: str) -> None:
         return self._control_strategy.type_text(text)
 
-    def launch_game(self) -> None:
+    def launch_game(self) -> bool:
         return self._control_strategy.launch_game()
 
-    def launch_package(self, *args, **kwargs) -> None:
+    def launch_package(self, *args, **kwargs) -> bool:
         return self._control_strategy.launch_package(*args, **kwargs)
 
     def force_stop_package(self, *args, **kwargs) -> None:
@@ -63,6 +63,9 @@ class ControlsContext:
 
     def navigate_home(self, force: bool) -> None:
         return self._control_strategy.navigate_home(force)
+        
+    def check_active_on_another_device(self) -> None:
+        return self._control_strategy.check_active_on_another_device()
 
     def get_screen_size(self) -> tuple[int, int]:
         return self._control_strategy.get_screen_size()

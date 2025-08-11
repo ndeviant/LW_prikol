@@ -8,7 +8,7 @@ from src.game.device import controls
 from src.core.logging import app_logger
 
 SecretTaskType = Literal['star', 'hero', 'science', 'constr']
-offset_x = 150
+offset_x = 120
 offset_y = 20
 
 class AssistSecretTasks(TimeCheckRoutine):
@@ -65,7 +65,7 @@ class AssistSecretTasks(TimeCheckRoutine):
         for claim_type in self.claim_types:
             matches = find_all_templates(
                 f"assist_{claim_type}_task_{self.min_star}", 
-                get_file_name=lambda template_name, success: f"{template_name}_{success}_{time.time()}" if success else ""
+                file_name_getter=lambda template_name, success: f"{template_name}_{success}_{time.time()}" if success else ""
             )
 
             for match in matches:
@@ -79,16 +79,18 @@ class AssistSecretTasks(TimeCheckRoutine):
         
         assisted_max_date = self.state.get('assisted_max_date', None)
         if assisted_max_date is None:
-            return should_run_routine
-    
-        now = datetime.now()
+            return True
 
         # Convert the timestamp to a datetime object
         assisted_max_dt = datetime.fromtimestamp(assisted_max_date, UTC)
+        now = datetime.fromtimestamp(time.time(), UTC)
 
-        # If not reached max assists today
-        max_reached_today = (now.year != assisted_max_dt.year or
-                    now.month != assisted_max_dt.month or
-                    now.day != assisted_max_dt.day)
-        
-        return max_reached_today
+        # Define a datetime object for 2 AM of the current day (in UTC)
+        # The `replace` method creates a new datetime object with the specified time.
+        today_reset = now.replace(hour=CONFIG['server_reset_utc'] or 2, minute=0, second=0, microsecond=0)
+
+        # The routine should run if the current time is past 2 AM AND
+        # the last run was before 2 AM today.
+        can_run = (now >= today_reset) and (assisted_max_dt < today_reset)
+
+        return can_run

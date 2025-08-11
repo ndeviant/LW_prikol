@@ -20,7 +20,7 @@ class CollectResourcesRoutine(TimeCheckRoutine):
             if  find_and_tap_template(
                 template,
             ):
-                controls.human_delay(0.5)
+                controls.human_delay(0.2)
         
         if (find_template("status_interior")):
             app_logger.info("Secretary of interior status found, collecting RSS")
@@ -30,10 +30,10 @@ class CollectResourcesRoutine(TimeCheckRoutine):
                 "rss_iron",
                 "rss_food",
             ]:
-                if  find_and_tap_template(
+                if find_and_tap_template(
                     template,
                 ):
-                    controls.human_delay(0.5)
+                    controls.human_delay(0.2)
 
         if not find_and_tap_template(
             "rss_truck",

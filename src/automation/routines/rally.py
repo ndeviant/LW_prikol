@@ -6,10 +6,10 @@ from src.core.config import CONFIG
 from src.core.logging import app_logger
 from src.game.device import controls
 
-SecretTaskType = Literal['golden', 'de', 'de_s1']
+SecretTaskType = Literal['any', 'golden', 'de', 'de_s1']
 
 class RallyRoutine(TimeCheckRoutine):
-    secret_task_types = ['golden', 'de', 'de_s1']
+    secret_task_types = ['any', 'golden', 'de', 'de_s1']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

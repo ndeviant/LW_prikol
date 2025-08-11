@@ -1,9 +1,5 @@
 {
     "time_checks": {
-      "another_device": {
-        "handler": "src.automation.routines.checkAnotherDevice.CheckAnotherDeviceRoutine",
-        "interval": 10
-      },
       "cleanup": {
         "handler": "src.automation.routines.cleanup.CleanupRoutine",
         "interval": 3600
@@ -23,7 +19,7 @@
       "assist_secret_tasks": {
         "handler": "src.automation.routines.assistSecretTasks.AssistSecretTasks",
         "options": {
-          "min_star": 5,
+          "min_star": 4,
           "claim_types": ["star", "hero"]
         },
         "interval": 45

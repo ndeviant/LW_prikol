@@ -154,11 +154,13 @@ class ADBControls(ControlStrategy):
 
     def launch_package(self, package_name: str = CONFIG['adb']['package_name']):
         """Launch an app package"""
-        subprocess.run(
+        result = subprocess.run(
             [CONFIG.adb["binary_path"], '-s', self.device_id, 'shell', 'monkey', '-p', package_name, '-c', 'android.intent.category.LAUNCHER', '1'],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
+        self.human_delay('launch_wait', 10.0)
+        return result.returncode == 0
 
     def force_stop_package(self, package_name: str = CONFIG['adb']['package_name']):
         """Force stop an app package"""
