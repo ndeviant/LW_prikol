@@ -1,6 +1,6 @@
 from src.automation.routines.routineBase import DailyRoutine
 from src.core.config import CONFIG
-from src.core.image_processing import find_and_tap_template, wait_for_image
+from src.core.image_processing import find_template
 from src.game.device import controls
 from src.core.logging import app_logger
 
@@ -20,8 +20,9 @@ class ApplyForSecretary(DailyRoutine):
             self.automation.game_state["is_home"] = False
 
             self.open_profile_menu()
-            if not find_and_tap_template(
+            if not find_template(
                 "capitol_menu",
+                tap=True,
                 error_msg="Failed to find capitol menu",
                 critical=True
             ):  
@@ -30,8 +31,9 @@ class ApplyForSecretary(DailyRoutine):
             controls.swipe(direction="down")
             controls.human_delay(CONFIG['timings']['menu_animation'])
 
-            if not find_and_tap_template(
+            if not find_template(
                 self.options.get("position"),
+                tap=True,
                 error_msg=f"Could not find {self.options.get("position")} secretary position",
                 critical=True
             ):
@@ -39,8 +41,9 @@ class ApplyForSecretary(DailyRoutine):
                         
             controls.human_delay(CONFIG['timings']['menu_animation'])
 
-            if not find_and_tap_template(
+            if not find_template(
                 "apply",
+                tap=True,
                 error_msg=f"Could not find \"Apply\" button",
                 critical=True
             ):
@@ -62,9 +65,9 @@ class ApplyForSecretary(DailyRoutine):
             controls.click(profile_x, profile_y)
 
             # Look for notification indicators
-            notification = wait_for_image(
+            notification = find_template(
                 "awesome",
-                timeout=CONFIG['timings']['menu_animation'],
+                wait=CONFIG['timings']['menu_animation'],
             )
             
             if notification:

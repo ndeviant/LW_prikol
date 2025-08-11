@@ -1,7 +1,7 @@
 from typing import Literal
 from src.automation.routines import TimeCheckRoutine
 from src.core.logging import app_logger
-from src.core.image_processing import find_and_tap_template, wait_for_image
+from src.core.image_processing import find_template
 from src.core.discord_bot import discord
 from src.game.device import controls
 from src.core.config import CONFIG
@@ -31,8 +31,9 @@ class CheckForDigsRoutine(TimeCheckRoutine):
                 self.search_chat_for_digs()
 
             # Open chat by clicking the dig icon
-            if not find_and_tap_template(
+            if not find_template(
                 "dig",
+                tap=True,
                 success_msg="Found dig icon"
             ):
                 return True
@@ -53,14 +54,16 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             self.claim_dig_from_chat()
 
             # If we just start digging
-            if find_and_tap_template(
+            if find_template(
                 "dig_chat_start",
+                tap=True,
                 error_msg="Could not find dig_chat_start icon",
             ):
                 self.unclaimed_dig_type = 'dig'
 
-            if find_and_tap_template(
+            if find_template(
                 "dig_chat_start_drone",
+                tap=True,
                 error_msg="Could not find dig_chat_start_drone icon",
             ):
                 self.unclaimed_dig_type = 'drone'
@@ -74,54 +77,59 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             # Look for all kinds of marks of ongoing dig
             found_dig = False
             if self.unclaimed_dig_type == 'dig':
-                if find_and_tap_template(
+                if find_template(
                     "dig_dig",
+                    tap=True,
                     success_msg="Found dig_dig icon",
                     error_msg="Could not find dig_dig icon",
-                    timeout=3,
+                    wait=3,
                     interval=0.3
                 ):
                     found_dig = True
 
                 if not found_dig:
-                    if find_and_tap_template(
+                    if find_template(
                         "dig_dig_model_exc",
+                        tap=True,
+                        tap_offset=(0, -15),
                         success_msg="Found dig_dig_model_exc icon",
                         error_msg="Could not find dig_dig_model_exc icon",
-                        offset=(0, -15),
-                        timeout=1,
+                        wait=1,
                         interval=0.25
                     ):
                         found_dig = True
                 
             if self.unclaimed_dig_type == 'drone':
-                if find_and_tap_template(
+                if find_template(
                     "dig_dig_drone",
+                    tap=True,
                     success_msg="Found dig_dig_drone icon",
                     error_msg="Could not find dig_dig_drone icon",
-                    timeout=3,
+                    wait=3,
                     interval=0.3
                 ):
                     found_dig = True
 
                 if not found_dig:
-                    if find_and_tap_template(
+                    if find_template(
                         "dig_dig_model_drone",
+                        tap=True,
+                        tap_offset=(0, -15),
                         success_msg="Found dig_dig_model_drone icon",
                         error_msg="Could not find dig_dig_model_drone icon",
-                        offset=(0, -15),
-                        timeout=1,
+                        wait=1,
                         interval=0.25
                     ):
                         found_dig = True
    
             if not found_dig:
-                if find_and_tap_template(
+                if find_template(
                     "dig_dig_radar_icon",
+                    tap=True,
+                    tap_offset=(0, 40),
                     success_msg="Found dig_dig_radar_icon icon",
                     error_msg="Could not find dig_dig_radar_icon icon",
-                    offset=(0, 40),
-                    timeout=3,
+                    wait=3,
                     interval=0.3
                 ):
                     found_dig = True
@@ -131,15 +139,17 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             
             controls.human_delay(CONFIG['timings']['rally_animation'])
 
-            if self.unclaimed_dig_type == 'dig' and not find_and_tap_template(
+            if self.unclaimed_dig_type == 'dig' and not find_template(
                 "dig_dig_dig",
+                tap=True,
                 error_msg="Could not find dig_dig_dig icon",
                 success_msg="Found dig_dig_dig icon",
             ):
                 return True
             
-            if self.unclaimed_dig_type == 'drone' and not find_and_tap_template(
+            if self.unclaimed_dig_type == 'drone' and not find_template(
                 "dig_dig_dig_drone",
+                tap=True,
                 error_msg="Could not find dig_dig_dig_drone icon",
                 success_msg="Found dig_dig_dig_drone icon",
             ):
@@ -147,8 +157,9 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             
             controls.human_delay(CONFIG['timings']['menu_animation'])
             
-            if not find_and_tap_template(
+            if not find_template(
                 "march",
+                tap=True,
                 error_msg="Could not find dig march icon",
             ):
                 return True
@@ -157,9 +168,9 @@ class CheckForDigsRoutine(TimeCheckRoutine):
                 return True
             
             wait_for_dig = self.options.get("wait_for_dig", 60)
-            claim_btn = wait_for_image(
+            claim_btn = find_template(
                 "dig_claim",
-                timeout=wait_for_dig,
+                wait=wait_for_dig,
                 interval=self.options.get("wait_for_dig_interval", 0.5),
             )
 
@@ -193,9 +204,9 @@ class CheckForDigsRoutine(TimeCheckRoutine):
             controls.human_delay(CONFIG['timings']['menu_animation'])
 
             # Check if alliance chat is not selected
-            alli_chat_inactive = wait_for_image(
+            alli_chat_inactive = find_template(
                 "alliance_chat_inactive",
-                timeout=CONFIG['timings']['menu_animation'],
+                wait=CONFIG['timings']['menu_animation'],
             )
             
             if alli_chat_inactive:
@@ -211,25 +222,28 @@ class CheckForDigsRoutine(TimeCheckRoutine):
     def claim_dig_from_chat(self) -> bool:
         # Check if dig is available to claim in chat
         found_dig = None
-        if self.unclaimed_dig_type == 'drone' and find_and_tap_template(
+        if self.unclaimed_dig_type == 'drone' and find_template(
             "dig_chat_claim_drone",
+            tap=True,
+            tap_offset=(0, 15),
             success_msg="Found dig_chat_claim_drone icon",
-            offset=(0, 15)
         ):
             found_dig = 'drone'
 
-        if self.unclaimed_dig_type == 'dig' and find_and_tap_template(
+        if self.unclaimed_dig_type == 'dig' and find_template(
             "dig_chat_claim",
+            tap=True,
+            tap_offset=(0, 15),
             success_msg="Found dig_chat_claim icon",
-            offset=(0, 15)
         ):
             found_dig = 'dig'
 
         if (found_dig):
             controls.human_delay(CONFIG['timings']['rally_animation'])
 
-            if find_and_tap_template(
+            if find_template(
                     "dig_claim",
+                    tap=True,
                     error_msg="Could not find dig_claim icon",
                     success_msg="Found dig_claim icon"
                 ):

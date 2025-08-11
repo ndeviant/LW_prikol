@@ -5,7 +5,9 @@ import numpy as np
 import time
 from typing import Callable, Optional, Tuple
 import os
-import concurrent.futures 
+import concurrent.futures
+
+from sympy import Q 
 
 from .logging import app_logger
 from .config import CONFIG
@@ -39,166 +41,6 @@ def _take_and_load_screenshot() -> Optional[np.ndarray]:
     from src.game.device import controls
     """Take and load a screenshot"""
     return controls.take_screenshot()
-
-def find_template(
-    template_name: str,
-    file_name_getter = None
-) -> Optional[Tuple[int, int]]:
-    """Find template in image and return center coordinates"""
-    from src.game.device import controls
-
-    try:
-        app_logger.debug(f"Looking for template: {template_name}")
-        
-        template, template_config = _load_template(template_name)
-        if template is None:
-            app_logger.debug(f"Failed to load template: {template_name}")
-            return None
-            
-        app_logger.debug(f"Template loaded successfully. Shape: {template.shape}")
-        h, w = template.shape[:2]
-
-        # Take screenshot first
-        img = controls.take_screenshot()
-
-        if img is None:
-            app_logger.debug("Failed to load screenshot")
-            return None
-            
-        app_logger.debug(f"Screenshot loaded successfully. Shape: {img.shape}")
-        
-        # Match template
-        result = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        
-        # Get threshold from template config or use default
-        threshold = template_config.get('threshold', CONFIG['match_threshold'])
-        app_logger.debug(f"Match values - Max: {max_val:.4f}, Min: {min_val:.4f}, Threshold: {threshold}")
-        app_logger.debug(f"Match location - Max: {max_loc}, Min: {min_loc}")
-
-        # Get template dimensions and calculate center point
-        center_x = max_loc[0] + w//2
-        center_y = max_loc[1] + h//2
-        
-        # Fix the threshold comparison
-        if max_val < threshold:  # Remove the incorrect "threshold - -0.16"
-            app_logger.debug(f"Match value {max_val:.4f} below threshold {threshold}")
-            _save_debug_image(img, template_name, [(center_x, center_y, max_val, False)], file_name_getter=file_name_getter)
-            return None
-            
-        app_logger.debug(f"Match value {max_val:.4f} EXCEEDS threshold {threshold} !")
-        
-        _save_debug_image(img, template_name, [(center_x, center_y, max_val, True)], file_name_getter=file_name_getter)
-        
-        app_logger.debug(f"Found match at center point: ({center_x}, {center_y})")
-        return (center_x, center_y)
-        
-    except Exception as e:
-        app_logger.error(f"Error finding template {template_name}: {e}")
-        return None
-    
-def find_all_templates(
-    template_name: str,
-    search_region: Tuple[int, int, int, int] = None,
-    file_name_getter = None
-) -> list[Tuple[int, int]]:
-    """Find all template matches in image and return center coordinates"""
-    try:
-        template, template_config = _load_template(template_name)
-        if template is None:
-            return []
-            
-        h, w = template.shape[:2]
-        
-        img = _take_and_load_screenshot()
-        if img is None:
-            return []
-            
-        # Get region to search
-        if search_region:
-            x1, y1, x2, y2 = search_region
-            img_region = img[y1:y2, x1:x2]
-        else:
-            img_region = img
-            
-        result = cv2.matchTemplate(img_region, template, cv2.TM_CCOEFF_NORMED)
-        threshold = template_config.get('threshold', CONFIG['match_threshold'])
-            
-        matches = []
-        failed_matches = []
-        result_copy = result.copy()
-        
-        while True:
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_copy)
-            
-            # Store match with confidence
-            center_x = max_loc[0] + w//2
-            center_y = max_loc[1] + h//2
-
-            if max_val < threshold:
-                failed_matches.append((center_x, center_y, max_val, False))
-                break
-                
-            matches.append((center_x, center_y, max_val, True))
-            
-            # Suppress region
-            x1_sup = max(0, max_loc[0] - w//2)
-            y1_sup = max(0, max_loc[1] - h//2)
-            x2_sup = min(result_copy.shape[1], max_loc[0] + w//2)
-            y2_sup = min(result_copy.shape[0], max_loc[1] + h//2)
-            result_copy[y1_sup:y2_sup, x1_sup:x2_sup] = 0
-        
-        # Adjust coordinates if search region was used
-        adjusted_matches = []
-        for x, y, conf, success in matches:
-            if search_region:
-                x += search_region[0]
-                y += search_region[1]
-            adjusted_matches.append((x, y))
-            
-        # Save debug image
-        _save_debug_image(img, template_name, matches or failed_matches, search_region, file_name_getter=file_name_getter)
-        
-        app_logger.debug(f"Found {len(matches)} matches for {template_name} with threshold {threshold}")
-        return adjusted_matches
-        
-    except Exception as e:
-        app_logger.error(f"Error finding templates: {e}")
-        return []
-    
-def wait_for_image(
-    template_name: str | list[str],
-    timeout: float = 120.0,
-    interval: float = 1.0
-) -> Optional[Tuple[int, int]]:
-    """Wait for template to appear in screenshot"""
-    start_time = time.time()
-    template_name_list = template_name if isinstance(template_name, list) else [template_name]
-    while time.time() - start_time < timeout:
-        coords = None
-        for tmp in template_name_list:
-            coords = find_template(tmp)
-            if coords:
-                return coords
-        time.sleep(interval)
-    return None
-
-def compare_screenshots(img1: np.ndarray, img2: np.ndarray) -> bool:
-    """
-    Compare two screenshots to detect if they are nearly identical
-    Returns True if images are the same, False if different
-    """
-    if img1 is None or img2 is None:
-        return False
-        
-    if img1.shape != img2.shape:
-        return False
-        
-    # Calculate structural similarity index
-    score = cv2.matchTemplate(img1, img2, cv2.TM_CCOEFF_NORMED)[0][0]
-    
-    # Use match_threshold from config for consistency with template matching
-    return score >= CONFIG['match_threshold']
 
 def _save_debug_image(
     img: np.ndarray, 
@@ -244,41 +86,216 @@ def _save_debug_image(
     except Exception as e:
         app_logger.error(f"Error saving debug image: {e}")
 
-def find_and_tap_template(
+def _get_templates_coords(
+    template_name: str,
+    search_region: Tuple[int, int, int, int] = None,
+    file_name_getter = None,
+    find_one: bool = False,
+) -> list[Tuple[int, int]]:
+    """Find all template matches in image and return center coordinates"""
+    try:
+        app_logger.debug(f"Looking for template: '{template_name}'")
+        
+        template, template_config = _load_template(template_name)
+        if template is None:
+            app_logger.debug(f"Failed to load template: '{template_name}'")
+            return []
+            
+        h, w = template.shape[:2]
+        
+        img = _take_and_load_screenshot()
+        if img is None:
+            app_logger.debug("Failed to load screenshot")
+            return []
+            
+        app_logger.debug(f"Screenshot loaded successfully. Shape: {img.shape}")
+
+        # Get region to search
+        if search_region:
+            x1, y1, x2, y2 = search_region
+            img_region = img[y1:y2, x1:x2]
+        else:
+            img_region = img
+            
+        result = cv2.matchTemplate(img_region, template, cv2.TM_CCOEFF_NORMED)
+        threshold = template_config.get('threshold', CONFIG['match_threshold'])
+            
+        matches = []
+        failed_max_val = None
+        failed_matches = []
+        result_copy = result.copy()
+        
+        while True:
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_copy)
+            
+            # Store match with confidence
+            center_x = max_loc[0] + w//2
+            center_y = max_loc[1] + h//2
+
+            app_logger.debug(f"Match values - Max: {max_val:.4f}, Min: {min_val:.4f}, Threshold: {threshold}")
+            app_logger.debug(f"Match location - Max: {max_loc}, Min: {min_loc}")
+
+            if max_val < threshold:
+                failed_max_val = max_val
+                failed_matches.append((center_x, center_y, max_val, False))
+                break
+                
+            app_logger.debug(f"Match value {max_val:.4f} EXCEEDS threshold {threshold} !")
+            matches.append((center_x, center_y, max_val, True))
+
+            if (find_one):
+                break
+            
+            # Suppress region
+            x1_sup = max(0, max_loc[0] - w//2)
+            y1_sup = max(0, max_loc[1] - h//2)
+            x2_sup = min(result_copy.shape[1], max_loc[0] + w//2)
+            y2_sup = min(result_copy.shape[0], max_loc[1] + h//2)
+            result_copy[y1_sup:y2_sup, x1_sup:x2_sup] = 0
+        
+        # Adjust coordinates if search region was used
+        adjusted_matches = []
+        for x, y, conf, success in matches:
+            if search_region:
+                x += search_region[0]
+                y += search_region[1]
+            adjusted_matches.append((x, y))
+
+        if failed_matches and not matches:
+            app_logger.debug(f"Match value {failed_max_val:.4f} below threshold {threshold}")
+            
+        # Save debug image
+        _save_debug_image(img, template_name, matches or failed_matches, search_region, file_name_getter=file_name_getter)
+
+        app_logger.debug(f"Found {len(matches)} matches for '{template_name}' with threshold {threshold}")
+        return adjusted_matches
+        
+    except Exception as e:
+        app_logger.error(f"Error finding templates: {e}")
+        return []
+    
+def _wait_for_image(
+    template_name: str | list[str],
+    wait: float = 120.0,
+    interval: float = 1.0,
+    search_region: Tuple[int, int, int, int] = None,
+    file_name_getter = None,
+    find_one: bool = False,
+) -> Optional[list[Tuple[int, int]]]:
+    """Wait for template to appear in screenshot"""
+    start_time = time.time()
+    template_name_list = template_name if isinstance(template_name, list) else [template_name]
+    while time.time() - start_time < wait:
+        coords_list = []
+        for tmp in template_name_list:
+            coords_list = _get_templates_coords(tmp, search_region, file_name_getter, find_one)
+            if coords_list:
+                return coords_list
+        time.sleep(interval)
+    return []
+
+def compare_screenshots(img1: np.ndarray, img2: np.ndarray) -> bool:
+    """
+    Compare two screenshots to detect if they are nearly identical
+    Returns True if images are the same, False if different
+    """
+    if img1 is None or img2 is None:
+        return False
+        
+    if img1.shape != img2.shape:
+        return False
+        
+    # Calculate structural similarity index
+    score = cv2.matchTemplate(img1, img2, cv2.TM_CCOEFF_NORMED)[0][0]
+    
+    # Use match_threshold from config for consistency with template matching
+    return score >= CONFIG['match_threshold']
+
+def find_templates(
     template_name: str,
     error_msg: Optional[str] = None,
     success_msg: Optional[str] = None,
-    press_duration: float = 0,
     critical: bool = False,
-    timeout: float = None,
+    wait: float = None,
     interval: float = None,
-    offset: tuple[int, int] = (0,0)
-) -> bool:
+    tap: bool = False,
+    tap_duration: float = None,
+    tap_offset: Tuple[int, int] = (0, 0),
+    search_region: Tuple[int, int, int, int] = None,
+    file_name_getter: Callable[[str, bool], str] = None,
+    find_one: bool = False,
+) -> list[Tuple[int, int]]:
     """Find and tap a template on screen"""
-    if timeout:
-        location = wait_for_image(template_name, timeout=timeout, interval=interval)
+    if wait:
+        locations = _wait_for_image(
+            template_name, file_name_getter=file_name_getter, find_one=find_one, wait=wait, interval=interval, 
+        )
     else:
-        location = find_template(template_name)
+        locations = _get_templates_coords(
+            template_name, file_name_getter=file_name_getter, find_one=find_one, search_region=search_region,
+        )
         
-    if location is None:
+    if not locations:
         if error_msg:
             if critical:
                 app_logger.error(error_msg)
             else:
                 app_logger.info(error_msg)
-        return False
+        return []
         
     if success_msg:
         app_logger.info(success_msg)
 
-    coors = (location[0] + offset[0], location[1] + offset[1])
-        
+    if not tap:
+        return locations
+    
     # Import here to avoid circular dependency
     from src.game.device import controls
+
+    location = locations[0]
+    coors = (location[0] + tap_offset[0], location[1] + tap_offset[1])
+
+    # Create a dictionary for the optional keyword arguments
+    click_kwargs = {}
+
+    if tap_duration is not None:
+        click_kwargs['duration'] = tap_duration
         
-    if press_duration:
-        controls.click(coors[0], coors[1], duration=press_duration)
-    else:
-        controls.click(coors[0], coors[1])
+    # Unpack the dictionary into the function call
+    controls.click(coors[0], coors[1], **click_kwargs)
         
-    return True
+    return locations
+
+# The new function that runs the first one
+def find_template(
+    template_name: str,
+    error_msg: Optional[str] = None,
+    success_msg: Optional[str] = None,
+    critical: bool = False,
+    wait: float = None,
+    interval: float = None,
+    tap: bool = False,
+    tap_duration: float = None,
+    tap_offset: Tuple[int, int] = (0, 0),
+    search_region: Tuple[int, int, int, int] = None,
+    file_name_getter: Callable[[str, bool], str] = None,
+) -> list[Tuple[int, int]]:
+    """A wrapper function that calls find_templates with all its arguments."""
+
+    # This single line calls the first function with all the arguments it received.
+    locations = find_templates(
+        template_name=template_name,
+        error_msg=error_msg,
+        success_msg=success_msg,
+        critical=critical,
+        wait=wait,
+        interval=interval,
+        tap=tap,
+        tap_duration=tap_duration,
+        tap_offset=tap_offset,
+        search_region=search_region,
+        file_name_getter=file_name_getter,
+        find_one=True
+    )
+    
+    return locations[0] if locations else None

@@ -1,7 +1,7 @@
 import json
 from typing import Dict, List, Literal
 from src.automation.routines.routineBase import TimeCheckRoutine
-from src.core.image_processing import find_all_templates, find_template, find_and_tap_template
+from src.core.image_processing import find_template, find_templates
 from src.core.config import CONFIG
 from src.core.logging import app_logger
 from src.game.device import controls
@@ -21,8 +21,9 @@ class RallyRoutine(TimeCheckRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        if not find_and_tap_template(
+        if not find_template(
             "rallies",
+            tap=True,
             error_msg="Could not find 'rallies' icon"
         ):
             return True
@@ -32,12 +33,13 @@ class RallyRoutine(TimeCheckRoutine):
         for rally_type in self.rally_types:
             controls.human_delay(CONFIG['timings']['menu_animation'])
             if not find_template('rallies_opened'):
-                find_and_tap_template(
+                find_template(
                     "rallies",
+                    tap=True,
                 )
                 controls.human_delay(CONFIG['timings']['menu_animation'])
             
-            matches = find_all_templates(
+            matches = find_templates(
                 f"join_{rally_type}_rally",
             )
 
@@ -50,10 +52,11 @@ class RallyRoutine(TimeCheckRoutine):
                 controls.click(match[0] - 60, match[1])
                 controls.human_delay(CONFIG['timings']['rally_animation'])
 
-                if not find_and_tap_template(
+                if not find_template(
                     "march",
+                    tap=True,
+                    tap_offset=(0, 10),
                     error_msg="Could not find march icon",
-                    offset=(0, 10)
                 ):
                     continue
                 
@@ -64,8 +67,9 @@ class RallyRoutine(TimeCheckRoutine):
 
                 if index < last_index:
                     controls.human_delay(CONFIG['timings']['menu_animation'])
-                    if not find_and_tap_template(
+                    if not find_template(
                         "rallies",
+                        tap=True,
                         error_msg="Could not find 'rallies' icon, while iterating through matches"
                     ):
                         return True

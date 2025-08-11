@@ -36,7 +36,7 @@ def update_schedule(events: dict[str, ScheduledEvent], current_time: float) -> d
     app_logger.debug(f"Current UTC time: {current_dt}, Day: {current_day}")
     
     for event_name, event in events.items():
-        app_logger.debug(f"Checking schedule for {event_name}")
+        app_logger.debug(f"Checking schedule for '{event_name}'")
         app_logger.debug(f"Current day: {current_day}, Event day: {event['day']}")
         
         # Check if day matches or if no specific day is required

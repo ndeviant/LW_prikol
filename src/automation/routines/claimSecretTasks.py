@@ -1,6 +1,6 @@
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.config import CONFIG
-from src.core.image_processing import find_and_tap_template
+from src.core.image_processing import find_template, find_templates
 from src.game.device import controls
 from src.core.logging import app_logger
 
@@ -11,11 +11,13 @@ class ClaimSecretTasks(TimeCheckRoutine):
         
     def _execute_internal(self) -> bool:
         try:
-            if not (find_and_tap_template(
+            if not (find_template(
                 "tasks_claimable",
+                tap=True,
                 success_msg=f"Found 'tasks_claimable' button",
-            ) or find_and_tap_template(
+            ) or find_template(
                 "tasks_active",
+                tap=True,
                 success_msg=f"Found 'tasks_active' button",
             )):
                 return True
@@ -24,8 +26,9 @@ class ClaimSecretTasks(TimeCheckRoutine):
 
             self.automation.game_state["is_home"] = False
 
-            find_and_tap_template(
+            find_template(
                 "tasks_claim",
+                tap=True,
                 error_msg=f"Could not find 'tasks_claim' button",
             )
             

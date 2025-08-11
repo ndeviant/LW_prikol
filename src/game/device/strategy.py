@@ -9,7 +9,7 @@ import numpy as np
 
 from src.core.logging import app_logger
 from src.core.config import CONFIG
-from src.core.image_processing import find_and_tap_template, find_template
+from src.core.image_processing import find_templates, find_template
 
 # 1. Strategy Interface
 class ControlStrategy(ABC):
@@ -262,8 +262,9 @@ class ControlStrategy(ABC):
                     app_logger.debug("Going back until 'quit' will not be on the screen")
 
                 # Take screenshot and look for base icon
-                find_and_tap_template(
-                    "base"
+                find_template(
+                    "base",
+                    tap=True,
                 )
                 
                 return True
@@ -278,6 +279,9 @@ class ControlStrategy(ABC):
     def check_active_on_another_device(self) -> bool:
         """Find another device popup"""
         try:
+            if not self.is_app_running:
+                return False
+            
             app_logger.debug("Checking if account is active on another device")
             # Check if notification is on
             notification = find_template("another_device")

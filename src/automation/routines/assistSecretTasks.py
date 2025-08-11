@@ -3,7 +3,7 @@ import time
 from typing import List, Literal
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.config import CONFIG
-from src.core.image_processing import find_all_templates, find_and_tap_template, find_template
+from src.core.image_processing import find_template, find_templates
 from src.game.device import controls
 from src.core.logging import app_logger
 
@@ -28,8 +28,9 @@ class AssistSecretTasks(TimeCheckRoutine):
     def _execute_internal(self) -> bool:
         try:
 
-            if not find_and_tap_template(
+            if not find_template(
                 "tasks_menu",
+                tap=True,
                 error_msg=f"Not found 'tasks_menu' button",
             ):
                 return True
@@ -40,8 +41,9 @@ class AssistSecretTasks(TimeCheckRoutine):
             if (find_template('assisted_max')):
                 self.state.set('assisted_max_date', time.time())
 
-            if not find_and_tap_template(
+            if not find_template(
                 "ally_tasks",
+                tap=True,
                 error_msg=f"Not found 'ally_tasks' button",
             ):
                 return True
@@ -63,7 +65,7 @@ class AssistSecretTasks(TimeCheckRoutine):
     def assist_tasks(self):
         """Assist all types of tasks"""
         for claim_type in self.claim_types:
-            matches = find_all_templates(
+            matches = find_templates(
                 f"assist_{claim_type}_task_{self.min_star}", 
                 file_name_getter=lambda template_name, success: f"{template_name}_{success}_{time.time()}" if success else ""
             )

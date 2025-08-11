@@ -1,6 +1,6 @@
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.logging import app_logger
-from src.core.image_processing import find_and_tap_template, find_template
+from src.core.image_processing import find_templates, find_template
 from src.game.device import controls
 from src.core.config import CONFIG
 
@@ -17,8 +17,9 @@ class CollectResourcesRoutine(TimeCheckRoutine):
             "rss_screw",
             "rss_drone_box"
         ]:
-            if  find_and_tap_template(
+            if find_template(
                 template,
+                tap=True,
             ):
                 controls.human_delay(0.2)
         
@@ -30,21 +31,23 @@ class CollectResourcesRoutine(TimeCheckRoutine):
                 "rss_iron",
                 "rss_food",
             ]:
-                if find_and_tap_template(
+                find_template(
                     template,
-                ):
-                    controls.human_delay(0.2)
+                    tap=True,
+                )
 
-        if not find_and_tap_template(
+        if not find_template(
             "rss_truck",
+            tap=True,
             error_msg="Could not find rss_truck icon",
         ):
             return True   
 
         controls.human_delay(CONFIG['timings']['menu_animation'])
         
-        if not find_and_tap_template(
+        if not find_template(
             "collect",
+            tap=True,
             error_msg="Could not find collect icon",
         ):
             return True

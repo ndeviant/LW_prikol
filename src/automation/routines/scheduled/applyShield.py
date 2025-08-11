@@ -1,6 +1,6 @@
 from src.automation.routines.routineBase import DailyRoutine
 from src.core.config import CONFIG
-from src.core.image_processing import find_and_tap_template
+from src.core.image_processing import find_template
 from src.game.device import controls
 from src.core.logging import app_logger
 
@@ -33,8 +33,9 @@ class ApplyShield(DailyRoutine):
                 app_logger.error(f"Failed to find any shield after doing: {num_of_swipes} swipes")
                 return False
 
-            if not find_and_tap_template(
+            if not find_template(
                 "use",
+                tap=True,
                 error_msg=f"Could not find 'use' button",
                 critical=True
             ):
@@ -52,8 +53,9 @@ class ApplyShield(DailyRoutine):
     def open_inventory(self) -> bool:
         """Open the profile menu"""
         try:
-            if not find_and_tap_template(
+            if not find_template(
                 "inventory",
+                tap=True,
                 error_msg=f"Could not find \"inventory\" button",
                 critical=True
             ):
@@ -70,8 +72,9 @@ class ApplyShield(DailyRoutine):
         apllied_shield = None
 
         for shield_time in shields:
-            if find_and_tap_template(
+            if find_template(
                 f"shield_{shield_time}",
+                tap=True,
                 error_msg=f"Failed to find shield_{shield_time} item",
                 critical=True
             ):  

@@ -3,7 +3,7 @@ import cv2
 from src.automation.routines.routineBase import TimeCheckRoutine
 from src.core.logging import app_logger
 from src.core.config import CONFIG
-from src.core.image_processing import find_template, find_all_templates, wait_for_image, find_and_tap_template
+from src.core.image_processing import find_templates, find_template
 from src.game.device import controls
 from src.core.text_detection import (
     extract_text_from_region, 
@@ -33,8 +33,9 @@ class SecretaryRoutine(TimeCheckRoutine):
         """Internal execution logic"""
         self.automation.game_state["is_home"] = False
         self.open_profile_menu()
-        if not find_and_tap_template(
+        if not find_template(
             "capitol_menu",
+            tap=True,
             error_msg="Failed to find capitol menu",
             critical=True
         ):  
@@ -45,7 +46,7 @@ class SecretaryRoutine(TimeCheckRoutine):
     def find_accept_buttons(self) -> list[Tuple[int, int]]:
         """Find all accept buttons on the screen and sort by Y coordinate"""
         try:
-            matches = find_all_templates(
+            matches = find_templates(
                 "accept"
             )
             if not matches:
@@ -65,7 +66,7 @@ class SecretaryRoutine(TimeCheckRoutine):
     def find_reject_buttons(self) -> list[Tuple[int, int]]:
         """Find all reject buttons on the screen and sort by Y coordinate"""
         try:
-            matches = find_all_templates(
+            matches = find_templates(
                 "reject"
             )
             if not matches:
@@ -92,9 +93,9 @@ class SecretaryRoutine(TimeCheckRoutine):
             controls.click(profile_x, profile_y)
 
             # Look for notification indicators
-            notification = wait_for_image(
+            notification = find_template(
                 "awesome",
-                timeout=CONFIG['timings']['menu_animation'],
+                wait=CONFIG['timings']['menu_animation'],
             )
             
             if notification:
@@ -127,17 +128,18 @@ class SecretaryRoutine(TimeCheckRoutine):
     
     def verify_secretary_menu(self) -> bool:
         """Verify we're in the secretary menu"""
-        return wait_for_image(
+        return find_template(
             "president",
-            timeout=CONFIG['timings']['menu_animation']
+            wait=CONFIG['timings']['menu_animation']
         ) is not None
     
     def process_secretary_position(self, name: str) -> bool:
         """Process a single secretary position"""
         try:        
             # Find and click secretary position
-            if not find_and_tap_template(
+            if not find_template(
                 name,
+                tap=True,
                 error_msg=f"Could not find {name} secretary position",
                 critical=True
             ):
@@ -146,11 +148,12 @@ class SecretaryRoutine(TimeCheckRoutine):
             controls.human_delay(CONFIG['timings']['tap_delay'])
             
             # Find and click list button
-            if not find_and_tap_template(
+            if not find_template(
                 "list",
+                tap=True,
                 error_msg="List button not found",
                 critical=True,
-                timeout=CONFIG['timings']['list_timeout']
+                wait=CONFIG['timings']['list_timeout']
             ):
                 return False
 
@@ -220,16 +223,18 @@ class SecretaryRoutine(TimeCheckRoutine):
                                 if abs(reject_button[1] - topmost_accept[1]) <= 10:  # 10 pixel tolerance
                                     controls.click(reject_button[0], reject_button[1])
                                     app_logger.debug(f"Tapping reject at coordinates: ({reject_button[0]}, {reject_button[1]})")
-                                    if not find_and_tap_template(
+                                    if not find_template(
                                         "confirm_green",
+                                        tap=True,
                                         error_msg="Failed to find confirm_green button",
                                         critical=True
                                     ):
                                         continue
                             else:
                                 # No reject buttons found, try confirm_green
-                                if not find_and_tap_template(
+                                if not find_template(
                                     "confirm_green",
+                                    tap=True,
                                     error_msg="Failed to find confirm_green button",
                                     critical=True
                                 ):
@@ -264,14 +269,14 @@ class SecretaryRoutine(TimeCheckRoutine):
             all_positions = {}
             secretary_types = self.secretary_types + self.additionalTypes
             for position_type in secretary_types:
-                positions = find_all_templates(
+                positions = find_templates(
                     position_type
                 )
                 if positions:
                     all_positions[position_type] = positions[0]  # Take first match for each type
                     app_logger.debug(f"Found {position_type} position at ({positions[0][0]}, {positions[0][1]})")
             # Find all applicant icons
-            applicant_locations = find_all_templates(
+            applicant_locations = find_templates(
                 "has_applicant"
             )
             
@@ -310,8 +315,9 @@ class SecretaryRoutine(TimeCheckRoutine):
         if not positions_to_process:
             app_logger.info("No positions with applicants found")\
             # ensure the game is not glitched and we can still access the secretary menu
-            if not find_and_tap_template(
+            if not find_template(
                 self.secretary_types[0],
+                tap=True,
                 error_msg=f"Could not find {self.secretary_types[0]} secretary position",
                 critical=True
             ):
