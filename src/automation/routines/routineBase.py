@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, UTC
 import time
+import traceback
 from src.core.logging import app_logger
 from src.game.device import controls
 
@@ -37,7 +38,9 @@ class RoutineBase(ABC):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            app_logger.error(f"Error in {func.__name__}: {e}")
+            app_logger.error(f"Error in '{self.routine_name}' {func.__name__}: {e}")
+            error_traceback = traceback.format_exc()
+            app_logger.error(error_traceback)
             return False
         
     def bind_state(self):

@@ -183,6 +183,8 @@ def _wait_for_image(
     find_one: bool = False,
 ) -> Optional[list[Tuple[int, int]]]:
     """Wait for template to appear in screenshot"""
+    if not interval:
+        interval = 1.0
     start_time = time.time()
     template_name_list = template_name if isinstance(template_name, list) else [template_name]
     while time.time() - start_time < wait:

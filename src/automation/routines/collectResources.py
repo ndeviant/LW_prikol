@@ -10,7 +10,6 @@ class CollectResourcesRoutine(TimeCheckRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-
         for template in [
             "rss_exp",
             "rss_ore",

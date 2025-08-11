@@ -10,31 +10,27 @@ class ClaimSecretTasks(TimeCheckRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        try:
-            if not (find_template(
-                "tasks_claimable",
-                tap=True,
-                success_msg=f"Found 'tasks_claimable' button",
-            ) or find_template(
-                "tasks_active",
-                tap=True,
-                success_msg=f"Found 'tasks_active' button",
-            )):
-                return True
-
-            controls.human_delay('menu_animation')
-
-            self.automation.game_state["is_home"] = False
-
-            find_template(
-                "tasks_claim",
-                tap=True,
-                error_msg=f"Could not find 'tasks_claim' button",
-            )
-            
+        if not (find_template(
+            "tasks_claimable",
+            tap=True,
+            success_msg=f"Found 'tasks_claimable' button",
+        ) or find_template(
+            "tasks_active",
+            tap=True,
+            success_msg=f"Found 'tasks_active' button",
+        )):
             return True
-                    
-        except Exception as e:
-            app_logger.error(f"Error claiming secret tasks: {e}")
-            return False
+
+        controls.human_delay('menu_animation')
+
+        self.automation.game_state["is_home"] = False
+
+        find_template(
+            "tasks_claim",
+            tap=True,
+            error_msg=f"Could not find 'tasks_claim' button",
+        )
+        
+        return True
+
 

@@ -26,41 +26,36 @@ class AssistSecretTasks(TimeCheckRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        try:
-
-            if not find_template(
-                "tasks_menu",
-                tap=True,
-                error_msg=f"Not found 'tasks_menu' button",
-            ):
-                return True
-
-            controls.human_delay('menu_animation')
-            self.automation.game_state["is_home"] = False
-
-            if (find_template('assisted_max')):
-                self.state.set('assisted_max_date', time.time())
-
-            if not find_template(
-                "ally_tasks",
-                tap=True,
-                error_msg=f"Not found 'ally_tasks' button",
-            ):
-                return True
-            
-            controls.human_delay(CONFIG['timings']['menu_animation'])
-
-            self.assist_tasks()
-            for _ in range(self.num_swipes):
-                controls.swipe(direction="down")
-                controls.human_delay(CONFIG['timings']['menu_animation'])
-                self.assist_tasks()
-            
+        if not find_template(
+            "tasks_menu",
+            tap=True,
+            error_msg=f"Not found 'tasks_menu' button",
+        ):
             return True
-                    
-        except Exception as e:
-            app_logger.error(f"Error assisting secret tasks: {e}")
-            return False
+
+        controls.human_delay('menu_animation')
+        self.automation.game_state["is_home"] = False
+
+        if (find_template('assisted_max')):
+            self.state.set('assisted_max_date', time.time())
+
+        if not find_template(
+            "ally_tasks",
+            tap=True,
+            error_msg=f"Not found 'ally_tasks' button",
+        ):
+            return True
+        
+        controls.human_delay(CONFIG['timings']['menu_animation'])
+
+        self.assist_tasks()
+        for _ in range(self.num_swipes):
+            controls.swipe(direction="down")
+            controls.human_delay(CONFIG['timings']['menu_animation'])
+            self.assist_tasks()
+        
+        return True
+
         
     def assist_tasks(self):
         """Assist all types of tasks"""

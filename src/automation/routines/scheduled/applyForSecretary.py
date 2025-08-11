@@ -12,48 +12,44 @@ class ApplyForSecretary(DailyRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        try:
-            if (not self.options.get("position")):
-                app_logger.info(f"No secretary position was provided in `options.position`: {self.secretary_types}")
-                return True
+        if (not self.options.get("position")):
+            app_logger.info(f"No secretary position was provided in `options.position`: {self.secretary_types}")
+            return True
 
-            self.automation.game_state["is_home"] = False
+        self.automation.game_state["is_home"] = False
 
-            self.open_profile_menu()
-            if not find_template(
-                "capitol_menu",
-                tap=True,
-                error_msg="Failed to find capitol menu",
-                critical=True
-            ):  
-                return False
-            
-            controls.swipe(direction="down")
-            controls.human_delay(CONFIG['timings']['menu_animation'])
-
-            if not find_template(
-                self.options.get("position"),
-                tap=True,
-                error_msg=f"Could not find {self.options.get("position")} secretary position",
-                critical=True
-            ):
-                return False
-                        
-            controls.human_delay(CONFIG['timings']['menu_animation'])
-
-            if not find_template(
-                "apply",
-                tap=True,
-                error_msg=f"Could not find \"Apply\" button",
-                critical=True
-            ):
-                return False
-
-            return True 
-                    
-        except Exception as e:
-            app_logger.error(f"Error applying for a secretary position: {e}")
+        self.open_profile_menu()
+        if not find_template(
+            "capitol_menu",
+            tap=True,
+            error_msg="Failed to find capitol menu",
+            critical=True
+        ):  
             return False
+        
+        controls.swipe(direction="down")
+        controls.human_delay(CONFIG['timings']['menu_animation'])
+
+        if not find_template(
+            self.options.get("position"),
+            tap=True,
+            error_msg=f"Could not find {self.options.get("position")} secretary position",
+            critical=True
+        ):
+            return False
+                    
+        controls.human_delay(CONFIG['timings']['menu_animation'])
+
+        if not find_template(
+            "apply",
+            tap=True,
+            error_msg=f"Could not find \"Apply\" button",
+            critical=True
+        ):
+            return False
+
+        return True 
+                
     
     def open_profile_menu(self) -> bool:
         """Open the profile menu"""
