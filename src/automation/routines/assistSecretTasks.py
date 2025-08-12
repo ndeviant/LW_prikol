@@ -62,7 +62,8 @@ class AssistSecretTasks(TimeCheckRoutine):
         for claim_type in self.claim_types:
             matches = find_templates(
                 f"assist_{claim_type}_task_{self.min_star}", 
-                file_name_getter=lambda template_name, success: f"{template_name}_{success}_{time.time()}" if success else ""
+                file_name_getter=lambda file_name, success, template_name: 
+                    f"{template_name}_{success}_{time.time()}" if success else file_name
             )
 
             for match in matches:

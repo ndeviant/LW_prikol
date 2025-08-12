@@ -48,7 +48,7 @@ class AllianceDonateRoutine(TimeCheckRoutine):
         if not find_template(
             "donate_button",
             tap=True,
-            tap_duration=15.0,
+            tap_duration=5.0,
             error_msg="No donate button found",
         ):
             return True

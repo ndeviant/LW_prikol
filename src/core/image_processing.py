@@ -42,19 +42,26 @@ def _take_and_load_screenshot() -> Optional[np.ndarray]:
     """Take and load a screenshot"""
     return controls.take_screenshot()
 
-def _save_debug_image(
+def _save_debug_image_blocking(
     img: np.ndarray, 
     template_name: str,
-    matches: list[Tuple[int, int, float, bool]] = None,
+    matches: list[Tuple[int, int, float]] = None,
     search_region: Tuple[int, int, int, int] = None,
     padding: int = 20,
+    success: bool = True,
     file_name_getter: Callable[[str, bool], str] = None,
 ) -> None:
-    """Save debug image with matches and search region highlighted"""
+    """Save debug image with matches and search region highlighted (blocking)."""
     try:
-        debug_img = img.copy()
-        success = False
         template, template_config = _load_template(template_name)
+        file_name = f"debug{"" if success else "_fail"}_find_{template_name}"
+        
+        if (file_name_getter):
+            file_name = file_name_getter(file_name, success, template_name)
+        if not file_name:
+            return None
+        
+        debug_img = img.copy()
         h, w = template.shape[:2]
         template_size = (w, h)
 
@@ -66,25 +73,45 @@ def _save_debug_image(
         # Draw matches if provided
         if matches and template_size:
             w, h = template_size
-            for x, y, conf, match_success in matches:
-                if (match_success): success = True
-                color = (0, 255, 0) if match_success else (50, 50, 255)
+            for x, y, conf in matches:
+                color = (0, 255, 0) if success else (50, 50, 255)
 
                 rect_x = x - w//2
                 rect_y = y - h//2
                 cv2.rectangle(debug_img, (rect_x - padding, rect_y - padding), 
-                            (rect_x + w + padding, rect_y + h + padding), color, 2)
+                                     (rect_x + w + padding, rect_y + h + padding), color, 2)
                 cv2.putText(debug_img, f"{conf:.3f}", (rect_x, rect_y - padding - 5),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
                 
         # Save debug image
-        file_name = f"debug{"" if success else "_fail"}_find_{template_name}"
-        if (file_name_getter):
-            file_name= file_name_getter(template_name, success) or file_name
-        file_save_executor.submit(lambda: cv2.imwrite(f'tmp/{file_name}.png', debug_img))
+        cv2.imwrite(f'tmp/{file_name}.png', debug_img)
         
     except Exception as e:
         app_logger.error(f"Error saving debug image: {e}")
+
+def _save_debug_image(
+    img: np.ndarray, 
+    template_name: str,
+    matches: list[Tuple[int, int, float, bool]] = None,
+    search_region: Tuple[int, int, int, int] = None,
+    padding: int = 20,
+    success: bool = True,
+    file_name_getter: Callable[[str, bool], str] = None,
+) -> None:
+    """Schedules the saving of a debug image in a background thread."""
+    
+    # This is now the only line of code in the wrapper.
+    # It passes all the necessary arguments to the blocking function.
+    file_save_executor.submit(
+        _save_debug_image_blocking,
+        img,
+        template_name,
+        matches,
+        search_region,
+        padding,
+        success,
+        file_name_getter,
+    )
 
 def _get_templates_coords(
     template_name: str,
@@ -137,11 +164,11 @@ def _get_templates_coords(
 
             if max_val < threshold:
                 failed_max_val = max_val
-                failed_matches.append((center_x, center_y, max_val, False))
+                failed_matches.append((center_x, center_y, max_val))
                 break
                 
             app_logger.debug(f"Match value {max_val:.4f} EXCEEDS threshold {threshold} !")
-            matches.append((center_x, center_y, max_val, True))
+            matches.append((center_x, center_y, max_val))
 
             if (find_one):
                 break
@@ -155,17 +182,19 @@ def _get_templates_coords(
         
         # Adjust coordinates if search region was used
         adjusted_matches = []
-        for x, y, conf, success in matches:
+        success = True
+        for x, y, coef in matches:
             if search_region:
                 x += search_region[0]
                 y += search_region[1]
             adjusted_matches.append((x, y))
 
         if failed_matches and not matches:
+            success = False
             app_logger.debug(f"Match value {failed_max_val:.4f} below threshold {threshold}")
             
         # Save debug image
-        _save_debug_image(img, template_name, matches or failed_matches, search_region, file_name_getter=file_name_getter)
+        _save_debug_image(img, template_name, matches or failed_matches, search_region, success=success, file_name_getter=file_name_getter)
 
         app_logger.debug(f"Found {len(matches)} matches for '{template_name}' with threshold {threshold}")
         return adjusted_matches

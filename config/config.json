@@ -238,19 +238,19 @@
     },
     "assist_constr_task_4": {
       "path": "templates/{env}/secret_task/assist_constr_task_5.png",
-      "threshold": 0.93
+      "threshold": 0.94
     },
     "assist_hero_task_4": {
       "path": "templates/{env}/secret_task/assist_hero_task_5.png",
-      "threshold": 0.93
+      "threshold": 0.94
     },
     "assist_science_task_4": {
       "path": "templates/{env}/secret_task/assist_science_task_5.png",
-      "threshold": 0.93
+      "threshold": 0.94
     },    
     "assist_star_task_4": {
       "path": "templates/{env}/secret_task/assist_star_task_5.png",
-      "threshold": 0.93
+      "threshold": 0.94
     },
     "assist_constr_task_5": {
       "path": "templates/{env}/secret_task/assist_constr_task_5.png",

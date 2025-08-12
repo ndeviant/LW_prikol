@@ -82,7 +82,10 @@ class CheckForDigsRoutine(TimeCheckRoutine):
                 success_msg="Found dig_dig icon",
                 error_msg="Could not find dig_dig icon",
                 wait=3,
-                interval=0.3
+                interval=0.3,
+                # Save only success debug img
+                file_name_getter=lambda file_name, success: 
+                    file_name if success else None,
             ):
                 found_dig = True
 

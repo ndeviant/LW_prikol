@@ -37,7 +37,7 @@
         "options": {
           "auto_claim": true,
           "wait_for_dig": 540,
-          "wait_for_dig_interval": 0.25,
+          "wait_for_dig_interval": 0.248,
           "chat_search_swipes": 3
         }
       },
@@ -73,7 +73,7 @@
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
           "day": "tuesday",
-          "time": "5:20"
+          "time": "5:30"
         },
         "options": {
           "position": "development"
@@ -83,7 +83,7 @@
         "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
         "schedule": {
           "day": "wednesday",
-          "time": "5:50"
+          "time": "6:15"
         },
         "options": {
           "position": "science"
