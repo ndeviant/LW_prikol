@@ -15,12 +15,8 @@ class CleanupManager:
         if not hasattr(self, 'initialized'):
             self.initialized = True
             self.cleanup_handlers = []
-            self.device_id = None
             self.skip_cleanup = False
     
-    def set_device(self, device_id: str):
-        """Set the device ID for cleanup"""
-        self.device_id = device_id
     
     def set_skip_cleanup(self, skip: bool):
         """Set whether to skip cleanup on exit"""
@@ -35,9 +31,6 @@ class CleanupManager:
         """Run cleanup tasks if not skipped"""
         if self.skip_cleanup:
             app_logger.info("Skipping cleanup as requested")
-            return
-            
-        if not self.device_id:
             return
             
         try:

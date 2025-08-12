@@ -17,8 +17,8 @@ import numpy as np
 class SecretaryRoutine(TimeCheckRoutine):
     force_home: bool = True
 
-    def __init__(self, device_id: str, routine_name: str, interval: int, last_run: float = None, automation=None):
-        super().__init__(device_id, routine_name, interval, last_run, automation)
+    def __init__(self, routine_name: str, interval: int, last_run: float = None, automation=None):
+        super().__init__(routine_name, interval, last_run, automation)
         self.secretary_types = ["strategy", "security", "development", "science", "interior"]
         self.additionalTypes = ["military", "administrative"]
         self.capture = None
@@ -186,7 +186,6 @@ class SecretaryRoutine(TimeCheckRoutine):
 
                         alliance_region, name_region, screenshot = get_text_regions(
                             topmost_accept,
-                            self.device_id,
                             existing_screenshot=current_screenshot
                         )
 
@@ -194,7 +193,6 @@ class SecretaryRoutine(TimeCheckRoutine):
                             continue
 
                         alliance_text, original_text = extract_text_from_region(
-                            self.device_id,
                             alliance_region,
                             languages='eng',
                             img=screenshot

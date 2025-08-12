@@ -13,7 +13,6 @@ class HandlerFactory:
     def create_handler(
         self, 
         handler_path: str, 
-        device_id: str, 
         config: Dict[str, Any],
         automation=None
     ) -> Optional[RoutineBase]:
@@ -21,7 +20,6 @@ class HandlerFactory:
         Create a handler instance from a path string
         Args:
             handler_path: Path to handler class (e.g. "src.automation.routines.help.HelpRoutine")
-            device_id: Device ID to pass to handler
             config: Configuration data for the handler
             automation: Automation instance to pass to handler
         Returns:
@@ -58,8 +56,8 @@ class HandlerFactory:
                     return None
                 
             else:
-                # Regular automation just needs device_id
-                handler = handler_class(device_id, automation=automation)
+                # Regular automation just needs automation
+                handler = handler_class(automation=automation)
                 
                 return handler
                     
@@ -74,14 +72,12 @@ class HandlerFactory:
             
             if issubclass(handler_class, TimeCheckRoutine):
                 handler = handler_class(
-                    device_id,
                     automation=automation,
                     interval=interval,
                     **init_params
                 )
             elif issubclass(handler_class, DailyRoutine):
                 handler = handler_class(
-                    device_id,
                     automation=automation,
                     **init_params
                 )

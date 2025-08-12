@@ -43,7 +43,7 @@ def signal_handler(signum, frame):
     cleanup()
     sys.exit(0)
 
-def run_single_routine(device_id: str, routine_name: str) -> bool:
+def run_single_routine(routine_name: str) -> bool:
     """Run a single routine"""
     try:
         routine_config = get_routine_config().get(routine_name)
@@ -52,12 +52,11 @@ def run_single_routine(device_id: str, routine_name: str) -> bool:
             return False
             
         # Create automation instance
-        automation = MainAutomation(device_id, debug=True)
+        automation = MainAutomation(debug=True)
         
         handler_factory = HandlerFactory()
         handler = handler_factory.create_handler(
             routine_config["handler"],
-            device_id,
             {"interval": routine_config["interval"]},
             automation=automation  # Pass the automation instance
         )
@@ -81,7 +80,6 @@ def main():
     
     app_logger.info(f"Connected to device: {device_id}")
     
-    cleanup_manager.set_device(device_id)
     cleanup_manager.set_skip_cleanup(args.no_cleanup)
     
     signal.signal(signal.SIGINT, signal_handler)
@@ -92,16 +90,16 @@ def main():
             if not args.routine_name:
                 app_logger.error("No routine specified")
                 return 1
-            success = run_single_routine(device_id, args.routine_name)
+            success = run_single_routine(args.routine_name)
             return 0 if success else 1
             
         elif args.command == 'auto':
-            automation = MainAutomation(device_id, debug=args.debug)
+            automation = MainAutomation(debug=args.debug)
             success = automation.run()
             return 0 if success else 1
             
         elif args.command == 'reset':
-            automation = MainAutomation(device_id, debug=args.debug)
+            automation = MainAutomation(debug=args.debug)
             success = automation.force_reset()
             if not success:
                 app_logger.error("Failed to reset game")

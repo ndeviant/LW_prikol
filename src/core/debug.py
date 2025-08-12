@@ -3,11 +3,10 @@ from typing import Tuple
 from .logging import app_logger
 from .image_processing import _take_and_load_screenshot
 
-def save_debug_region(device_id: str, region: Tuple[int, int, int, int], prefix: str):
+def save_debug_region(region: Tuple[int, int, int, int], prefix: str):
     """Helper function to save debug images with region highlighting
     
     Args:
-        device_id: Device identifier
         region: Tuple of (x1, y1, x2, y2) coordinates
         prefix: Prefix for saved debug image filenames
     """

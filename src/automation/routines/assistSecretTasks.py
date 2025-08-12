@@ -14,8 +14,8 @@ offset_y = 20
 class AssistSecretTasks(TimeCheckRoutine):
     secret_task_types = ['star', 'hero', 'science', 'constr']
 
-    def __init__(self, device_id: str, routine_name: str, interval: int, last_run: float = None, automation=None, *args, **kwargs):
-        super().__init__(device_id, routine_name, interval, last_run, automation, *args, **kwargs)
+    def __init__(self, routine_name: str, interval: int, last_run: float = None, automation=None, *args, **kwargs):
+        super().__init__(routine_name, interval, last_run, automation, *args, **kwargs)
 
         self.claim_types: List[SecretTaskType] = self.options.get("claim_types", ['star'])
         self.min_star: int = self.options.get("min_star", 4)

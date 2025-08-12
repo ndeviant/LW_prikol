@@ -8,8 +8,7 @@ from src.game.device import controls
 class RoutineBase(ABC):
     """Base class for all automation routines"""
 
-    def __init__(self, device_id: str, routine_name: str, automation=None, options=None) -> None:
-        self.device_id = device_id
+    def __init__(self, routine_name: str, automation=None, options=None) -> None:
         self.automation = automation
         self.options = options or {}
         self.routine_name = routine_name
@@ -63,8 +62,8 @@ class RoutineBase(ABC):
 class TimeCheckRoutine(RoutineBase):
     """Base class for time-based check routines"""
     
-    def __init__(self, device_id: str, routine_name: str, interval: int, last_run: float = None, automation=None, options=None) -> None:
-        super().__init__(device_id, routine_name, automation, options)
+    def __init__(self, routine_name: str, interval: int, last_run: float = None, automation=None, options=None) -> None:
+        super().__init__(routine_name, automation, options)
         self.interval = interval
         self._last_run = last_run or 0
         self.automation = automation
@@ -82,8 +81,8 @@ class TimeCheckRoutine(RoutineBase):
 class DailyRoutine(RoutineBase):
     """Base class for daily scheduled routines"""
     
-    def __init__(self, device_id: str, routine_name: str, day: str, time: str, last_run: float = None, automation=None, options=None):
-        super().__init__(device_id, routine_name, automation, options)
+    def __init__(self, routine_name: str, day: str, time: str, last_run: float = None, automation=None, options=None):
+        super().__init__(routine_name, automation, options)
         self.day = day.lower()
         self.time = time
         self._last_run = last_run or 0

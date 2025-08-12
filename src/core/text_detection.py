@@ -21,7 +21,6 @@ debug = True
 
 def get_text_regions(
     accept_location: Tuple[int, int], 
-    device_id: str,
     existing_screenshot: Optional[np.ndarray] = None
 ) -> Tuple[Tuple[int, int, int, int], Tuple[int, int, int, int], Optional[np.ndarray]]:
     """Calculate regions for alliance tag and name extraction based on bracket location"""
@@ -129,7 +128,7 @@ def get_text_regions(
             min(height, y_center + y_padding)
         )
         
-        save_debug_region(device_id, alliance_region, "alliance")
+        save_debug_region(alliance_region, "alliance")
         return alliance_region, name_region, img
     
     # Fallback case with wider ratio
@@ -149,7 +148,7 @@ def get_text_regions(
     name_region = (split_x, y1, x2, y2)
     
     # Save debug image for fallback case too
-    save_debug_region(device_id, alliance_region, "alliance")
+    save_debug_region(alliance_region, "alliance")
     
     return alliance_region, name_region, img
 
@@ -157,7 +156,7 @@ def clean_text(text: str) -> str:
     """Strip non-alphanumeric characters from text"""
     return re.sub(r'[^a-zA-Z0-9]', '', text)
 
-def extract_text_from_region(device_id: str, region: Tuple[int, int, int, int], languages: Union[str, List[str]] = 'eng', img: Optional[np.ndarray] = None) -> str:
+def extract_text_from_region(region: Tuple[int, int, int, int], languages: Union[str, List[str]] = 'eng', img: Optional[np.ndarray] = None) -> str:
     if img is None:
         if not controls.take_screenshot():
             return "", ""

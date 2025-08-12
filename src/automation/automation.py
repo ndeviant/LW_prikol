@@ -14,16 +14,14 @@ import os
 import asyncio
 
 class MainAutomation:
-    def __init__(self, device_id: str, debug: bool = False):
+    def __init__(self, debug: bool = False):
         """Initialize automation
         
         Args:
-            device_id: Device identifier
             debug: Enable debug logging if True
         """
         setup_logging(debug=debug)  # Set logging level based on debug flag
-        self.device_id = device_id
-        app_logger.info(f"Initializing automation for device: {device_id}")
+        app_logger.info(f"Initializing automation for device: {controls.get_connected_device()}")
         if debug:
             app_logger.info("Debug mode enabled")
         self.state = AutomationState()
@@ -116,7 +114,6 @@ class MainAutomation:
         if routine_name not in self.handlers:
             handler = self.handler_factory.create_handler(
                 config.get("handler"), 
-                self.device_id, 
                 config or {},
                 automation=self  # Pass self reference to the handler
             )
