@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 from src.core.logging import app_logger
-from src.core.device import cleanup_temp_files, cleanup_device_screenshots
+from src.game.device import controls
 
 class CleanupManager:
     _instance: Optional['CleanupManager'] = None
@@ -42,7 +42,7 @@ class CleanupManager:
             
         try:
             app_logger.info("Running cleanup tasks...")
-            cleanup_temp_files()
-            cleanup_device_screenshots(self.device_id)
+            controls.cleanup_temp_files()
+            controls.cleanup_device_screenshots()
         except Exception as e:
             app_logger.error(f"Error during cleanup: {e}") 

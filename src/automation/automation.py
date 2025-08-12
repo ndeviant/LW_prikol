@@ -7,11 +7,9 @@ from src.automation.routines.routineBase import RoutineBase
 from src.core.config import CONFIG
 from src.core.logging import app_logger, setup_logging
 from src.core.scheduling import update_interval_check, update_schedule
-from src.core.adb import get_current_running_app
-from src.core.device import cleanup_temp_files, cleanup_device_screenshots
 from src.automation.state import AutomationState
 from src.automation.handler_factory import HandlerFactory
-from src.game.controls import launch_game, navigate_home, check_active_on_another_device
+from src.game.device import controls
 import os
 import asyncio
 
@@ -40,8 +38,8 @@ class MainAutomation:
         """Cleanup resources"""
         try:
             app_logger.info("Cleaning up resources...")
-            cleanup_temp_files()
-            cleanup_device_screenshots(self.device_id)
+            controls.cleanup_temp_files()
+            controls.cleanup_device_screenshots()
         except Exception as e:
             app_logger.error(f"Error during cleanup: {e}")
             
@@ -90,7 +88,8 @@ class MainAutomation:
                 "time_to_check": check_data["interval"],
                 "handler": check_data["handler"],
                 "needs_check": True,
-                "options": check_data.get("options")
+                "options": check_data.get("options"),
+                "routine_name": check_name
             }
         return checks
 
@@ -104,11 +103,11 @@ class MainAutomation:
             
             events[event_name] = {
                 "last_run": self.state.get("last_run", event_name, "scheduled_events"),
-                "last_check": self.state.get("last_check", event_name, "scheduled_events"),
                 "day": event_data["schedule"]["day"],
                 "time": event_data["schedule"]["time"],
                 "handler": event_data["handler"],
-                "options": event_data.get("options")
+                "options": event_data.get("options"),
+                "routine_name": event_name
             }
         return events
 
@@ -156,7 +155,7 @@ class MainAutomation:
                     continue
                     
                 consecutive_failures = 0
-                time.sleep(1)  # Prevent CPU thrashing
+                time.sleep(0.5)  # Prevent CPU thrashing
                 
             except KeyboardInterrupt:
                 app_logger.info("Received keyboard interrupt, shutting down gracefully")
@@ -279,13 +278,13 @@ class MainAutomation:
             base_sleep = CONFIG['timings']['home_check_interval']
             last_notification_time = 0
             notification_interval = 3600  # 1 hour in seconds
-            
-            while True:
-                check_active_on_another_device(self.device_id)
 
+            while True:
+                if controls.check_active_on_another_device():
+                    return False
+                
                 # Check if game is running first
-                current_app = get_current_running_app(self.device_id)
-                if current_app == CONFIG['package_name']:
+                if controls.is_app_running:
                     return True
                 
                 app_logger.info("Game is not running, launching game")
@@ -311,9 +310,10 @@ class MainAutomation:
                         except Exception as e:
                             app_logger.error(f"Failed to send Discord notification: {e}")
                 
-                app_logger.debug(f"Navigation failed, waiting {sleep_time}s before retry {retry_count}")
+                app_logger.debug(f"verify_game_running failed, waiting {sleep_time}s before retry {retry_count}")
                 time.sleep(sleep_time)
-                launch_game(self.device_id)
+                if controls.launch_game():
+                    self.game_state["is_home"] = True
                 
                 # Reset retry count after it hits max to prevent sleep time from growing indefinitely
                 if retry_count >= CONFIG['max_home_attempts']:
@@ -348,11 +348,10 @@ class MainAutomation:
             app_logger.info(f"Launching game in {sleep_time} seconds")
             time.sleep(sleep_time)
             
-            if launch_game(self.device_id):
+            if controls.launch_game():
                 app_logger.info("Game launched successfully")
-                if navigate_home(self.device_id, force=True):
-                    self.game_state["is_home"] = True
-                    return True
+                self.game_state["is_home"] = True
+                return True
                 
             retry_count += 1
         

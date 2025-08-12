@@ -1,5 +1,5 @@
 from src.automation.routines import TimeCheckRoutine
-from src.core.device import cleanup_temp_files, cleanup_device_screenshots
+from src.game.device import controls
 
 class CleanupRoutine(TimeCheckRoutine):
     def _execute(self) -> bool:
@@ -7,6 +7,6 @@ class CleanupRoutine(TimeCheckRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        cleanup_temp_files()
-        cleanup_device_screenshots(self.device_id)
+        controls.cleanup_temp_files()
+        controls.cleanup_device_screenshots()
         return True 

@@ -6,11 +6,10 @@ import traceback
 import json
 import signal
 from src.core.logging import setup_logging, app_logger
-from src.core.adb import get_connected_device
 from src.automation.automation import MainAutomation
 from src.core.cleanup import CleanupManager
 from src.automation.handler_factory import HandlerFactory
-
+from src.game.device import controls
 
 def get_routine_config():
     try:
@@ -76,12 +75,8 @@ def main():
     args = parser.parse_args()
     setup_logging()
     
-    device_id = get_connected_device()
+    device_id = controls.get_connected_device()
     if not device_id:
-        app_logger.error("No devices found. Please check:")
-        app_logger.error("1. Device is connected via USB")
-        app_logger.error("2. USB debugging is enabled")
-        app_logger.error("3. Computer is authorized for USB debugging")
         sys.exit(1)
     
     app_logger.info(f"Connected to device: {device_id}")

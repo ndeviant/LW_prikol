@@ -1,8 +1,9 @@
 from src.automation.routines import TimeCheckRoutine
-from src.core.image_processing import find_all_templates, find_and_tap_template
-from src.game.controls import humanized_tap
+from src.core.image_processing import find_template, find_templates
 from src.core.logging import app_logger
 from typing import Optional
+
+from src.game.device import controls
 
 class MapExchangeRoutine(TimeCheckRoutine):
 
@@ -22,33 +23,33 @@ class MapExchangeRoutine(TimeCheckRoutine):
 
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
-        if not find_and_tap_template(
-            self.device_id,
-            "secret_task",
+        if not find_template(
+            "tasks_menu",
+            tap=True,
             error_msg="Could not find secret task icon"
         ):
             return False
         
         # Click the hidden treasures tab
-        if not find_and_tap_template(
-            self.device_id,
+        if not find_template(
             "hidden_treasures",
+            tap=True,
             error_msg="Could not find hidden treasures tab"
         ):
             return False
         
         # Click the exchange button
-        if not find_and_tap_template(
-            self.device_id,
+        if not find_template(
             "hidden_treasures_exchange",
+            tap=True,
             error_msg="Could not find hidden_treasures_exchange button"
         ):
             return False
         
         # Click the allies exchange button
-        if not find_and_tap_template(
-            self.device_id,
+        if not find_template(
             "hidden_treasures_allies_exchange",
+            tap=True,
             error_msg="Could not find hidden_treasures_allies_exchange button"
         ):
             return False
@@ -61,16 +62,14 @@ class MapExchangeRoutine(TimeCheckRoutine):
         max_exchanges = 10
         exchanges = 0
         refresh_list = False
-        exchange_locations = find_all_templates(
-            self.device_id,
+        exchange_locations = find_templates(
             "hidden_treasures_start_exchange"
         )
         
         while exchanges < max_exchanges and len(exchange_locations) > 0:
             # If we've already done an exchange, we need to find the next one
             if refresh_list:
-                exchange_locations = find_all_templates(
-                    self.device_id,
+                exchange_locations = find_templates(
                     "hidden_treasures_start_exchange"
                 )
             
@@ -83,11 +82,11 @@ class MapExchangeRoutine(TimeCheckRoutine):
                 app_logger.debug("No more valid exchange locations")
                 return True
             
-            humanized_tap(self.device_id, next_location[0], next_location[1])
+            controls.click(next_location[0], next_location[1])
 
-            if not find_and_tap_template(
-                self.device_id,
+            if not find_template(
                 "hidden_treasures_confirm_exchange",
+                tap=True,
                 error_msg="Could not find confirm button"
             ):
                 ignore_locations.append(next_location)

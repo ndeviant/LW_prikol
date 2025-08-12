@@ -15,7 +15,7 @@ class DiscordNotifier:
         if not self.is_enabled:
             app_logger.warning("Notification routine disabled: DISCORD_WEBHOOK_URL not found in environment variables")
 
-    async def send(self, template: str) -> bool:
+    async def send(self, template: str, content: str = None) -> bool:
         this_config = CONFIG['discord']['notifications'][template]
         embed = Embed(color=int(this_config['embed_color'], 16))
         embed.add_field(
@@ -23,7 +23,7 @@ class DiscordNotifier:
             value=this_config['embed_value']
         )
         return await self.send_notification(   
-            this_config['content'],
+            content or this_config['content'],
             embed,
             username=CONFIG['discord'].get('bot_name', 'Game Bot')
         )

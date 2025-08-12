@@ -1,9 +1,7 @@
 from src.automation.routines.routineBase import TimeCheckRoutine
-from src.core.adb import simulate_shake
 from src.core.logging import app_logger
-from src.core.discord_bot import discord
-from src.core.image_processing import find_and_tap_template
-from src.game.controls import human_delay
+from src.core.image_processing import find_templates, find_template
+from src.game.device import controls
 from src.core.config import CONFIG
 
 class CollectResourcesRoutine(TimeCheckRoutine):
@@ -12,21 +10,43 @@ class CollectResourcesRoutine(TimeCheckRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        print("Collecting resources todo")
-        #simulate_shake(self.device_id)
+        for template in [
+            "rss_exp",
+            "rss_ore",
+            "rss_screw",
+            "rss_drone_box"
+        ]:
+            if find_template(
+                template,
+                tap=True,
+            ):
+                controls.human_delay(0.2)
+        
+        if (find_template("status_interior")):
+            app_logger.info("Secretary of interior status found, collecting RSS")
 
-        if not find_and_tap_template(
-            self.device_id,
+            for template in [
+                "rss_gold",
+                "rss_iron",
+                "rss_food",
+            ]:
+                find_template(
+                    template,
+                    tap=True,
+                )
+
+        if not find_template(
             "rss_truck",
+            tap=True,
             error_msg="Could not find rss_truck icon",
         ):
             return True   
 
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay(CONFIG['timings']['menu_animation'])
         
-        if not find_and_tap_template(
-            self.device_id,
+        if not find_template(
             "collect",
+            tap=True,
             error_msg="Could not find collect icon",
         ):
             return True

@@ -1,5 +1,5 @@
 from src.automation.routines.routineBase import TimeCheckRoutine
-from src.core.image_processing import find_and_tap_template
+from src.core.image_processing import find_template
 
 class HelpRoutine(TimeCheckRoutine):
     def _execute(self) -> bool:
@@ -7,9 +7,9 @@ class HelpRoutine(TimeCheckRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        if not find_and_tap_template(
-            self.device_id,
+        if not find_template(
             "help",
+            tap=True,
             error_msg="No help needed at this time",
             success_msg="Helping allies!"
         ):

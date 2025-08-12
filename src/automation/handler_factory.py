@@ -65,8 +65,7 @@ class HandlerFactory:
                     
             # Filter out known configuration keys that shouldn't be passed to __init__
             excluded_keys = {
-                "handler", "time_to_check",
-                "last_check", "needs_check"
+                "handler", "time_to_check", "needs_check"
             }
             init_params = {
                 k: v for k, v in config.items() 
@@ -86,10 +85,6 @@ class HandlerFactory:
                     automation=automation,
                     **init_params
                 )
-
-            # Set last_check from saved state if available
-            if "last_check" in config:
-                handler.last_check = config["last_check"]
                 
             return handler
                 

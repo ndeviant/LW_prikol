@@ -1,8 +1,7 @@
 from src.automation.routines import TimeCheckRoutine
-from src.core.adb import press_back
 from src.core.config import CONFIG
-from src.core.image_processing import find_and_tap_template
-from src.game.controls import human_delay
+from src.core.image_processing import find_template, find_templates
+from src.game.device import controls
 
 class AllianceGiftsRoutine(TimeCheckRoutine):
     force_home: bool = True
@@ -16,48 +15,50 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
 
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
-        if not find_and_tap_template(
-            self.device_id,
+        if not find_template(
             "alliance",
+            tap=True,
             error_msg="Could not find alliance icon"
         ):
             return True
             
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay('menu_animation')
 
-        # Click alliance tech icon
-        if not find_and_tap_template(
-            self.device_id,
+        # Click alliance gifts icon
+        if not find_template(
             "alliance_gifts",
+            tap=True,
             error_msg="Could not find alliance_gifts icon"
         ):
             return True
         
-        human_delay(CONFIG['timings']['menu_animation'])
+        controls.human_delay('menu_animation')
 
         # Click collect all button
-        if find_and_tap_template(
-            self.device_id,
+        if find_template(
             "alliance_claim_all",
+            tap=True,
             error_msg="No claim all button found"
         ):
             # Clear claim message
-            human_delay(CONFIG['timings']['menu_animation'])
-            press_back(self.device_id)
-            human_delay(CONFIG['timings']['menu_animation'])
+            controls.human_delay(2)
+            controls.press_back()
+            controls.human_delay(1)
         
-        # Donate with long press
-        if not find_and_tap_template(
-            self.device_id,
+        # Open premium tab
+        if not find_template(
             "alliance_gift_premium",
+            tap=True,
             error_msg="No premium tab found found"
         ):
             return True
         
+        controls.human_delay('menu_animation')
+
         # Click collect all button
-        find_and_tap_template(
-            self.device_id,
+        find_template(
             "alliance_claim_all",
+            tap=True,
             error_msg="No claim all button found"
         )
         
