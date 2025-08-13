@@ -1,5 +1,4 @@
 import os
-import random
 import re
 import subprocess
 import time
@@ -8,15 +7,12 @@ from pathlib import Path
 from typing import List, Optional
 import numpy as np
 from typing import Optional
-import concurrent.futures
 import cv2
 
 from src.core.config import CONFIG
 from src.core.helpers import ensure_dir
 from src.core.logging import app_logger
 from .strategy import ControlStrategy
-
-file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
 # 2. Concrete Strategies
 class ADBControls(ControlStrategy):
@@ -343,7 +339,7 @@ class ADBControls(ControlStrategy):
             # --- Non-blocking save to disk ---
             ensure_dir("tmp")
             output_filepath = 'tmp/screen.png'
-            file_save_executor.submit(self._save_image_to_disk_background, image_np, output_filepath)
+            self._save_image_to_disk_background(output_filepath, image_np)
             
             app_logger.debug(f"Screenshot captured and decoding process initiated. Saving to {output_filepath} in background.")
             self.cleanup_device_screenshots()

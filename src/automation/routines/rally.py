@@ -24,55 +24,56 @@ class RallyRoutine(TimeCheckRoutine):
         if not find_template(
             "rallies",
             tap=True,
-            error_msg="Could not find 'rallies' icon"
+            success_msg="Found 'rallies' icon"
         ):
             return True
-        
+
+        controls.human_delay(CONFIG['timings']['menu_animation'])
         self.automation.game_state["is_home"] = False;
 
         for rally_type in self.rally_types:
-            controls.human_delay(CONFIG['timings']['menu_animation'])
-            if not find_template('rallies_opened'):
+            if not find_template('rallies_opened', error_msg="Not found 'rallies_opened' icon"):
                 find_template(
                     "rallies",
                     tap=True,
+                    success_msg="Found 'rallies' icon inner"
                 )
                 controls.human_delay(CONFIG['timings']['menu_animation'])
-            
-            matches = find_templates(
-                f"join_{rally_type}_rally",
-            )
 
-            if not matches:
+            if not find_templates(
+                f"join_{rally_type}_rally",
+                tap=True,
+                tap_offset=(-60, 0),
+                success_msg=f"Found '{f"join_{rally_type}_rally"}' icon",
+            ):
                 continue
 
-            last_index = len(matches) - 1
+            controls.human_delay(CONFIG['timings']['rally_animation'])
 
-            for index, match in enumerate(matches):
-                controls.click(match[0] - 60, match[1])
-                controls.human_delay(CONFIG['timings']['rally_animation'])
+            if not (find_template(
+                "squad_idle",
+                tap=True,
+                tap_offset=(20, 10),
+            ) or find_template(
+                "squad_returning",
+                tap=True,
+                tap_offset=(20, 10),
+            )):
+                continue
 
-                if not find_template(
-                    "march",
-                    tap=True,
-                    tap_offset=(0, 10),
-                    error_msg="Could not find march icon",
-                ):
-                    continue
-                
-                self.joined[rally_type] = self.joined.get(rally_type, 0)
-                self.joined[rally_type] += 1
-                self.state.set('joined', self.joined)
-                app_logger.info(f"'{rally_type}' rally joined, total count: {self.joined[rally_type]}")
+            if not find_template(
+                "march",
+                tap=True,
+                tap_offset=(0, 10),
+                error_msg="Could not find 'march' icon",
+            ):
+                continue
+            
+            self.joined[rally_type] = self.joined.get(rally_type, 0)
+            self.joined[rally_type] += 1
+            self.state.set('joined', self.joined)
+            app_logger.info(f"'{rally_type}' rally joined, total count: {self.joined[rally_type]}")
 
-                if index < last_index:
-                    controls.human_delay(CONFIG['timings']['menu_animation'])
-                    if not find_template(
-                        "rallies",
-                        tap=True,
-                        error_msg="Could not find 'rallies' icon, while iterating through matches"
-                    ):
-                        return True
-                    controls.human_delay(CONFIG['timings']['menu_animation'])
+            controls.human_delay(CONFIG['timings']['menu_animation'])
 
         return True 

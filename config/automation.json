@@ -19,14 +19,14 @@
       "assist_secret_tasks": {
         "handler": "src.automation.routines.assistSecretTasks.AssistSecretTasks",
         "options": {
-          "min_star": 4,
+          "min_star": 5,
           "claim_types": ["star", "hero"]
         },
         "interval": 45
       },
       "rally": {
         "handler": "src.automation.routines.rally.RallyRoutine",
-        "interval": null,
+        "interval": 5,
         "options": {
           "rally_types": ["golden"]
         }

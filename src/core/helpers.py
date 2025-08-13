@@ -1,4 +1,6 @@
-from datetime import datetime, time, UTC
+from datetime import datetime, UTC
+import time
+from functools import wraps
 from zoneinfo import ZoneInfo
 from pathlib import Path
 
@@ -31,3 +33,24 @@ def convert_local_time_to_utc(local_time_str: str) -> datetime:
     # 5. Convert to UTC
     utc_aware_dt = local_aware_dt.astimezone(UTC) # Use the imported UTC constant
     return utc_aware_dt
+
+def throttle(seconds: float):
+    """
+    A simple decorator that throttles a function to be called at most
+    once per 'seconds' interval. Discards calls that are too frequent.
+    """
+    last_called_time = 0.0
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            nonlocal last_called_time
+            now = time.time()
+            if now - last_called_time >= seconds:
+                last_called_time = now
+                return func(*args, **kwargs)
+            else:
+                # Discard the call by returning None
+                return None
+        return wrapper
+    return decorator

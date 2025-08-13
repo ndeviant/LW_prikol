@@ -354,31 +354,31 @@
     },
     "rss_truck": {
       "path": "templates/{env}/rss/rss_truck.png",
-      "threshold": 0.75
+      "threshold": 0.7
     },
     "rss_ore": {
       "path": "templates/{env}/rss/ore.png",
-      "threshold": 0.9
+      "threshold": 0.7
     },
     "rss_screw": {
       "path": "templates/{env}/rss/screw.png",
-      "threshold": 0.9
+      "threshold": 0.7
     },
     "rss_gold": {
       "path": "templates/{env}/rss/gold.png",
-      "threshold": 0.9
+      "threshold": 0.7
     },
     "rss_iron": {
       "path": "templates/{env}/rss/iron.png",
-      "threshold": 0.9
+      "threshold": 0.7
     },
     "rss_food": {
       "path": "templates/{env}/rss/food.png",
-      "threshold": 0.9
+      "threshold": 0.7
     },
     "rss_exp": {
       "path": "templates/{env}/rss/exp.png",
-      "threshold": 0.9
+      "threshold": 0.7
     },
     "rss_drone_box": {
       "path": "templates/{env}/rss/drone_box.png",
@@ -404,9 +404,13 @@
       "path": "templates/{env}/rally/march.png",
       "threshold": 0.7
     },
-    "DE": {
-      "path": "templates/{env}/rally/DE.png",
-      "threshold": 0.65
+    "squad_idle": {
+      "path": "templates/{env}/rally/squad_idle.png",
+      "threshold": 0.7
+    },    
+    "squad_returning": {
+      "path": "templates/{env}/rally/squad_returning.png",
+      "threshold": 0.7
     },
     "hidden_treasures": {
       "path": "templates/{env}/hidden_treasures/hidden_treasures_tab.png",
@@ -466,7 +470,7 @@
   "windows": {
     "app_name": "Last War-Survival Game",
     "process_name": "LastWar.exe",
-    "executable_path": "D:\\Apps\\_Games\\TheLastWar\\Launch.exe"
+    "executable_path": "C:\\Users\\{device_id}\\AppData\\Local\\TheLastWar\\Launch.exe"
   },
   "adb": {
     "package_name": "com.fun.lastwar.gp",

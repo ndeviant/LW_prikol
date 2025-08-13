@@ -3,13 +3,16 @@ import random
 import time
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
-
+import concurrent.futures
 import cv2
 import numpy as np
 
+from src.core.helpers import throttle
 from src.core.logging import app_logger
 from src.core.config import CONFIG
 from src.core.image_processing import find_templates, find_template
+
+file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
 # 1. Strategy Interface
 class ControlStrategy(ABC):
@@ -275,7 +278,8 @@ class ControlStrategy(ABC):
         except Exception as e:
             app_logger.error(f"Error navigating home: {e}")
             return False
-        
+    
+    @throttle(1)
     def check_active_on_another_device(self) -> bool:
         """Find another device popup"""
         try:
@@ -284,7 +288,11 @@ class ControlStrategy(ABC):
             
             app_logger.debug("Checking if account is active on another device")
             # Check if notification is on
-            notification = find_template("another_device")
+            notification = find_template(
+                "another_device",
+                file_name_getter=lambda file_name, success, template_name: 
+                    file_name if success else None,
+                )
 
             if not notification:
                 return False
@@ -316,10 +324,11 @@ class ControlStrategy(ABC):
             app_logger.error(f"Error check_active_on_another_device: {e}")
             return False
               
-    def _save_image_to_disk_background(self, image_np: np.ndarray, filepath: str):
+    @throttle(1)
+    def _save_image_to_disk_background(self, filepath: str, image_np: np.ndarray):
         """Helper function to save image to disk, runs in a separate thread."""
         try:
-            cv2.imwrite(str(filepath), image_np)
+            file_save_executor.submit(cv2.imwrite, str(filepath), image_np)
         except Exception as e:
             app_logger.error(f"Error in background saving image to {filepath}: {e}")
 

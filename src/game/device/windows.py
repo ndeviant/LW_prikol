@@ -1,5 +1,3 @@
-import json
-import subprocess
 from typing import Any, List, Optional, Union
 import time
 import os
@@ -11,15 +9,12 @@ import pywinauto
 from pywinauto import Desktop, Application, findwindows 
 from pywinauto.keyboard import send_keys
 import pyautogui # For simpler mouse/keyboard actions not directly covered by pywinauto's element methods
-import concurrent.futures
 
 from src.core.config import CONFIG
 from src.core.helpers import ensure_dir
 from src.core.logging import app_logger
 
 from .strategy import ControlStrategy
-
-file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
 # 2. Concrete Strategies
 
@@ -28,7 +23,7 @@ class WindowsControls(ControlStrategy):
         super().__init__(*args, **kwargs)
         self.device_id = os.getlogin()
         self.app_name = CONFIG['windows']['app_name']
-        self.executable_path = CONFIG['windows']['executable_path']
+        self.executable_path = CONFIG['windows']['executable_path'].format(device_id=self.device_id)
         self.process_name = CONFIG['windows']['process_name']
         self.backend = CONFIG['windows'].get('backend', "win32") # Use 'uia' for modern apps, 'win32' for older ones
         self.pid: int = None
@@ -202,9 +197,12 @@ class WindowsControls(ControlStrategy):
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
             raise RuntimeError(f"Failed to get LastWar window size: {e}")
 
-    def launch_package(self, executable_path: str = CONFIG.get('windows', {}).get('executable_path', '')) -> bool:
+    def launch_package(self, executable_path: str = None) -> bool:
         """Launch an application on Windows."""
         try:
+            if executable_path is None:
+                executable_path = self.executable_path
+        
             if not executable_path:
                 app_logger.error("[Windows] No executable path configured for launching application.")
                 return False
@@ -273,7 +271,7 @@ class WindowsControls(ControlStrategy):
             # Convert RGB to BGR (OpenCV's default color order) for correct color representation
             numpy_screenshot = cv2.cvtColor(numpy_screenshot, cv2.COLOR_RGB2BGR)
             
-            file_save_executor.submit(self._save_image_to_disk_background, numpy_screenshot, output_filepath)
+            self._save_image_to_disk_background(output_filepath, numpy_screenshot)
             return numpy_screenshot
         except Exception as e:
             app_logger.error(f"[Windows] Error taking LastWar app screenshot: {e}")
