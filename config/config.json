@@ -6,8 +6,9 @@
   "max_home_attempts": 15,
   "retry_delay": 1.0,
   "screenshot_quality": 100,
-  "match_threshold": 0.6,
+  "match_threshold": 0.7,
   "server_reset_utc": 2,
+  "ar_monday_day": 2,
   "ui_elements": {
     "chat": {
       "x": "50%",
