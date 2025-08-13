@@ -7,8 +7,6 @@ from typing import Callable, Optional, Tuple
 import os
 import concurrent.futures
 
-from sympy import Q 
-
 from .logging import app_logger
 from .config import CONFIG
 
