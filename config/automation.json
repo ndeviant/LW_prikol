@@ -37,7 +37,7 @@
         "options": {
           "auto_claim": true,
           "wait_for_dig": 540,
-          "wait_for_dig_interval": 0.248,
+          "wait_for_dig_interval": 0.3,
           "chat_search_swipes": 3
         }
       },

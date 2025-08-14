@@ -1,7 +1,7 @@
 {
   "env": "windows",
   "debug_mode": false,
-  "sleep_multiplier": 0.8,
+  "sleep_multiplier": 0.7,
   "max_retries": 3,
   "max_home_attempts": 15,
   "retry_delay": 1.0,
@@ -400,7 +400,7 @@
     "join_golden_rally": {
       "path": "templates/{env}/rally/join_golden_rally.png",
       "threshold": 0.9
-    },   
+    },
     "march": {
       "path": "templates/{env}/rally/march.png",
       "threshold": 0.7
