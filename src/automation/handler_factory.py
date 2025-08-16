@@ -27,25 +27,24 @@ class HandlerFactory:
         Returns:
             Instance of handler class or None if creation fails
         """
-        # Skip if handler previously failed
-        if handler_path in self.failed_handlers:
-            return None
-            
+        routine_name = config.get('routine_name')
+        schedule_config = config.get('schedule', {})
+        options = config.get('options', {})
+
         try:
             module_path, class_name = handler_path.rsplit(".", 1)
             module = importlib.import_module(module_path)
             handler_class: Type[RoutineBase] = getattr(module, class_name)
             
-            # Use the 'schedule' key from the config to pass to FlexibleRoutine
-            routine_name = config.get('routine_name', class_name)
-            schedule_config = config.get('schedule', {})
-            options = config.get('options', {})
+            # Skip if handler previously failed
+            if routine_name in self.failed_handlers:
+                return None
 
             # All scheduled routines now inherit from FlexibleRoutine
             if issubclass(handler_class, FlexibleRoutine):
                 if not schedule_config:
-                    app_logger.error(f"No 'schedule' specified for the routine: {handler_path}")
-                    self.failed_handlers.add(handler_path)
+                    app_logger.info(f"No 'schedule' specified for the routine: {routine_name}")
+                    self.failed_handlers.add(routine_name)
                     return None
         
                 # We can now handle all scheduling patterns with a single class
@@ -68,10 +67,10 @@ class HandlerFactory:
             return handler
                 
         except (ImportError, AttributeError) as e:
-            app_logger.error(f"Failed to create handler {handler_path}: {e}")
-            self.failed_handlers.add(handler_path)
+            app_logger.error(f"Failed to create handler {routine_name}: {e}")
+            self.failed_handlers.add(routine_name)
             return None
         except Exception as e:
-            app_logger.error(f"Unexpected error creating handler {handler_path}: {e}")
-            self.failed_handlers.add(handler_path)
+            app_logger.error(f"Unexpected error creating handler {routine_name}: {e}")
+            self.failed_handlers.add(routine_name)
             return None

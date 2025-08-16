@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 import time
 import traceback
+from typing import List
 from src.core.config import CONFIG
 from src.core.logging import app_logger
 from src.game.device import controls
@@ -47,7 +48,8 @@ class RoutineBase(ABC):
     def _bind_state(self):
         self.state = StateProxy(
             get = lambda field_name, default=None: self.automation.state.get(field_name, self.routine_name, self.routine_type, default=default),
-            set = lambda field_name, value: self.automation.state.set(field_name, value, self.routine_name, self.routine_type)
+            set = lambda field_name, value: self.automation.state.set(field_name, value, self.routine_name, self.routine_type),
+            save = lambda: self.automation.state.save()
         )
     
     @abstractmethod
@@ -69,13 +71,18 @@ class FlexibleRoutine(RoutineBase):
         
         # All possible parameters for different routines. Defaults to None.
         self.interval = schedule.get('interval')
-        self.day = schedule.get('day')
         self.start_time = schedule.get('start_time')
         self.end_time = schedule.get('end_time')
-        self.last_run = schedule.get('last_run', 0)
+        self.last_run = schedule.get('last_run') or 0
         self.except_days = [d.lower() for d in schedule.get('except_days', [])]
         self.run_week_parity = schedule.get('run_week_parity') # 'odd' or 'even'
 
+        self.days: List[str] = []
+        if self.schedule.get("day"):
+            self.days = [self.schedule.get("day").lower()]
+        elif self.schedule.get("days"):
+            self.days = [d.lower() for d in self.schedule["days"]]
+            
         self.routine_type = 'routines'
 
     @property
@@ -88,6 +95,9 @@ class FlexibleRoutine(RoutineBase):
         # If the routine has never run, it is considered overdue.
         if not self.interval:
             return float('inf')
+        
+        if not self.last_run:
+            return 300
 
         # Calculate the time that has passed since the last run.
         time_since_last_run = time.time() - self.last_run
@@ -97,10 +107,16 @@ class FlexibleRoutine(RoutineBase):
         return time_since_last_run - self.interval
 
     def should_run(self) -> bool:
-        """Determines if the routine should run based on the provided parameters."""
+        """
+        Determines if the routine should run based on the provided parameters.
+        """
+        if not self.schedule:
+            app_logger.info(f"Routine '{self.routine_name}' skipped. Schedule not provided.")
+            return False
+        
         current_time_s = time.time()
         current_dt = datetime.fromtimestamp(current_time_s, UTC)
-        
+
         # Veto 1: Skip if the current day is in the except_days list.
         current_week_day = current_dt.strftime('%A').lower()
         if current_week_day in self.except_days:
@@ -110,68 +126,92 @@ class FlexibleRoutine(RoutineBase):
         # Veto 2: Skip if the week parity does not match.
         if self.run_week_parity:
             current_week_num = current_dt.isocalendar()[1]
-            
             is_odd_week = current_week_num % 2 != 0
             
-            if self.run_week_parity.lower() == 'odd' and not is_odd_week:
-                app_logger.debug(f"Routine '{self.routine_name}' skipped. Not an odd week ({current_week_num}).")
-                return False
-                
-            if self.run_week_parity.lower() == 'even' and is_odd_week:
-                app_logger.debug(f"Routine '{self.routine_name}' skipped. Not an even week ({current_week_num}).")
+            if (self.run_week_parity.lower() == 'odd' and not is_odd_week) or \
+               (self.run_week_parity.lower() == 'even' and is_odd_week):
+                app_logger.debug(f"Routine '{self.routine_name}' skipped. Week parity mismatch.")
                 return False
 
-        # Pattern 1: Simple interval-based check (TimeCheckRoutine)
-        if self.interval and not (self.day or self.start_time or self.end_time):
-            if self.last_run is None: return True
-            return current_time_s - self.last_run >= self.interval
+        # Check for daily (one-time) schedule first, as it is the most specific time-based pattern
+        if self.start_time and not self.interval and not self.end_time:
+            # Check for specific days if provided
+            if self.days and current_week_day not in self.days:
+                app_logger.debug(f"Routine '{self.routine_name}' skipped. Mismatched day: {current_week_day} not in {self.days}")
+                return False
 
-        # Pattern 2: Daily, one-time check (DailyRoutine)
-        if self.day and self.start_time and not (self.interval or self.end_time):
+            # Check if it has already run today
             if self.last_run:
                 last_dt = datetime.fromtimestamp(self.last_run, UTC)
                 if last_dt.date() == current_dt.date():
+                    app_logger.debug(f"Event '{self.routine_name}' already ran today (UTC).")
                     return False
             
-            if current_dt.strftime('%A').lower() != self.day.lower():
-                return False
+            # Check if current time is within a small window of the target time
+            try:
+                target_hour, target_min = map(int, self.start_time.split(':'))
+                target_dt = current_dt.replace(hour=target_hour, minute=target_min, second=0, microsecond=0)
+                time_diff_minutes = abs((current_dt - target_dt).total_seconds() / 60)
+                max_overdue = 10
 
-            target_hour, target_min = map(int, self.start_time.split(':'))
-            target_dt = current_dt.replace(hour=target_hour, minute=target_min)
-            time_diff = abs((current_dt - target_dt).total_seconds() / 60)
-            return time_diff <= 10
-
-        # Pattern 3 & 4: Interval within a time frame (with or without a day)
-        if self.start_time and self.end_time and self.interval:
-            # Check the day only if it's provided
-            if self.day:
-                if current_dt.strftime('%A').lower() != self.day.lower():
+                # Check if the target time has passed
+                if current_dt < target_dt:
+                    app_logger.debug(f"Routine '{self.routine_name}' skipped. Target time {self.start_time} has not yet passed.")
                     return False
 
-            # Check if the current time is within the start and end times
-            start_hour, start_min = map(int, self.start_time.split(':'))
-            end_hour, end_min = map(int, self.end_time.split(':'))
-            
-            start_dt = current_dt.replace(hour=start_hour, minute=start_min, second=0, microsecond=0)
-            end_dt = current_dt.replace(hour=end_hour, minute=end_min, second=0, microsecond=0)
-
-            # Handle end_time being on the next day
-            if end_dt < start_dt:
-                end_dt += datetime.timedelta(days=1)
-            
-            if not (start_dt <= current_dt <= end_dt):
+                if time_diff_minutes <= max_overdue:
+                    app_logger.info(f"Scheduling event '{self.routine_name}' (within {time_diff_minutes:.1f} minute window UTC).")
+                    return True
+                
+                app_logger.debug(f"Routine '{self.routine_name}' skipped. It is more than {max_overdue} minutes overdue.")
                 return False
+
+            except ValueError:
+                app_logger.error(f"Invalid start_time format: '{self.start_time}'")
+                return False
+
+        # Check for interval-based schedules, which can optionally have a day and/or time window
+        if self.interval:
+            # Check for specific days if provided
+            if self.days and current_week_day not in self.days:
+                app_logger.debug(f"Routine '{self.routine_name}' skipped. Mismatched day: {current_week_day} not in {self.days}")
+                return False
+            
+            # Check for a time window if provided
+            if self.start_time and self.end_time:
+                try:
+                    start_hour, start_min = map(int, self.start_time.split(':'))
+                    end_hour, end_min = map(int, self.end_time.split(':'))
+                    
+                    start_dt = current_dt.replace(hour=start_hour, minute=start_min, second=0, microsecond=0)
+                    end_dt = current_dt.replace(hour=end_hour, minute=end_min, second=0, microsecond=0)
+
+                    # Handle case where end_time is on the next day
+                    if end_dt < start_dt:
+                        end_dt += timedelta(days=1)
+                    
+                    if not (start_dt <= current_dt <= end_dt):
+                        app_logger.debug(f"Routine '{self.routine_name}' skipped. Current time not within window {self.start_time}-{self.end_time}.")
+                        return False
+                except ValueError:
+                    app_logger.error(f"Invalid time format in schedule: start_time='{self.start_time}', end_time='{self.end_time}'")
+                    return False
 
             # Finally, check if the interval has passed since the last run
-            if self.last_run is None: return True
+            if self.last_run is None:
+                return True
+            
             return current_time_s - self.last_run >= self.interval
 
-        # No valid pattern matched
+        # No valid pattern matched for a run
         return False
         
     def after_run(self) -> None:
         """Actions to perform after a successful run."""
         self.last_run = time.time()
+        # We can remove this check because 'after_run' is already handling it
+        self.state.set("last_run", time.time())
+        self.state.save()
 
 
 class ArmsRaceRoutine(RoutineBase):
@@ -230,6 +270,7 @@ class ArmsRaceRoutine(RoutineBase):
         self.last_run = time.time() 
 
 class StateProxy:
-    def __init__(self, get, set):
+    def __init__(self, get, set, save):
         self.get = get
         self.set = set
+        self.save = save

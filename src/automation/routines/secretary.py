@@ -17,8 +17,9 @@ import numpy as np
 class SecretaryRoutine(FlexibleRoutine):
     force_home: bool = True
 
-    def __init__(self, routine_name: str, interval: int, last_run: float = None, automation=None):
-        super().__init__(routine_name, interval, last_run, automation)
+    def __init__(self, *args, **kwargs):
+        # Call the parent's __init__ which handles all routine properties
+        super().__init__(*args, **kwargs)
         self.secretary_types = ["strategy", "security", "development", "science", "interior"]
         self.additionalTypes = ["military", "administrative"]
         self.capture = None

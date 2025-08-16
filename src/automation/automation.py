@@ -76,7 +76,7 @@ class MainAutomation:
             routine_name = routine_config.get('routine_name')
             
             # The last_run state is now part of the routine's schedule
-            if 'schedule' in routine_config:
+            if routine_config.get('schedule'):
                 last_run = self.state.get("last_run", routine_name, "routines")
                 routine_config['schedule']['last_run'] = last_run
             
@@ -132,15 +132,12 @@ class MainAutomation:
         
         for routine in sorted_routines:
             if routine.should_run():
-                app_logger.info(f"Running '{routine.routine_name}'")
+                app_logger.info(f"Running '{routine.routine_name} ({routine.routine_type})'")
                 success = routine.start()
                 
                 if success:
                     # 'after_run' handles setting last_run and saving state
                     routine.after_run()
-                    # We can remove this check because 'after_run' is already handling it
-                    self.state.set("last_run", time.time(), routine.routine_name, "routines")
-                    self.state.save()
                     
                 else:
                     app_logger.error(f"Routine '{routine.routine_name}' failed. Attempting game reset.")
