@@ -1,12 +1,11 @@
-from src.automation.routines import TimeCheckRoutine
+from src.automation.routines import FlexibleRoutine
 from src.core.image_processing import find_template, find_templates
 from src.core.logging import app_logger
 from typing import Optional
 
 from src.game.device import controls
 
-class MapExchangeRoutine(TimeCheckRoutine):
-
+class MapExchangeRoutine(FlexibleRoutine):
     def _execute(self) -> bool:
         """Execute alliance donation sequence"""
         return self.execute_with_error_handling(self.run)

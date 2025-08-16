@@ -1,10 +1,10 @@
-from src.automation.routines.routineBase import DailyRoutine
+from src.automation.routines.routineBase import FlexibleRoutine
 from src.core.config import CONFIG
 from src.core.image_processing import find_template
 from src.game.device import controls
 from src.core.logging import app_logger
 
-class ApplyForSecretary(DailyRoutine):
+class ApplyForSecretary(FlexibleRoutine):
     secretary_types = ["strategy", "security", "development", "science", "interior"]
 
     def _execute(self) -> bool:

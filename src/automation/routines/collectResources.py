@@ -1,10 +1,10 @@
-from src.automation.routines.routineBase import TimeCheckRoutine
+from src.automation.routines.routineBase import FlexibleRoutine
 from src.core.logging import app_logger
-from src.core.image_processing import find_templates, find_template
+from src.core.image_processing import find_template
 from src.game.device import controls
 from src.core.config import CONFIG
 
-class CollectResourcesRoutine(TimeCheckRoutine):
+class CollectResourcesRoutine(FlexibleRoutine):
     def _execute(self) -> bool:
         """Reset game state by restarting the app"""
         return self.execute_with_error_handling(self._execute_internal)

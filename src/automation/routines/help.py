@@ -1,7 +1,7 @@
-from src.automation.routines.routineBase import TimeCheckRoutine
+from src.automation.routines.routineBase import FlexibleRoutine
 from src.core.image_processing import find_template
 
-class HelpRoutine(TimeCheckRoutine):
+class HelpRoutine(FlexibleRoutine):
     def _execute(self) -> bool:
         """Check and click help button if available"""
         return self.execute_with_error_handling(self._execute_internal)

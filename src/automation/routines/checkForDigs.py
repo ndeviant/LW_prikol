@@ -1,5 +1,5 @@
 from typing import Literal
-from src.automation.routines import TimeCheckRoutine
+from src.automation.routines import FlexibleRoutine
 from src.core.logging import app_logger
 from src.core.image_processing import find_template
 from src.core.discord_bot import discord
@@ -8,9 +8,10 @@ from src.core.config import CONFIG
 import asyncio
 import os
 
-class CheckForDigsRoutine(TimeCheckRoutine):
-    def __init__(self, routine_name: str, interval: int, last_run: float = None, automation=None, *args, **kwargs):
-        super().__init__(routine_name, interval, last_run, automation, *args, **kwargs)
+class CheckForDigsRoutine(FlexibleRoutine):
+    def __init__(self, *args, **kwargs):
+        # Call the parent's __init__ which handles all routine properties
+        super().__init__(*args, **kwargs)
         self.is_enabled_notification = bool(os.getenv('DISCORD_WEBHOOK_URL'))
         self.unclaimed_dig_type: Literal['dig', 'drone'] = None
         self.found_count: int = self.state.get('found_count') or 0

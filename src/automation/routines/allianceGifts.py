@@ -1,9 +1,9 @@
-from src.automation.routines import TimeCheckRoutine
+from src.automation.routines import FlexibleRoutine
 from src.core.config import CONFIG
 from src.core.image_processing import find_template, find_templates
 from src.game.device import controls
 
-class AllianceGiftsRoutine(TimeCheckRoutine):
+class AllianceGiftsRoutine(FlexibleRoutine):
     force_home: bool = True
 
     def _execute(self) -> bool:

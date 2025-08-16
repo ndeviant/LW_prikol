@@ -1,6 +1,5 @@
-import json
 from typing import Dict, List, Literal
-from src.automation.routines.routineBase import TimeCheckRoutine
+from src.automation.routines.routineBase import FlexibleRoutine
 from src.core.image_processing import find_template, find_templates
 from src.core.config import CONFIG
 from src.core.logging import app_logger
@@ -8,7 +7,7 @@ from src.game.device import controls
 
 SecretTaskType = Literal['any', 'golden', 'de', 'de_s1']
 
-class RallyRoutine(TimeCheckRoutine):
+class RallyRoutine(FlexibleRoutine):
     secret_task_types = ['any', 'golden', 'de', 'de_s1']
 
     def __init__(self, *args, **kwargs):

@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 import time
 from typing import List, Literal
-from src.automation.routines.routineBase import TimeCheckRoutine
+from src.automation.routines.routineBase import FlexibleRoutine
 from src.core.config import CONFIG
 from src.core.image_processing import find_template, find_templates
 from src.game.device import controls
@@ -11,11 +11,17 @@ SecretTaskType = Literal['star', 'hero', 'science', 'constr']
 offset_x = 120
 offset_y = 20
 
-class AssistSecretTasks(TimeCheckRoutine):
+class AssistSecretTasks(FlexibleRoutine):
+    """
+    A routine to assist alliance members with secret tasks.
+    It checks for tasks to assist at a specified interval, but only after the
+    daily server reset if the maximum assists weren't already made.
+    """
     secret_task_types = ['star', 'hero', 'science', 'constr']
 
-    def __init__(self, routine_name: str, interval: int, last_run: float = None, automation=None, *args, **kwargs):
-        super().__init__(routine_name, interval, last_run, automation, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        # Call the parent's __init__ which handles all routine properties
+        super().__init__(*args, **kwargs)
 
         self.claim_types: List[SecretTaskType] = self.options.get("claim_types", ['star'])
         self.min_star: int = self.options.get("min_star", 4)
@@ -71,12 +77,13 @@ class AssistSecretTasks(TimeCheckRoutine):
                 controls.human_delay('menu_animation')
 
     def should_run(self):
-        should_run_routine = super().should_run()
-        if not should_run_routine:
+        # First, let the parent class handle the primary schedule check (interval/daily)
+        if not super().should_run():
             return False
         
         assisted_max_date = self.state.get('assisted_max_date', None)
         if assisted_max_date is None:
+            # If we've never hit max assists, we should run.
             return True
 
         # Convert the timestamp to a datetime object

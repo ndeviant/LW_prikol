@@ -1,6 +1,6 @@
 from typing import Tuple
 import cv2
-from src.automation.routines.routineBase import TimeCheckRoutine
+from src.automation.routines.routineBase import FlexibleRoutine
 from src.core.logging import app_logger
 from src.core.config import CONFIG
 from src.core.image_processing import find_templates, find_template
@@ -14,7 +14,7 @@ from src.core.text_detection import (
 from src.core.audio import play_beep
 import numpy as np
 
-class SecretaryRoutine(TimeCheckRoutine):
+class SecretaryRoutine(FlexibleRoutine):
     force_home: bool = True
 
     def __init__(self, routine_name: str, interval: int, last_run: float = None, automation=None):

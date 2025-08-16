@@ -1,10 +1,10 @@
-from src.automation.routines.routineBase import DailyRoutine
+from src.automation.routines.routineBase import FlexibleRoutine
 from src.core.config import CONFIG
 from src.core.image_processing import find_template
 from src.game.device import controls
 from src.core.logging import app_logger
 
-class ApplyShield(DailyRoutine):
+class ApplyShield(FlexibleRoutine):
     shield_types = [8, 12, 24]
 
     def _execute(self) -> bool:

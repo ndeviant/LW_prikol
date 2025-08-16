@@ -9,8 +9,9 @@ from src.game.device import controls
 class RoutineBase(ABC):
     """Base class for all automation routines"""
 
-    def __init__(self, routine_name: str, automation=None, options=None) -> None:
+    def __init__(self, routine_name: str, automation=None, schedule=None, options=None) -> None:
         self.automation = automation
+        self.schedule = schedule or {}
         self.options = options or {}
         self.routine_name = routine_name
         self._bind_state()
@@ -59,78 +60,66 @@ class RoutineBase(ABC):
         """Actions to perform after successful run"""
         pass
 
-
-class TimeCheckRoutine(RoutineBase):
-    """Base class for time-based check routines"""
-    
-    def __init__(self, routine_name: str, interval: int, last_run: float = None, automation=None, options=None) -> None:
-        super().__init__(routine_name, automation, options)
-        self.interval = interval
-        self.last_run = last_run or 0
-        self.automation = automation
-        self.routine_type = 'time_checks'
-        
-    def should_run(self) -> bool:
-        if self.last_run is None:
-            return True
-        return time.time() - self.last_run >= self.interval
-        
-    def after_run(self) -> None:
-        self.last_run = time.time()
-
-
-class DailyRoutine(RoutineBase):
-    """Base class for daily scheduled routines"""
-    
-    def __init__(self, routine_name: str, day: str, time: str, last_run: float = None, automation=None, options=None):
-        super().__init__(routine_name, automation, options)
-        self.day = day.lower()
-        self.time = time
-        self.last_run = last_run or 0
-        self.automation = automation
-        self.routine_type = 'scheduled_events'
-        
-    def should_run(self) -> bool:
-        current_dt = datetime.fromtimestamp(time.time(), UTC)
-
-        if self.last_run:
-            last_dt = datetime.fromtimestamp(self.last_run, UTC)
-            if last_dt.date() == current_dt.date():
-                return False
-                
-        current_week_day = current_dt.strftime('%A').lower()
-        if current_week_day != self.day:
-            return False
-            
-        target_hour, target_min = map(int, self.time.split(':'))
-        target_dt = current_dt.replace(hour=target_hour, minute=target_min)
-        time_diff = abs((current_dt - target_dt).total_seconds() / 60)
-        
-        return time_diff <= 10
-    
-    def after_run(self) -> None:
-        self.last_run = time.time() 
-
 class FlexibleRoutine(RoutineBase):
     """
     A routine class that can handle different scheduling patterns based on its parameters.
     """
-    def __init__(self, routine_name: str, automation=None, options=None):
-        super().__init__(routine_name, automation, options)
+    def __init__(self, routine_name: str, automation=None, schedule=None, options=None):
+        super().__init__(routine_name, automation, schedule, options)
         
         # All possible parameters for different routines. Defaults to None.
-        self.interval = options.get('interval')
-        self.day = options.get('day')
-        self.start_time = options.get('start_time')
-        self.end_time = options.get('end_time')
-        self.last_run = options.get('last_run', 0)
+        self.interval = schedule.get('interval')
+        self.day = schedule.get('day')
+        self.start_time = schedule.get('start_time')
+        self.end_time = schedule.get('end_time')
+        self.last_run = schedule.get('last_run', 0)
+        self.except_days = [d.lower() for d in schedule.get('except_days', [])]
+        self.run_week_parity = schedule.get('run_week_parity') # 'odd' or 'even'
+
+        self.routine_type = 'routines'
+
+    @property
+    def overdue_time(self) -> float:
+        """
+        Returns the time in seconds since the routine was last run,
+        compared to its scheduled interval. Returns infinity if no interval is set.
+        """
+        # If there's no interval, the concept of "overdue" doesn't apply.
+        # If the routine has never run, it is considered overdue.
+        if not self.interval:
+            return float('inf')
+
+        # Calculate the time that has passed since the last run.
+        time_since_last_run = time.time() - self.last_run
         
-        self.routine_type = 'flexible_routine'
+        # Return the difference between the time passed and the required interval.
+        # This value will be positive if overdue, or negative if not yet due.
+        return time_since_last_run - self.interval
 
     def should_run(self) -> bool:
         """Determines if the routine should run based on the provided parameters."""
         current_time_s = time.time()
         current_dt = datetime.fromtimestamp(current_time_s, UTC)
+        
+        # Veto 1: Skip if the current day is in the except_days list.
+        current_week_day = current_dt.strftime('%A').lower()
+        if current_week_day in self.except_days:
+            app_logger.debug(f"Routine '{self.routine_name}' skipped. Current day '{current_week_day}' is in except_days list.")
+            return False
+
+        # Veto 2: Skip if the week parity does not match.
+        if self.run_week_parity:
+            current_week_num = current_dt.isocalendar()[1]
+            
+            is_odd_week = current_week_num % 2 != 0
+            
+            if self.run_week_parity.lower() == 'odd' and not is_odd_week:
+                app_logger.debug(f"Routine '{self.routine_name}' skipped. Not an odd week ({current_week_num}).")
+                return False
+                
+            if self.run_week_parity.lower() == 'even' and is_odd_week:
+                app_logger.debug(f"Routine '{self.routine_name}' skipped. Not an even week ({current_week_num}).")
+                return False
 
         # Pattern 1: Simple interval-based check (TimeCheckRoutine)
         if self.interval and not (self.day or self.start_time or self.end_time):
@@ -180,17 +169,9 @@ class FlexibleRoutine(RoutineBase):
         # No valid pattern matched
         return False
         
-    def _execute(self) -> bool:
-        """Placeholder for the routine's logic."""
-        app_logger.info(f"Executing flexible routine '{self.routine_name}'...")
-        # Your specific execution logic would go here
-        return True
-        
     def after_run(self) -> None:
         """Actions to perform after a successful run."""
         self.last_run = time.time()
-        self.options['last_run'] = self.last_run
-        app_logger.info(f"Routine '{self.routine_name}' finished. Last run updated.")
 
 
 class ArmsRaceRoutine(RoutineBase):

@@ -339,7 +339,7 @@
     },
     "dig_claim": {
       "path": "templates/{env}/dig/dig_claim.png",
-      "threshold": 0.75
+      "threshold": 0.85
     },
     "dig_chat_claim": {
       "path": "templates/{env}/dig/dig_chat_claim.png",

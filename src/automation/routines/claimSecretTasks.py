@@ -1,10 +1,10 @@
-from src.automation.routines.routineBase import TimeCheckRoutine
+from src.automation.routines.routineBase import FlexibleRoutine
 from src.core.config import CONFIG
 from src.core.image_processing import find_template, find_templates
 from src.game.device import controls
 from src.core.logging import app_logger
 
-class ClaimSecretTasks(TimeCheckRoutine):
+class ClaimSecretTasks(FlexibleRoutine):
     def _execute(self) -> bool:
         """Check and click help button if available"""
         return self.execute_with_error_handling(self._execute_internal)

@@ -1,7 +1,7 @@
-from src.automation.routines import TimeCheckRoutine
+from src.automation.routines import FlexibleRoutine
 from src.game.device import controls
 
-class CleanupRoutine(TimeCheckRoutine):
+class CleanupRoutine(FlexibleRoutine):
     def _execute(self) -> bool:
         """Run cleanup tasks"""
         return self.execute_with_error_handling(self._execute_internal)
