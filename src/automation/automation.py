@@ -8,7 +8,7 @@ from src.core.config import CONFIG
 from src.core.logging import app_logger, setup_logging
 from src.automation.state import AutomationState
 from src.automation.handler_factory import HandlerFactory
-from src.game.device import controls
+from src.game import controls
 import os
 import asyncio
 
@@ -20,7 +20,7 @@ class MainAutomation:
             debug: Enable debug logging if True
         """
         setup_logging(debug=debug)
-        app_logger.info(f"Initializing automation for device: {controls.get_connected_device()}")
+        app_logger.info(f"Initializing automation for device: {controls.device.get_connected_device()}")
         if debug:
             app_logger.info("Debug mode enabled")
 
@@ -33,8 +33,8 @@ class MainAutomation:
         """Cleanup resources"""
         try:
             app_logger.info("Cleaning up resources...")
-            controls.cleanup_temp_files()
-            controls.cleanup_device_screenshots()
+            controls.device.cleanup_temp_files()
+            controls.device.cleanup_device_screenshots()
         except Exception as e:
             app_logger.error(f"Error during cleanup: {e}")
             
@@ -165,7 +165,7 @@ class MainAutomation:
     def verify_game_running(self) -> bool:
         """Verify game is running and at home screen, with retry logic."""
         # This method seems to have an issue. The loop will run indefinitely without
-        # a clear exit path if controls.is_app_running never becomes True.
+        # a clear exit path if controls.device.is_app_running never becomes True.
         # It's better to combine this logic into the main loop's try/except block.
         # But for refactoring, we'll assume it has a valid purpose.
         try:
@@ -179,7 +179,7 @@ class MainAutomation:
                     return False
                 
                 # Check if game is running first
-                if controls.is_app_running:
+                if controls.device.is_app_running:
                     return True
                 
                 app_logger.info("Game is not running, launching game")

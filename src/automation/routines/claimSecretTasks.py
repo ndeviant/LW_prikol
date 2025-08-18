@@ -1,8 +1,5 @@
-from src.automation.routines.routineBase import FlexibleRoutine
-from src.core.config import CONFIG
-from src.core.image_processing import find_template, find_templates
-from src.game.device import controls
-from src.core.logging import app_logger
+from src.automation.routines import FlexibleRoutine
+from src.game import controls
 
 class ClaimSecretTasks(FlexibleRoutine):
     def _execute(self) -> bool:
@@ -10,11 +7,11 @@ class ClaimSecretTasks(FlexibleRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        if not (find_template(
+        if not (controls.find_template(
             "tasks_claimable",
             tap=True,
             success_msg=f"Found 'tasks_claimable' button",
-        ) or find_template(
+        ) or controls.find_template(
             "tasks_active",
             tap=True,
             success_msg=f"Found 'tasks_active' button",
@@ -25,7 +22,7 @@ class ClaimSecretTasks(FlexibleRoutine):
 
         self.automation.game_state["is_home"] = False
 
-        find_template(
+        controls.find_template(
             "tasks_claim",
             tap=True,
             error_msg=f"Could not find 'tasks_claim' button",

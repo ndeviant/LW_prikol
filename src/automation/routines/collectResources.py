@@ -1,7 +1,6 @@
-from src.automation.routines.routineBase import FlexibleRoutine
+from src.automation.routines import FlexibleRoutine
 from src.core.logging import app_logger
-from src.core.image_processing import find_template
-from src.game.device import controls
+from src.game import controls
 from src.core.config import CONFIG
 
 class CollectResourcesRoutine(FlexibleRoutine):
@@ -16,13 +15,13 @@ class CollectResourcesRoutine(FlexibleRoutine):
             "rss_screw",
             "rss_drone_box"
         ]:
-            if find_template(
+            if controls.find_template(
                 template,
                 tap=True,
             ):
                 controls.human_delay(0.2)
         
-        if (find_template("status_interior")):
+        if (controls.find_template("status_interior")):
             app_logger.info("Secretary of interior status found, collecting RSS")
 
             for template in [
@@ -30,12 +29,12 @@ class CollectResourcesRoutine(FlexibleRoutine):
                 "rss_iron",
                 "rss_food",
             ]:
-                find_template(
+                controls.find_template(
                     template,
                     tap=True,
                 )
 
-        if not find_template(
+        if not controls.find_template(
             "rss_truck",
             tap=True,
             error_msg="Could not find rss_truck icon",
@@ -44,7 +43,7 @@ class CollectResourcesRoutine(FlexibleRoutine):
 
         controls.human_delay(CONFIG['timings']['menu_animation'])
         
-        if not find_template(
+        if not controls.find_template(
             "collect",
             tap=True,
             error_msg="Could not find collect icon",

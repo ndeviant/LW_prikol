@@ -1,12 +1,11 @@
 from typing import Literal
-from src.automation.routines import FlexibleRoutine
-from src.core.logging import app_logger
-from src.core.image_processing import find_template
-from src.core.discord_bot import discord
-from src.game.device import controls
-from src.core.config import CONFIG
 import asyncio
 import os
+from src.game import controls
+from src.core.logging import app_logger
+from src.core.discord_bot import discord
+from src.core.config import CONFIG
+from src.automation.routines import FlexibleRoutine
 
 class CheckForDigsRoutine(FlexibleRoutine):
     def __init__(self, *args, **kwargs):
@@ -31,7 +30,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
             self.search_chat_for_digs()
 
         # Open chat by clicking the dig icon
-        if not find_template(
+        if not controls.find_template(
             "dig",
             tap=True,
             success_msg="Found dig icon"
@@ -54,14 +53,14 @@ class CheckForDigsRoutine(FlexibleRoutine):
         self.claim_dig_from_chat()
 
         # If we just start digging
-        if find_template(
+        if controls.find_template(
             "dig_chat_start",
             tap=True,
             error_msg="Could not find dig_chat_start icon",
         ):
             self.unclaimed_dig_type = 'dig'
 
-        if find_template(
+        if controls.find_template(
             "dig_chat_start_drone",
             tap=True,
             error_msg="Could not find dig_chat_start_drone icon",
@@ -77,7 +76,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
         # Look for all kinds of marks of ongoing dig
         found_dig = False
         if self.unclaimed_dig_type == 'dig':
-            if find_template(
+            if controls.find_template(
                 "dig_dig",
                 tap=True,
                 success_msg="Found dig_dig icon",
@@ -88,7 +87,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
                 found_dig = True
 
             if not found_dig:
-                if find_template(
+                if controls.find_template(
                     "dig_dig_model_exc",
                     tap=True,
                     tap_offset=(0, -15),
@@ -100,7 +99,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
                     found_dig = True
             
         if self.unclaimed_dig_type == 'drone':
-            if find_template(
+            if controls.find_template(
                 "dig_dig_drone",
                 tap=True,
                 success_msg="Found dig_dig_drone icon",
@@ -111,7 +110,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
                 found_dig = True
 
             if not found_dig:
-                if find_template(
+                if controls.find_template(
                     "dig_dig_model_drone",
                     tap=True,
                     tap_offset=(0, -15),
@@ -123,7 +122,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
                     found_dig = True
 
         if not found_dig:
-            if find_template(
+            if controls.find_template(
                 "dig_dig_radar_icon",
                 tap=True,
                 tap_offset=(0, 40),
@@ -139,7 +138,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
         
         controls.human_delay(CONFIG['timings']['rally_animation'])
 
-        if self.unclaimed_dig_type == 'dig' and not find_template(
+        if self.unclaimed_dig_type == 'dig' and not controls.find_template(
             "dig_dig_dig",
             tap=True,
             error_msg="Could not find dig_dig_dig icon",
@@ -147,7 +146,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
         ):
             return True
         
-        if self.unclaimed_dig_type == 'drone' and not find_template(
+        if self.unclaimed_dig_type == 'drone' and not controls.find_template(
             "dig_dig_dig_drone",
             tap=True,
             error_msg="Could not find dig_dig_dig_drone icon",
@@ -157,7 +156,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
         
         controls.human_delay(CONFIG['timings']['menu_animation'])
         
-        if not find_template(
+        if not controls.find_template(
             "march",
             tap=True,
             error_msg="Could not find dig march icon",
@@ -168,7 +167,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
             return True
         
         wait_for_dig = self.options.get("wait_for_dig", 60)
-        claim_btn = find_template(
+        claim_btn = controls.find_template(
             "dig_claim",
             wait=wait_for_dig,
             interval=self.options.get("wait_for_dig_interval", 0.5),
@@ -178,7 +177,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
         )
 
         if claim_btn:
-            controls.click(claim_btn[0], claim_btn[1])
+            controls.device.click(claim_btn[0], claim_btn[1])
             if (self.unclaimed_dig_type == 'dig'):
                 self.claimed_count += 1
                 self.state.set('claimed_count', self.claimed_count)
@@ -196,21 +195,21 @@ class CheckForDigsRoutine(FlexibleRoutine):
     def open_alli_chat(self) -> bool:
         """Open the alliance chat"""
         try:
-            width, height = controls.get_screen_size()
+            width, height = controls.device.get_screen_size()
             chat = CONFIG['ui_elements']['chat']
             chat_x = int(width * float(chat['x'].strip('%')) / 100)
             chat_y = int(height * float(chat['y'].strip('%')) / 100)
-            controls.click(chat_x, chat_y)
+            controls.device.click(chat_x, chat_y)
             controls.human_delay(CONFIG['timings']['menu_animation'])
 
             # Check if alliance chat is not selected
-            alli_chat_inactive = find_template(
+            alli_chat_inactive = controls.find_template(
                 "alliance_chat_inactive",
                 wait=CONFIG['timings']['menu_animation'],
             )
             
             if alli_chat_inactive:
-                controls.click(alli_chat_inactive[0], alli_chat_inactive[1])
+                controls.device.click(alli_chat_inactive[0], alli_chat_inactive[1])
                 controls.human_delay(CONFIG['timings']['menu_animation'])
 
             return True
@@ -222,7 +221,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
     def claim_dig_from_chat(self) -> bool:
         # Check if dig is available to claim in chat
         found_dig = None
-        if self.unclaimed_dig_type == 'drone' and find_template(
+        if self.unclaimed_dig_type == 'drone' and controls.find_template(
             "dig_chat_claim_drone",
             tap=True,
             tap_offset=(0, 15),
@@ -230,7 +229,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
         ):
             found_dig = 'drone'
 
-        if self.unclaimed_dig_type == 'dig' and find_template(
+        if self.unclaimed_dig_type == 'dig' and controls.find_template(
             "dig_chat_claim",
             tap=True,
             tap_offset=(0, 15),
@@ -241,7 +240,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
         if (found_dig):
             controls.human_delay(CONFIG['timings']['rally_animation'])
 
-            if find_template(
+            if controls.find_template(
                     "dig_claim",
                     tap=True,
                     error_msg="Could not find dig_claim icon",
@@ -272,7 +271,7 @@ class CheckForDigsRoutine(FlexibleRoutine):
         if self.claim_dig_from_chat():
             return True
         for _ in range(chat_search_swipes):
-            controls.swipe(direction="up")
+            controls.device.swipe(direction="up")
             controls.human_delay(CONFIG['timings']['menu_animation'])
             if self.claim_dig_from_chat():
                 return True

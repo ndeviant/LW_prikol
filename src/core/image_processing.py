@@ -7,8 +7,7 @@ from typing import Callable, Optional, Tuple
 import os
 import concurrent.futures
 
-from sympy import Q 
-
+from src.game.device import device
 from .logging import app_logger
 from .config import CONFIG
 
@@ -38,9 +37,8 @@ def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[d
     return template, template_config
 
 def _take_and_load_screenshot() -> Optional[np.ndarray]:
-    from src.game.device import controls
     """Take and load a screenshot"""
-    return controls.take_screenshot()
+    return device.take_screenshot()
 
 def _save_debug_image_blocking(
     img: np.ndarray, 
@@ -279,9 +277,6 @@ def find_templates(
 
     if not tap:
         return locations
-    
-    # Import here to avoid circular dependency
-    from src.game.device import controls
 
     location = locations[0]
     coors = (location[0] + tap_offset[0], location[1] + tap_offset[1])
@@ -293,40 +288,7 @@ def find_templates(
         click_kwargs['duration'] = tap_duration
         
     # Unpack the dictionary into the function call
-    controls.click(coors[0], coors[1], **click_kwargs)
+    device.click(coors[0], coors[1], **click_kwargs)
         
     return locations
 
-# The new function that runs the first one
-def find_template(
-    template_name: str,
-    error_msg: Optional[str] = None,
-    success_msg: Optional[str] = None,
-    critical: bool = False,
-    wait: float = None,
-    interval: float = None,
-    tap: bool = False,
-    tap_duration: float = None,
-    tap_offset: Tuple[int, int] = (0, 0),
-    search_region: Tuple[int, int, int, int] = None,
-    file_name_getter: Callable[[str, bool], str] = None,
-) -> list[Tuple[int, int]]:
-    """A wrapper function that calls find_templates with all its arguments."""
-
-    # This single line calls the first function with all the arguments it received.
-    locations = find_templates(
-        template_name=template_name,
-        error_msg=error_msg,
-        success_msg=success_msg,
-        critical=critical,
-        wait=wait,
-        interval=interval,
-        tap=tap,
-        tap_duration=tap_duration,
-        tap_offset=tap_offset,
-        search_region=search_region,
-        file_name_getter=file_name_getter,
-        find_one=True
-    )
-    
-    return locations[0] if locations else None

@@ -5,7 +5,7 @@ import traceback
 from typing import List
 from src.core.config import CONFIG
 from src.core.logging import app_logger
-from src.game.device import controls
+from src.game import controls
 
 class RoutineBase(ABC):
     """Base class for all automation routines"""

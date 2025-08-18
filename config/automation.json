@@ -160,7 +160,7 @@
       "routine_name": "interior_night",
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
-        "start_time": "23:10"
+        "start_time": "23:45"
       },
       "options": {
         "position": "interior"

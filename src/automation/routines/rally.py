@@ -1,9 +1,8 @@
 from typing import Dict, List, Literal
-from src.automation.routines.routineBase import FlexibleRoutine
-from src.core.image_processing import find_template, find_templates
+from src.automation.routines import FlexibleRoutine
 from src.core.config import CONFIG
 from src.core.logging import app_logger
-from src.game.device import controls
+from src.game import controls
 
 SecretTaskType = Literal['any', 'golden', 'de', 'de_s1']
 
@@ -20,7 +19,7 @@ class RallyRoutine(FlexibleRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        if not find_template(
+        if not controls.find_template(
             "rallies",
             tap=True,
             success_msg="Found 'rallies' icon"
@@ -31,15 +30,15 @@ class RallyRoutine(FlexibleRoutine):
         self.automation.game_state["is_home"] = False;
 
         for rally_type in self.rally_types:
-            if not find_template('rallies_opened', error_msg="Not found 'rallies_opened' icon"):
-                find_template(
+            if not controls.find_template('rallies_opened', error_msg="Not found 'rallies_opened' icon"):
+                controls.find_template(
                     "rallies",
                     tap=True,
                     success_msg="Found 'rallies' icon inner"
                 )
                 controls.human_delay(CONFIG['timings']['menu_animation'])
 
-            if not find_templates(
+            if not controls.find_templates(
                 f"join_{rally_type}_rally",
                 tap=True,
                 tap_offset=(-60, 0),
@@ -48,19 +47,19 @@ class RallyRoutine(FlexibleRoutine):
                 continue
 
             controls.human_delay(CONFIG['timings']['rally_animation'])
-
-            if not (find_template(
+            
+            if not (controls.find_template(
                 "squad_idle",
                 tap=True,
                 tap_offset=(20, 10),
-            ) or find_template(
+            ) or controls.find_template(
                 "squad_returning",
                 tap=True,
                 tap_offset=(20, 10),
             )):
                 continue
 
-            if not find_template(
+            if not controls.find_template(
                 "march",
                 tap=True,
                 tap_offset=(0, 10),

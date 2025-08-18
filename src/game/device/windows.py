@@ -14,11 +14,11 @@ from src.core.config import CONFIG
 from src.core.helpers import ensure_dir
 from src.core.logging import app_logger
 
-from .strategy import ControlStrategy
+from .strategy import DeviceStrategy
 
 # 2. Concrete Strategies
 
-class WindowsControls(ControlStrategy):
+class WindowsDevice(DeviceStrategy):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.device_id = os.getlogin()
@@ -34,7 +34,7 @@ class WindowsControls(ControlStrategy):
 
         # Attempt to connect to the LastWar application immediately
         self._connect_to_lastwar_app()
-        app_logger.info(f"[Windows] Initialized WindowsControls for '{self.device_id}'. App connection status: {'Connected' if self.app and self.main_window else 'Failed'}")
+        app_logger.info(f"[Windows] Initialized WindowsDevice for '{self.device_id}'. App connection status: {'Connected' if self.app and self.main_window else 'Failed'}")
 
     def _connect_to_lastwar_app(self) -> bool:
         """Helper to connect to the LastWar application and get its main window."""

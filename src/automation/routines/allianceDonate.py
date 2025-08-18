@@ -1,7 +1,5 @@
 from src.automation.routines import FlexibleRoutine
-from src.core.image_processing import find_template
-from src.game.device import controls
-from src.core.config import CONFIG
+from src.game import controls
 
 class AllianceDonateRoutine(FlexibleRoutine):
     force_home: bool = True
@@ -15,7 +13,7 @@ class AllianceDonateRoutine(FlexibleRoutine):
 
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
-        if not find_template(
+        if not controls.find_template(
             "alliance",
             tap=True,
             error_msg="Could not find alliance icon"
@@ -25,7 +23,7 @@ class AllianceDonateRoutine(FlexibleRoutine):
         controls.human_delay('menu_animation')
 
         # Click alliance tech icon
-        if not find_template(
+        if not controls.find_template(
             "alliance_tech_icon",
             tap=True,
             error_msg="Could not find alliance tech icon"
@@ -35,7 +33,7 @@ class AllianceDonateRoutine(FlexibleRoutine):
         controls.human_delay('menu_animation')
 
         # Click recommended flag
-        if not find_template(
+        if not controls.find_template(
             "recommended_flag",
             tap=True,
             error_msg="No recommended tech found"
@@ -45,7 +43,7 @@ class AllianceDonateRoutine(FlexibleRoutine):
         controls.human_delay('menu_animation')
 
         # Donate with long press
-        if not find_template(
+        if not controls.find_template(
             "donate_button",
             tap=True,
             tap_duration=5.0,

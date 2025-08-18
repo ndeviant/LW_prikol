@@ -7,7 +7,6 @@ import logging.handlers
 import sys
 from pathlib import Path
 import queue
-import datetime
 
 Path("logs").mkdir(exist_ok=True)
 

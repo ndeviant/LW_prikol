@@ -1,11 +1,9 @@
 from datetime import datetime, UTC
 import time
 from typing import List, Literal
-from src.automation.routines.routineBase import FlexibleRoutine
+from src.automation.routines import FlexibleRoutine
 from src.core.config import CONFIG
-from src.core.image_processing import find_template, find_templates
-from src.game.device import controls
-from src.core.logging import app_logger
+from src.game import controls
 
 SecretTaskType = Literal['star', 'hero', 'science', 'constr']
 offset_x = 120
@@ -32,7 +30,7 @@ class AssistSecretTasks(FlexibleRoutine):
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        if not find_template(
+        if not controls.find_template(
             "tasks_menu",
             tap=True,
             error_msg=f"Not found 'tasks_menu' button",
@@ -42,10 +40,10 @@ class AssistSecretTasks(FlexibleRoutine):
         controls.human_delay('menu_animation')
         self.automation.game_state["is_home"] = False
 
-        if (find_template('assisted_max')):
+        if (controls.find_template('assisted_max')):
             self.state.set('assisted_max_date', time.time())
 
-        if not find_template(
+        if not controls.find_template(
             "ally_tasks",
             tap=True,
             error_msg=f"Not found 'ally_tasks' button",
@@ -56,7 +54,7 @@ class AssistSecretTasks(FlexibleRoutine):
 
         self.assist_tasks()
         for _ in range(self.num_swipes):
-            controls.swipe(direction="down")
+            controls.device.swipe(direction="down")
             controls.human_delay(CONFIG['timings']['menu_animation'])
             self.assist_tasks()
         
@@ -66,14 +64,14 @@ class AssistSecretTasks(FlexibleRoutine):
     def assist_tasks(self):
         """Assist all types of tasks"""
         for claim_type in self.claim_types:
-            matches = find_templates(
+            matches = controls.find_templates(
                 f"assist_{claim_type}_task_{self.min_star}", 
                 file_name_getter=lambda file_name, success, template_name: 
                     f"{template_name}_{success}_{time.time()}" if success else file_name
             )
 
             for match in matches:
-                controls.click(match[0] + offset_x, match[1] + offset_y)
+                controls.device.click(match[0] + offset_x, match[1] + offset_y)
                 controls.human_delay('menu_animation')
 
     def should_run(self):
