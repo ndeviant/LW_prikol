@@ -6,6 +6,13 @@
       "schedule": {
         "interval": 3600
       }
+    },    
+    {
+      "routine_name": "season_resource",
+      "handler": "src.automation.routines.seasonResource.SeasonResourceRoutine",
+      "schedule": {
+        "interval": 20
+      }
     },
     {
       "routine_name": "donate",

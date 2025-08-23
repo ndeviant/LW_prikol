@@ -320,14 +320,10 @@
     "dig_dig_radar_icon": {
       "path": "templates/{env}/dig/dig_dig_radar_icon.png",
       "threshold": 0.75
-    },
-    "dig_dig_model_drone": {
-      "path": "templates/{env}/dig/dig_dig_model_drone.png",
-      "threshold": 0.65
-    },
-    "dig_dig_model_exc": {
-      "path": "templates/{env}/dig/dig_dig_model_exc.png",
-      "threshold": 0.65
+    },    
+    "dig_drone_radar_icon": {
+      "path": "templates/{env}/dig/dig_drone_radar_icon.png",
+      "threshold": 0.75
     },
     "dig_dig_dig": {
       "path": "templates/{env}/dig/dig_dig_dig.png",
@@ -352,6 +348,26 @@
     "dig_claimed": {
       "path": "templates/{env}/dig/dig_claimed.png",
       "threshold": 0.75
+    },
+    "rss_bottom_chat": {
+      "path": "templates/{env}/rss/rss_bottom_chat.png",
+      "threshold": 0.65
+    },
+    "rss_chat": {
+      "path": "templates/{env}/rss/rss_chat.png",
+      "threshold": 0.8
+    },
+    "rss_map": {
+      "path": "templates/{env}/rss/rss_map.png",
+      "threshold": 0.8
+    },
+    "rss_map_arrow": {
+      "path": "templates/{env}/rss/rss_map_arrow.png",
+      "threshold": 0.8
+    },
+    "rss_map_dig": {
+      "path": "templates/{env}/rss/rss_map_dig.png",
+      "threshold": 0.94
     },
     "rss_truck": {
       "path": "templates/{env}/rss/rss_truck.png",
@@ -461,7 +477,7 @@
         "embed_color": "0xCC0000"
       },
       "rss": {
-        "content": "<:gold:1301483663250161674> **Rss gathered!**",
+        "content": "<:gold:1301483663250161674> **RSS tile found!**",
         "embed_title": "",
         "embed_value": ":exploding_head: Success!\n",
         "embed_color": "0xFFE599"

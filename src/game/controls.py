@@ -123,7 +123,7 @@ class GameControls():
             if home_loc:
                 app_logger.debug("Found home icon")
                 self.device.human_delay('menu_animation')
-                self.device.navigate_home(True)
+                self.navigate_home(True)
                 return True
 
             #small delay between checks    
@@ -174,6 +174,8 @@ class GameControls():
                     "base",
                     tap=True,
                 )
+
+                self.human_delay("menu_animation")
                 
                 return True
                 

@@ -72,7 +72,7 @@ class AssistSecretTasks(FlexibleRoutine):
 
             for match in matches:
                 controls.device.click(match[0] + offset_x, match[1] + offset_y)
-                controls.human_delay('menu_animation')
+                controls.human_delay('tap_delay')
 
     def should_run(self):
         # First, let the parent class handle the primary schedule check (interval/daily)

@@ -56,14 +56,14 @@ class CheckForDigsRoutine(FlexibleRoutine):
         if controls.find_template(
             "dig_chat_start",
             tap=True,
-            error_msg="Could not find dig_chat_start icon",
+            error_msg="Could not find 'dig_chat_start' icon",
         ):
             self.unclaimed_dig_type = 'dig'
 
         if controls.find_template(
             "dig_chat_start_drone",
             tap=True,
-            error_msg="Could not find dig_chat_start_drone icon",
+            error_msg="Could not find 'dig_chat_start_drone' icon",
         ):
             self.unclaimed_dig_type = 'drone'
 
@@ -79,8 +79,8 @@ class CheckForDigsRoutine(FlexibleRoutine):
             if controls.find_template(
                 "dig_dig",
                 tap=True,
-                success_msg="Found dig_dig icon",
-                error_msg="Could not find dig_dig icon",
+                success_msg="Found 'dig_dig' icon",
+                error_msg="Could not find 'dig_dig' icon",
                 wait=3,
                 interval=0.3,
             ):
@@ -88,13 +88,13 @@ class CheckForDigsRoutine(FlexibleRoutine):
 
             if not found_dig:
                 if controls.find_template(
-                    "dig_dig_model_exc",
+                    "dig_dig_radar_icon",
                     tap=True,
-                    tap_offset=(0, -15),
-                    success_msg="Found dig_dig_model_exc icon",
-                    error_msg="Could not find dig_dig_model_exc icon",
-                    wait=1,
-                    interval=0.25
+                    tap_offset=(0, 40),
+                    success_msg="Found 'dig_dig_radar_icon' icon",
+                    error_msg="Could not find 'dig_dig_radar_icon' icon",
+                    wait=3,
+                    interval=0.3
                 ):
                     found_dig = True
             
@@ -102,8 +102,8 @@ class CheckForDigsRoutine(FlexibleRoutine):
             if controls.find_template(
                 "dig_dig_drone",
                 tap=True,
-                success_msg="Found dig_dig_drone icon",
-                error_msg="Could not find dig_dig_drone icon",
+                success_msg="Found 'dig_dig_drone' icon",
+                error_msg="Could not find 'dig_dig_drone' icon",
                 wait=3,
                 interval=0.3
             ):
@@ -111,27 +111,15 @@ class CheckForDigsRoutine(FlexibleRoutine):
 
             if not found_dig:
                 if controls.find_template(
-                    "dig_dig_model_drone",
+                    "dig_drone_radar_icon",
                     tap=True,
-                    tap_offset=(0, -15),
-                    success_msg="Found dig_dig_model_drone icon",
-                    error_msg="Could not find dig_dig_model_drone icon",
-                    wait=1,
-                    interval=0.25
+                    tap_offset=(0, 100),
+                    success_msg="Found 'dig_drone_radar_icon' icon",
+                    error_msg="Could not find 'dig_drone_radar_icon' icon",
+                    wait=3,
+                    interval=0.3
                 ):
                     found_dig = True
-
-        if not found_dig:
-            if controls.find_template(
-                "dig_dig_radar_icon",
-                tap=True,
-                tap_offset=(0, 40),
-                success_msg="Found dig_dig_radar_icon icon",
-                error_msg="Could not find dig_dig_radar_icon icon",
-                wait=3,
-                interval=0.3
-            ):
-                found_dig = True
 
         if not found_dig:
             return True
