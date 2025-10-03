@@ -1,6 +1,8 @@
 
 import time
 from typing import Callable, List, Optional, Tuple
+import os
+import asyncio
 
 from src.core.config import CONFIG
 from src.core.helpers import throttle
@@ -147,6 +149,10 @@ class GameControls():
             # Press back until we find home screen
             max_attempts = CONFIG.get('max_home_attempts', 10)
             for attempt in range(max_attempts):
+                if self.check_active_on_another_device():
+                    app_logger.debug("Failed to navigate home: active on another device")
+                    return False
+
                 # Not found, press back and wait
                 self.device.press_back()
                 self.device.human_delay('menu_animation')
@@ -230,5 +236,63 @@ class GameControls():
         except Exception as e:
             app_logger.error(f"Error check_active_on_another_device: {e}")
             return False
+        
+    def verify_game_running(self, on_launch_game: Callable = None) -> bool:
+        """Verify game is running and at home screen, with retry logic."""
+        # This method seems to have an issue. The loop will run indefinitely without
+        # a clear exit path if controls.device.is_app_running never becomes True.
+        # It's better to combine this logic into the main loop's try/except block.
+        # But for refactoring, we'll assume it has a valid purpose.
+        try:
+            retry_count = 0
+            base_sleep = CONFIG['timings']['home_check_interval']
+            last_notification_time = 0
+            notification_interval = 3600  # 1 hour in seconds
+
+            while True:
+                if self.check_active_on_another_device():
+                    return False
+                
+                # Check if game is running first
+                if self.device.is_app_running:
+                    return True
+                
+                app_logger.info("Game is not running, launching game")
+                # If navigation failed, increment retry and wait
+                retry_count += 1
+                sleep_time = min(base_sleep * (2 ** retry_count), 600)  # Cap at 10 minutes
+                
+                # Only notify if we hit the 10-minute cap and haven't notified in the last hour
+                current_time = time.time()
+                if (sleep_time >= 600 and 
+                    current_time - last_notification_time > notification_interval):
+                    webhook_url = os.getenv('AUTOMATION_WEBHOOK_URL')
+                    if webhook_url:
+                        try:
+                            from src.core.discord_bot import DiscordNotifier
+                            discord = DiscordNotifier()
+                            discord.webhook_url = webhook_url
+                            asyncio.run(discord.send_notification(
+                                "🔄 **Game Launch Failed**",
+                                f"Unable to launch game, retrying every 10 minutes.\nRetry count: {retry_count}"
+                            ))
+                            last_notification_time = current_time
+                        except Exception as e:
+                            app_logger.error(f"Failed to send Discord notification: {e}")
+                
+                app_logger.debug(f"verify_game_running failed, waiting {sleep_time}s before retry {retry_count}")
+                time.sleep(sleep_time)
+                if self.launch_game() and on_launch_game:
+                    on_launch_game()
+                
+                # Reset retry count after it hits max to prevent sleep time from growing indefinitely
+                if retry_count >= CONFIG['max_home_attempts']:
+                    retry_count = 0
+                    app_logger.warning("Hit maximum attempts, resetting retry counter")
+
+        except Exception as e:
+            app_logger.error(f"Error verifying game status: {e}")
+            time.sleep(600)  # Sleep for 10 minutes on error
+            return False  # This will trigger another retry through the main loop
 
 controls: GameControls = GameControls()

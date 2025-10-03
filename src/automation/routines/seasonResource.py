@@ -5,6 +5,12 @@ from src.core.logging import app_logger
 from src.game import controls
 
 class SeasonResourceRoutine(FlexibleRoutine):
+    def __init__(self, *args, **kwargs):
+        # Call the parent's __init__ which handles all routine properties
+        super().__init__(*args, **kwargs)
+        self.found_count: int = self.state.get('found_count', 0)
+        self.gathered_count: int = self.state.get('gathered_count', 0)
+
     def _execute(self) -> bool:
         """Check and click rally button if available"""
         return self.execute_with_error_handling(self._execute_internal)
@@ -29,6 +35,7 @@ class SeasonResourceRoutine(FlexibleRoutine):
         ):
             return True
 
+        self.state.set('found_count', self.found_count + 1)
         controls.human_delay('rally_animation')
         
         offset_y = 80
@@ -86,6 +93,7 @@ class SeasonResourceRoutine(FlexibleRoutine):
         ):
             return True
         
+        self.state.set('gathered_count', self.gathered_count + 1)
         app_logger.info('Gathering season resource...')
         
         return True 

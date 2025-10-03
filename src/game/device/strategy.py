@@ -31,7 +31,7 @@ class DeviceStrategy(ABC):
 
 
     # Template Method: Defines the skeleton of the 'click' operation
-    def click(self, x: int, y: int, duration: float = None, critical: bool = False) -> bool:
+    def click(self, x: int, y: int, duration: float = None, critical: bool = False, delay = 'tap_delay') -> bool:
         """Perform a humanized tap/long press with randomization
         
         Args:
@@ -55,7 +55,8 @@ class DeviceStrategy(ABC):
             # Execute long press
             success = self._perform_click(rand_x, rand_y, duration_ms)
             if success:
-                self.human_delay('tap_delay')
+                if delay:
+                    self.human_delay(delay)
                 return True
             return False
             
@@ -192,6 +193,17 @@ class DeviceStrategy(ABC):
         final_delay = actual_delay * multiplier
         """Add a human-like delay between actions"""
         time.sleep(final_delay)
+
+    def spam_click(self, x, y, duration=3, delay=0, critical=False):
+        # Define the total duration and the delay between clicks
+
+        # Get the current time to start the timer
+        start_time = time.time()
+
+        # Loop for the specified duration
+        while time.time() - start_time < duration:
+            app_logger.debug(f"'spam_click': {time.time() - start_time}")
+            self.click(x, y, duration=0, delay=delay, critical=critical)
 
     @throttle(1)
     def _save_image_to_disk_background(self, filepath: str, image_np: np.ndarray):

@@ -43,8 +43,8 @@ class DeviceContext:
     def is_app_running(self) -> bool:
         return self._device_strategy.is_app_running
     
-    def click(self, x: int, y: int, duration: float = 0) -> None:
-        return self._device_strategy.click(x, y, duration)
+    def click(self, x: int, y: int, duration: float = 0, delay='tap_delay', critical=False) -> None:
+        return self._device_strategy.click(x, y, duration, delay, critical)
 
     def swipe(self, direction: str, num_swipes: int = 1, duration_ms: int = CONFIG['timings']['swipe_duration']['min']) -> None:
         return self._device_strategy.swipe(direction, num_swipes, duration_ms)
@@ -81,6 +81,9 @@ class DeviceContext:
 
     def human_delay(self, *args, **kwargs) -> None:
         return self._device_strategy.human_delay(*args, **kwargs)
+    
+    def spam_click(self, x, y, duration=3, delay=0):
+        return self._device_strategy.spam_click(x, y, duration=duration, critical=False, delay=delay)
     
     def cleanup_temp_files(self) -> None:
         return self._device_strategy.cleanup_temp_files()

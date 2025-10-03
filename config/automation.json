@@ -11,7 +11,7 @@
       "routine_name": "season_resource",
       "handler": "src.automation.routines.seasonResource.SeasonResourceRoutine",
       "schedule": {
-        "interval": 20
+        "interval": null
       }
     },
     {
@@ -50,10 +50,29 @@
       }
     },
     {
-      "routine_name": "rally",
+      "routine_name": "s1_guard_rally",
       "handler": "src.automation.routines.rally.RallyRoutine",
       "schedule": {
-        "interval": null
+        "start_time": "01:50",
+        "end_time": "02:50",
+        "interval": 10
+      },
+      "options": {
+        "rally_types": [
+          "s1_butcher",
+          "s1_guard",
+          "s1_gunner"
+        ],
+        "first_squad_only": true
+      }
+    },
+    {
+      "routine_name": "golden_rally",
+      "handler": "src.automation.routines.rally.RallyRoutine",
+      "schedule": {
+        "run_week_parity": "odd",
+        "days": ["wednesday", "thursday", "friday"],
+        "interval": 5
       },
       "options": {
         "rally_types": [
@@ -69,6 +88,7 @@
       },
       "options": {
         "auto_claim": true,
+        "spam_claim": true,
         "wait_for_dig": 540,
         "wait_for_dig_interval": 0.3,
         "chat_search_swipes": 2
@@ -129,7 +149,7 @@
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
         "day": "wednesday",
-        "start_time": "06:15"
+        "start_time": "07:50"
       },
       "options": {
         "position": "science"
@@ -153,8 +173,8 @@
       "routine_name": "interior_morning_tue_wed",
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
-        "start_time": "05:30",
-        "days": [
+        "start_time": "04:30",
+        "days_": [
           "tuesday",
           "wednesday"
         ]
@@ -167,7 +187,7 @@
       "routine_name": "interior_night",
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
-        "start_time": "23:45"
+        "start_time": "22:45"
       },
       "options": {
         "position": "interior"

@@ -4,15 +4,32 @@ from src.core.config import CONFIG
 from src.core.logging import app_logger
 from src.game import controls
 
-SecretTaskType = Literal['any', 'golden', 'de', 'de_s1']
+SecretTaskType = Literal[
+    'any', 
+    'golden', 
+    'de', 
+    's1_de', 
+    's1_butcher',
+    's1_guard',
+    's1_gunner'
+]
 
 class RallyRoutine(FlexibleRoutine):
-    secret_task_types = ['any', 'golden', 'de', 'de_s1']
+    secret_task_types = [
+        'any', 
+        'golden', 
+        'de', 
+        's1_de', 
+        's1_butcher',
+        's1_guard',
+        's1_gunner'
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.joined: Dict = self.state.get('joined') or {}
         self.rally_types: List[SecretTaskType] = self.options.get('rally_types') or ['golden']
+        self.first_squad_only: bool = self.options.get('first_squad_only') or False
 
     def _execute(self) -> bool:
         """Check and click rally button if available"""
@@ -47,17 +64,25 @@ class RallyRoutine(FlexibleRoutine):
                 continue
 
             controls.human_delay(CONFIG['timings']['rally_animation'])
-            
-            if not (controls.find_template(
-                "squad_idle",
-                tap=True,
-                tap_offset=(20, 10),
-            ) or controls.find_template(
-                "squad_returning",
-                tap=True,
-                tap_offset=(20, 10),
-            )):
-                continue
+
+            if self.first_squad_only:
+                if not controls.find_template(
+                    "squad_first",
+                    tap=True,
+                    tap_offset=(10, -10),
+                ):
+                    continue
+            else:
+                if not (controls.find_template(
+                    "squad_idle",
+                    tap=True,
+                    tap_offset=(20, 10),
+                ) or controls.find_template(
+                    "squad_returning",
+                    tap=True,
+                    tap_offset=(20, 10),
+                )):
+                    continue
 
             if not controls.find_template(
                 "march",

@@ -276,6 +276,22 @@
     "collect": {
       "path": "templates/{env}/ui/collect.png",
       "threshold": 0.75
+    },    
+    "profession": {
+      "path": "templates/{env}/ui/profession.png",
+      "threshold": 0.8
+    },
+    "skill_bubble": {
+      "path": "templates/{env}/ui/skill_bubble.png",
+      "threshold": 0.8
+    },    
+    "skills": {
+      "path": "templates/{env}/ui/skills.png",
+      "threshold": 0.8
+    },
+    "rapid_production": {
+      "path": "templates/{env}/ui/rapid_production.png",
+      "threshold": 0.8
     },
     "inventory": {
       "path": "templates/{env}/inventory/inventory.png",
@@ -333,6 +349,10 @@
       "path": "templates/{env}/dig/dig_dig_dig_drone.png",
       "threshold": 0.75
     },
+    "dig_00": {
+      "path": "templates/{env}/dig/dig_00.png",
+      "threshold": 0.96
+    },
     "dig_claim": {
       "path": "templates/{env}/dig/dig_claim.png",
       "threshold": 0.85
@@ -345,8 +365,12 @@
       "path": "templates/{env}/dig/dig_chat_claim_drone.png",
       "threshold": 0.75
     },
-    "dig_claimed": {
-      "path": "templates/{env}/dig/dig_claimed.png",
+    "dig_claimed_list": {
+      "path": "templates/{env}/dig/dig_claimed_list.png",
+      "threshold": 0.75
+    },    
+    "dig_claimed_already": {
+      "path": "templates/{env}/dig/dig_claimed_already.png",
       "threshold": 0.75
     },
     "rss_bottom_chat": {
@@ -383,15 +407,15 @@
     },
     "rss_gold": {
       "path": "templates/{env}/rss/gold.png",
-      "threshold": 0.7
+      "threshold": 0.85
     },
     "rss_iron": {
       "path": "templates/{env}/rss/iron.png",
-      "threshold": 0.7
+      "threshold": 0.85
     },
     "rss_food": {
       "path": "templates/{env}/rss/food.png",
-      "threshold": 0.7
+      "threshold": 0.85
     },
     "rss_exp": {
       "path": "templates/{env}/rss/exp.png",
@@ -416,9 +440,25 @@
     "join_golden_rally": {
       "path": "templates/{env}/rally/join_golden_rally.png",
       "threshold": 0.9
+    },    
+    "join_s1_butcher_rally": {
+      "path": "templates/{env}/rally/join_s1_butcher_rally.png",
+      "threshold": 0.9
+    },    
+    "join_s1_guard_rally": {
+      "path": "templates/{env}/rally/join_s1_guard_rally.png",
+      "threshold": 0.9
+    },    
+    "join_s1_gunner_rally": {
+      "path": "templates/{env}/rally/join_s1_gunner_rally.png",
+      "threshold": 0.9
     },
     "march": {
       "path": "templates/{env}/rally/march.png",
+      "threshold": 0.7
+    },
+    "squad_first": {
+      "path": "templates/{env}/rally/squad_first.png",
       "threshold": 0.7
     },
     "squad_idle": {

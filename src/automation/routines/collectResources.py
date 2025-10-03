@@ -34,6 +34,25 @@ class CollectResourcesRoutine(FlexibleRoutine):
                     tap=True,
                 )
 
+            if controls.find_template(
+                "skill_bubble",
+                tap=True,
+                wait=2,
+                interval=0.4,
+                error_msg=f"Not found 'skill_bubble' icon"
+            ):
+                self.automation.game_state["is_home"] = False;
+                controls.human_delay('menu_animation')
+
+                controls.find_template(
+                    "rapid_production",
+                    tap=True,
+                    tap_offset=(0, 90)
+                )
+                controls.human_delay('menu_animation')
+                controls.device.press_back()
+                controls.human_delay('tap_delay')
+
         if not controls.find_template(
             "rss_truck",
             tap=True,

@@ -1,3 +1,4 @@
+import time
 from typing import Literal
 import asyncio
 import os
@@ -143,6 +144,17 @@ class CheckForDigsRoutine(FlexibleRoutine):
             return True
         
         controls.human_delay(CONFIG['timings']['menu_animation'])
+
+        if not (controls.find_template(
+            "squad_idle",
+            tap=True,
+            tap_offset=(20, 10),
+        ) or controls.find_template(
+            "squad_returning",
+            tap=True,
+            tap_offset=(20, 10),
+        )):
+            return True
         
         if not controls.find_template(
             "march",
@@ -155,6 +167,38 @@ class CheckForDigsRoutine(FlexibleRoutine):
             return True
         
         wait_for_dig = self.options.get("wait_for_dig", 60)
+
+        if self.options.get("spam_claim"):
+            coords_00 = controls.find_template(
+                "dig_00",
+                wait=wait_for_dig,
+                interval=self.options.get("wait_for_dig_interval", 0.5),
+                success_msg="Found 'dig_00', starting spam take",
+                # Save only success debug img
+                file_name_getter=lambda file_name, success, template_name:  
+                    file_name if success else None,
+            )
+
+            if not coords_00:
+                return True
+
+            # Define the total duration and the delay between clicks
+            DURATION = 7
+            DELAY = 0
+            OFFSET_Y = 20
+
+            controls.device.spam_click(coords_00[0], coords_00[1] + OFFSET_Y, duration=DURATION, delay=DELAY)
+
+            self.unclaimed_dig_type = None
+
+            if controls.find_template(
+                "dig_claimed_already",
+                wait=2,
+            ):
+                self.save_dig_stats()
+
+            return True
+
         claim_btn = controls.find_template(
             "dig_claim",
             wait=wait_for_dig,
@@ -164,18 +208,12 @@ class CheckForDigsRoutine(FlexibleRoutine):
                 file_name if success else None,
         )
 
-        if claim_btn:
-            controls.device.click(claim_btn[0], claim_btn[1])
-            if (self.unclaimed_dig_type == 'dig'):
-                self.claimed_count += 1
-                self.state.set('claimed_count', self.claimed_count)
-            else:
-                self.claimed_drone_count += 1
-                self.state.set('claimed_drone_count', self.claimed_drone_count)
-            self.unclaimed_dig_type = None
-            app_logger.info(f"Dig claimed, total count: {self.claimed_count + self.claimed_drone_count}")
+        if not claim_btn:
+            app_logger.info(f"Not found dig_claim after {wait_for_dig}s wait")
+            return True
 
-        app_logger.info(f"Not found dig_claim after {wait_for_dig}s wait")
+        controls.device.click(claim_btn[0], claim_btn[1])
+        self.save_dig_stats()
 
         return True
         
@@ -267,6 +305,16 @@ class CheckForDigsRoutine(FlexibleRoutine):
         app_logger.info(f"No unclaimed dig found in chat")
         
         return False
+    
+    def save_dig_stats(self):
+        if (self.unclaimed_dig_type == 'dig'):
+            self.claimed_count += 1
+            self.state.set('claimed_count', self.claimed_count)
+        else:
+            self.claimed_drone_count += 1
+            self.state.set('claimed_drone_count', self.claimed_drone_count)
+        self.unclaimed_dig_type = None
+        app_logger.info(f"Dig claimed, total count: {self.claimed_count + self.claimed_drone_count}")
             
     async def send_notification(self) -> bool:
         """Send bilingual notification"""
