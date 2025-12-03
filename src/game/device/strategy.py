@@ -12,6 +12,7 @@ from src.core.logging import app_logger
 from src.core.config import CONFIG
 
 file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+swipe_cfg = CONFIG['ui_elements']['swipe']
 
 # 1. Strategy Interface
 class DeviceStrategy(ABC):
@@ -73,24 +74,36 @@ class DeviceStrategy(ABC):
         pass
 
     # Template Method: Defines the skeleton of the 'swipe' operation
-    def swipe(self, direction: str = "up", num_swipes: int = 1, duration_ms: int = None) -> None:
+    def swipe(
+            self, 
+            direction: str = "up", 
+            num_swipes: int = 1, 
+            duration_ms: int = None, 
+            start = (
+                swipe_cfg['start_x'], 
+                swipe_cfg['start_y']
+            ), 
+            end = (
+                swipe_cfg['end_x'], 
+                swipe_cfg['end_y']
+            )
+        ) -> None:
         """Handle scrolling with swipes"""
         width, height = self.get_screen_size()
         
-        swipe_cfg = CONFIG['ui_elements']['swipe']
         variance_pct = float(CONFIG['randomization']['swipe_variance']['position'].strip('%')) / 100
         
         for i in range(num_swipes):
             if direction == "up":
-                start_x = int(width * float(swipe_cfg['start_x'].strip('%')) / 100)
-                start_y = int(height * float(swipe_cfg['start_y'].strip('%')) / 100)
-                end_x = int(width * float(swipe_cfg['end_x'].strip('%')) / 100)
-                end_y = int(height * float(swipe_cfg['end_y'].strip('%')) / 100)
+                start_x = int(width * float(start[0].strip('%')) / 100)
+                start_y = int(height * float(start[1].strip('%')) / 100)
+                end_x = int(width * float(end[0].strip('%')) / 100)
+                end_y = int(height * float(end[1].strip('%')) / 100)
             else:  # down
-                start_x = int(width * float(swipe_cfg['start_x'].strip('%')) / 100)
-                start_y = int(height * float(swipe_cfg['end_y'].strip('%')) / 100)
-                end_x = int(width * float(swipe_cfg['end_x'].strip('%')) / 100)
-                end_y = int(height * float(swipe_cfg['start_y'].strip('%')) / 100)
+                start_x = int(width * float(start[0].strip('%')) / 100)
+                start_y = int(height * float(end[1].strip('%')) / 100)
+                end_x = int(width * float(end[0].strip('%')) / 100)
+                end_y = int(height * float(start[1].strip('%')) / 100)
             
             # Add slight variance to avoid detection
             start_x += int(width * random.uniform(-variance_pct, variance_pct))

@@ -17,7 +17,7 @@ class ApplyShield(FlexibleRoutine):
         self.automation.game_state["is_home"] = False
         apllied_shield = None
 
-        num_of_swipes = self.options.get("num_of_swipes", 3)
+        num_of_swipes = self.options.get("num_of_swipes", 5)
         for i in range(num_of_swipes):
             apllied_shield = self.click_one_of_shields()
             if apllied_shield:

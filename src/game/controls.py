@@ -34,7 +34,7 @@ class GameControls():
 
     def find_template(
         self,
-        template_name: str,
+        template_name: str | List[str],
         error_msg: Optional[str] = None,
         success_msg: Optional[str] = None,
         critical: bool = False,
@@ -69,7 +69,7 @@ class GameControls():
 
     def find_templates(
         self,
-        template_name: str,
+        template_name: str | List[str],
         error_msg: Optional[str] = None,
         success_msg: Optional[str] = None,
         critical: bool = False,

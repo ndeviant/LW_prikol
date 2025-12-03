@@ -141,6 +141,10 @@
       "path": "templates/{env}/ui/another_device.png",
       "threshold": 0.85
     },
+    "chat_to_bottom": {
+      "path": "templates/{env}/ui/chat_to_bottom.png",
+      "threshold": 0.85
+    },
     "alliance": {
       "path": "templates/{env}/alliance/alliance.png",
       "threshold": 0.55
@@ -255,7 +259,7 @@
     },
     "assist_constr_task_5": {
       "path": "templates/{env}/secret_task/assist_constr_task_5.png",
-      "threshold": 0.96
+      "threshold": 0.95
     },
     "assist_hero_task_5": {
       "path": "templates/{env}/secret_task/assist_hero_task_5.png",
@@ -351,7 +355,7 @@
     },
     "dig_00": {
       "path": "templates/{env}/dig/dig_00.png",
-      "threshold": 0.96
+      "threshold": 0.92
     },
     "dig_claim": {
       "path": "templates/{env}/dig/dig_claim.png",
@@ -399,7 +403,7 @@
     },
     "rss_ore": {
       "path": "templates/{env}/rss/ore.png",
-      "threshold": 0.7
+      "threshold": 0.77
     },
     "rss_screw": {
       "path": "templates/{env}/rss/screw.png",
@@ -433,6 +437,10 @@
       "path": "templates/{env}/rally/rallies_opened.png",
       "threshold": 0.9
     }, 
+    "join_any_rally": {
+      "path": "templates/{env}/rally/join_any_rally.png",
+      "threshold": 0.9
+    },  
     "join_de_rally": {
       "path": "templates/{env}/rally/join_de_rally.png",
       "threshold": 0.9
@@ -504,6 +512,34 @@
     "alliance_gift_premium": {
       "path": "templates/{env}/alliance/premium.png",
       "threshold": 0.65
+    },
+    "s2_cold_wave": {
+      "path": "templates/{env}/s2/cold_wave.png",
+      "threshold": 0.8
+    },    
+    "s2_furnace": {
+      "path": "templates/{env}/s2/furnace.png",
+      "threshold": 0.7
+    },    
+    "s2_furnace_on_model": {
+      "path": "templates/{env}/s2/furnace_on_model.png",
+      "threshold": 0.7
+    },    
+    "s2_furnace_off_model": {
+      "path": "templates/{env}/s2/furnace_off_model.png",
+      "threshold": 0.7
+    },    
+    "s2_btn_furnace": {
+      "path": "templates/{env}/s2/btn_furnace.png",
+      "threshold": 0.7
+    },
+    "s2_furnace_on": {
+      "path": "templates/{env}/s2/furnace_on.png",
+      "threshold": 0.8
+    },
+    "s2_furnace_off": {
+      "path": "templates/{env}/s2/furnace_off.png",
+      "threshold": 0.8
     }
   },
   "discord": {
@@ -527,7 +563,7 @@
   "windows": {
     "app_name": "Last War-Survival Game",
     "process_name": "LastWar.exe",
-    "executable_path": "C:\\Users\\{device_id}\\AppData\\Local\\TheLastWar\\Launch.exe"
+    "executable_path": "C:\\Users\\{device_id}\\AppData\\Local\\FunFly\\Last War-Survival Game\\LastWarLauncher.exe"
   },
   "adb": {
     "package_name": "com.fun.lastwar.gp",

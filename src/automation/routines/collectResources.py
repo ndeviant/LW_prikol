@@ -7,6 +7,19 @@ class CollectResourcesRoutine(FlexibleRoutine):
     def _execute(self) -> bool:
         """Reset game state by restarting the app"""
         return self.execute_with_error_handling(self._execute_internal)
+    
+    def use_rapid_prod(self):
+        self.automation.game_state["is_home"] = False;
+        controls.human_delay('menu_animation')
+
+        controls.find_template(
+            "rapid_production",
+            tap=True,
+            tap_offset=(0, 90)
+        )
+        controls.human_delay('menu_animation')
+        controls.device.press_back()
+        controls.human_delay('tap_delay')
         
     def _execute_internal(self) -> bool:
         for template in [
@@ -37,21 +50,26 @@ class CollectResourcesRoutine(FlexibleRoutine):
             if controls.find_template(
                 "skill_bubble",
                 tap=True,
-                wait=2,
+                wait=1,
                 interval=0.4,
-                error_msg=f"Not found 'skill_bubble' icon"
+                success_msg=f"Found 'skill_bubble' icon"
             ):
-                self.automation.game_state["is_home"] = False;
+                self.use_rapid_prod()
+            elif controls.find_template(
+                "profession",
+                tap=True,
+                wait=1,
+                interval=0.4,
+                success_msg=f"Found 'profession' icon"
+            ):
                 controls.human_delay('menu_animation')
 
-                controls.find_template(
-                    "rapid_production",
+                if controls.find_template(
+                    "skills",
                     tap=True,
-                    tap_offset=(0, 90)
-                )
-                controls.human_delay('menu_animation')
-                controls.device.press_back()
-                controls.human_delay('tap_delay')
+                    error_msg=f"Not found 'skills' icon"
+                ):
+                     self.use_rapid_prod()
 
         if not controls.find_template(
             "rss_truck",

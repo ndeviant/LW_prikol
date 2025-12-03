@@ -12,6 +12,7 @@ from .logging import app_logger
 from .config import CONFIG
 
 file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+template_img_hash = {}
 
 def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[dict]]:
     """Load template and its config"""
@@ -29,7 +30,14 @@ def _load_template(template_name: str) -> Tuple[Optional[np.ndarray], Optional[d
         env = "default"
         template_path = template_config['path'].format(env=env)
         
-    template = cv2.imread(f"config/{template_path}")
+    # Get the template from the cache, or load it if not present
+    template = template_img_hash.get(template_path)
+    if template is None:
+        app_logger.debug(f"Not found template in hash, reading: config/{template_path}")
+
+        template = cv2.imread(f"config/{template_path}")
+        template_img_hash[template_path] = template
+
     if template is None:
         app_logger.error(f"Failed to load template: config/{template_path}")
         return None, None
@@ -241,7 +249,7 @@ def compare_screenshots(img1: np.ndarray, img2: np.ndarray) -> bool:
     return score >= CONFIG['match_threshold']
 
 def find_templates(
-    template_name: str,
+    template_name: str | list[str],
     error_msg: Optional[str] = None,
     success_msg: Optional[str] = None,
     critical: bool = False,

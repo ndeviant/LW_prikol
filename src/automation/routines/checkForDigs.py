@@ -51,6 +51,13 @@ class CheckForDigsRoutine(FlexibleRoutine):
         # Check if dig is already dug up
         app_logger.info(f"Attempting to claim dig automatically")
         controls.human_delay(CONFIG['timings']['menu_animation'])
+        controls.find_template(
+
+            "chat_to_bottom",
+            tap=True,
+        )
+        controls.device.swipe(direction="down")
+        
         self.claim_dig_from_chat()
 
         # If we just start digging
@@ -169,11 +176,13 @@ class CheckForDigsRoutine(FlexibleRoutine):
         wait_for_dig = self.options.get("wait_for_dig", 60)
 
         if self.options.get("spam_claim"):
+            app_logger.info(f"Waiting for 'dig_00' {wait_for_dig}s wait")
             coords_00 = controls.find_template(
-                "dig_00",
+                ["dig_00", "dig_claim"],
                 wait=wait_for_dig,
                 interval=self.options.get("wait_for_dig_interval", 0.5),
                 success_msg="Found 'dig_00', starting spam take",
+                error_msg="Not found 'dig_00'",
                 # Save only success debug img
                 file_name_getter=lambda file_name, success, template_name:  
                     file_name if success else None,
@@ -245,6 +254,8 @@ class CheckForDigsRoutine(FlexibleRoutine):
             return False
 
     def claim_dig_from_chat(self) -> bool:
+        controls.human_delay(CONFIG['timings']['menu_animation'])
+
         # Check if dig is available to claim in chat
         found_dig = None
         if self.unclaimed_dig_type == 'drone' and controls.find_template(

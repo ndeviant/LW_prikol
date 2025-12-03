@@ -11,7 +11,7 @@
       "routine_name": "season_resource",
       "handler": "src.automation.routines.seasonResource.SeasonResourceRoutine",
       "schedule": {
-        "interval": null
+        "interval": 20
       }
     },
     {
@@ -36,6 +36,13 @@
       }
     },
     {
+      "routine_name": "snow_storm",
+      "handler": "src.automation.routines.snowStorm.SnowStorm",
+      "schedule": {
+        "interval": 30
+      }
+    },
+    {
       "routine_name": "assist_secret_tasks",
       "handler": "src.automation.routines.assistSecretTasks.AssistSecretTasks",
       "schedule": {
@@ -52,7 +59,8 @@
     {
       "routine_name": "s1_guard_rally",
       "handler": "src.automation.routines.rally.RallyRoutine",
-      "schedule": {
+      "schedule": null,
+      "_schedule": {
         "start_time": "01:50",
         "end_time": "02:50",
         "interval": 10
@@ -64,6 +72,18 @@
           "s1_gunner"
         ],
         "first_squad_only": true
+      }
+    },
+    {
+      "routine_name": "any_rally",
+      "handler": "src.automation.routines.rally.RallyRoutine",
+      "schedule": {
+        "interval": null
+      },
+      "options": {
+        "rally_types": [
+          "any"
+        ]
       }
     },
     {
@@ -138,7 +158,7 @@
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
         "day": "tuesday",
-        "start_time": "05:30"
+        "start_time": "06:30"
       },
       "options": {
         "position": "development"
@@ -149,7 +169,7 @@
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
         "day": "wednesday",
-        "start_time": "07:50"
+        "start_time": "08:50"
       },
       "options": {
         "position": "science"
@@ -159,7 +179,7 @@
       "routine_name": "interior_morning",
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
-        "start_time": "07:10",
+        "start_time": "08:10",
         "except_days": [
           "tuesday",
           "wednesday"
@@ -173,7 +193,7 @@
       "routine_name": "interior_morning_tue_wed",
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
-        "start_time": "04:30",
+        "start_time": "05:30",
         "days_": [
           "tuesday",
           "wednesday"
@@ -187,7 +207,7 @@
       "routine_name": "interior_night",
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
-        "start_time": "22:45"
+        "start_time": "23:45"
       },
       "options": {
         "position": "interior"

@@ -11,6 +11,8 @@ class SeasonResourceRoutine(FlexibleRoutine):
         self.found_count: int = self.state.get('found_count', 0)
         self.gathered_count: int = self.state.get('gathered_count', 0)
 
+        self.map_checks: bool = self.options.get('map_checks', True)
+
     def _execute(self) -> bool:
         """Check and click rally button if available"""
         return self.execute_with_error_handling(self._execute_internal)
@@ -27,6 +29,14 @@ class SeasonResourceRoutine(FlexibleRoutine):
         
         controls.human_delay('rally_animation')
         self.automation.game_state["is_home"] = False;
+
+        if (self.map_checks):
+            cold_wave_active = controls.find_template(
+                "s2_cold_wave",
+                success_msg=f"Found 's2_cold_wave' indicator",
+            )
+
+            self.automation.state.set('cold_wave_active', bool(cold_wave_active), 'snow_storm', self.routine_type)
 
         if not controls.find_template(
             "rss_map",
@@ -55,7 +65,7 @@ class SeasonResourceRoutine(FlexibleRoutine):
                 tap=True,
                 tap_offset=(0, offset_y),
                 error_msg="Not found 'rss_map_arrow' icon",
-                wait=1,
+                wait=3,
                 interval=0.5,
             )
             controls.human_delay('tap_delay')
@@ -70,6 +80,8 @@ class SeasonResourceRoutine(FlexibleRoutine):
             "dig_dig_dig",
             tap=True,
             error_msg="Could not find 'dig_dig_dig' icon",
+            wait=4,
+            interval=0.5,
         ):
             return True
         

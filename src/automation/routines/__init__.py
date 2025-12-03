@@ -8,6 +8,7 @@ from .checkForDigs import CheckForDigsRoutine
 from .claimSecretTasks import ClaimSecretTasks
 from .assistSecretTasks import AssistSecretTasks
 from .seasonResource import SeasonResourceRoutine
+from .snowStorm import SnowStorm
 #from .weeklyReset import WeeklyResetRoutine 
 from .scheduled.applyForSecretary import ApplyForSecretary 
 from .scheduled.applyShield import ApplyShield 

@@ -207,7 +207,7 @@ class WindowsDevice(DeviceStrategy):
                 app_logger.error("[Windows] No executable path configured for launching application.")
                 return False
             
-            Application(backend=self.backend).start(executable_path)
+            Application(backend=self.backend).start(executable_path, timeout=20)
             self.human_delay('launch_wait', 10.0)
             self._connect_to_lastwar_app()
             app_logger.debug(f"[Windows] Launched application: {executable_path}")
@@ -258,8 +258,10 @@ class WindowsDevice(DeviceStrategy):
     def take_screenshot(self) -> Optional[np.ndarray]:
         """Take screenshot of the LastWar app window and save to tmp/screen.png."""
         if not self.main_window:
-            app_logger.error("[Windows] Cannot take screenshot: LastWar app window not connected.")
+            app_logger.error("[Windows] Cannot take screenshot: LastWar app window not connected. Reconnecting...")
+            self._connect_to_lastwar_app()
             return None
+        
         try:
             ensure_dir("tmp")
             output_filepath = 'tmp/screen.png'
@@ -276,6 +278,8 @@ class WindowsDevice(DeviceStrategy):
         except Exception as e:
             app_logger.error(f"[Windows] Error taking LastWar app screenshot: {e}")
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
+            app_logger.debug(f"Stopping the package...")
+            self.force_stop_package()
             return None
         
     def cleanup_device_screenshots(self) -> None:

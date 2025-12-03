@@ -8,6 +8,8 @@ from .windows import WindowsDevice
 from src.core.logging import app_logger
 from src.core.config import CONFIG
 
+swipe_cfg = CONFIG['ui_elements']['swipe']
+
 # 3. Context
 class DeviceContext:
     _instance: Optional['DeviceContext'] = None
@@ -46,8 +48,21 @@ class DeviceContext:
     def click(self, x: int, y: int, duration: float = 0, delay='tap_delay', critical=False) -> None:
         return self._device_strategy.click(x, y, duration, delay, critical)
 
-    def swipe(self, direction: str, num_swipes: int = 1, duration_ms: int = CONFIG['timings']['swipe_duration']['min']) -> None:
-        return self._device_strategy.swipe(direction, num_swipes, duration_ms)
+    def swipe(
+            self, 
+            direction: str = "up", 
+            num_swipes: int = 1, 
+            duration_ms: int = CONFIG['timings']['swipe_duration']['min'],
+            start = (
+                swipe_cfg['start_x'], 
+                swipe_cfg['start_y']
+            ), 
+            end = (
+                swipe_cfg['end_x'], 
+                swipe_cfg['end_y']
+            )
+        ) -> None:
+        return self._device_strategy.swipe(direction, num_swipes, duration_ms, start=start, end=end)
 
     def type_text(self, text: str) -> None:
         return self._device_strategy.type_text(text)
