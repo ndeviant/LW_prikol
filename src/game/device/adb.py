@@ -12,10 +12,10 @@ import cv2
 from src.core.config import CONFIG
 from src.core.helpers import ensure_dir
 from src.core.logging import app_logger
-from .strategy import ControlStrategy
+from .strategy import DeviceStrategy
 
 # 2. Concrete Strategies
-class ADBControls(ControlStrategy):
+class ADBDevice(DeviceStrategy):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.device_id = None

@@ -14,11 +14,11 @@ from src.core.config import CONFIG
 from src.core.helpers import ensure_dir
 from src.core.logging import app_logger
 
-from .strategy import ControlStrategy
+from .strategy import DeviceStrategy
 
 # 2. Concrete Strategies
 
-class WindowsControls(ControlStrategy):
+class WindowsDevice(DeviceStrategy):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.device_id = os.getlogin()
@@ -34,7 +34,7 @@ class WindowsControls(ControlStrategy):
 
         # Attempt to connect to the LastWar application immediately
         self._connect_to_lastwar_app()
-        app_logger.info(f"[Windows] Initialized WindowsControls for '{self.device_id}'. App connection status: {'Connected' if self.app and self.main_window else 'Failed'}")
+        app_logger.info(f"[Windows] Initialized WindowsDevice for '{self.device_id}'. App connection status: {'Connected' if self.app and self.main_window else 'Failed'}")
 
     def _connect_to_lastwar_app(self) -> bool:
         """Helper to connect to the LastWar application and get its main window."""
@@ -207,7 +207,7 @@ class WindowsControls(ControlStrategy):
                 app_logger.error("[Windows] No executable path configured for launching application.")
                 return False
             
-            Application(backend=self.backend).start(executable_path)
+            Application(backend=self.backend).start(executable_path, timeout=20)
             self.human_delay('launch_wait', 10.0)
             self._connect_to_lastwar_app()
             app_logger.debug(f"[Windows] Launched application: {executable_path}")
@@ -258,8 +258,10 @@ class WindowsControls(ControlStrategy):
     def take_screenshot(self) -> Optional[np.ndarray]:
         """Take screenshot of the LastWar app window and save to tmp/screen.png."""
         if not self.main_window:
-            app_logger.error("[Windows] Cannot take screenshot: LastWar app window not connected.")
+            app_logger.error("[Windows] Cannot take screenshot: LastWar app window not connected. Reconnecting...")
+            self._connect_to_lastwar_app()
             return None
+        
         try:
             ensure_dir("tmp")
             output_filepath = 'tmp/screen.png'
@@ -276,6 +278,8 @@ class WindowsControls(ControlStrategy):
         except Exception as e:
             app_logger.error(f"[Windows] Error taking LastWar app screenshot: {e}")
             app_logger.debug(f"Full error details: {traceback.format_exc()}")
+            app_logger.debug(f"Stopping the package...")
+            self.force_stop_package()
             return None
         
     def cleanup_device_screenshots(self) -> None:

@@ -1,9 +1,7 @@
-from src.automation.routines import TimeCheckRoutine
-from src.core.config import CONFIG
-from src.core.image_processing import find_template, find_templates
-from src.game.device import controls
+from src.automation.routines import FlexibleRoutine
+from src.game import controls
 
-class AllianceGiftsRoutine(TimeCheckRoutine):
+class AllianceGiftsRoutine(FlexibleRoutine):
     force_home: bool = True
 
     def _execute(self) -> bool:
@@ -15,7 +13,7 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
 
         """Navigate to the alliance donate menu and donate"""
         # Open alliance menu
-        if not find_template(
+        if not controls.find_template(
             "alliance",
             tap=True,
             error_msg="Could not find alliance icon"
@@ -25,7 +23,7 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         controls.human_delay('menu_animation')
 
         # Click alliance gifts icon
-        if not find_template(
+        if not controls.find_template(
             "alliance_gifts",
             tap=True,
             error_msg="Could not find alliance_gifts icon"
@@ -35,18 +33,18 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         controls.human_delay('menu_animation')
 
         # Click collect all button
-        if find_template(
+        if controls.find_template(
             "alliance_claim_all",
             tap=True,
             error_msg="No claim all button found"
         ):
             # Clear claim message
             controls.human_delay(2)
-            controls.press_back()
+            controls.device.press_back()
             controls.human_delay(1)
         
         # Open premium tab
-        if not find_template(
+        if not controls.find_template(
             "alliance_gift_premium",
             tap=True,
             error_msg="No premium tab found found"
@@ -56,7 +54,7 @@ class AllianceGiftsRoutine(TimeCheckRoutine):
         controls.human_delay('menu_animation')
 
         # Click collect all button
-        find_template(
+        controls.find_template(
             "alliance_claim_all",
             tap=True,
             error_msg="No claim all button found"

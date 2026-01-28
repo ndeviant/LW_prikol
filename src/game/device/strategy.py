@@ -10,12 +10,12 @@ import numpy as np
 from src.core.helpers import throttle
 from src.core.logging import app_logger
 from src.core.config import CONFIG
-from src.core.image_processing import find_templates, find_template
 
 file_save_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+swipe_cfg = CONFIG['ui_elements']['swipe']
 
 # 1. Strategy Interface
-class ControlStrategy(ABC):
+class DeviceStrategy(ABC):
     """
     The Strategy Interface declares operations common to all supported versions
     of some algorithm. The Context uses this interface to call the algorithm
@@ -32,7 +32,7 @@ class ControlStrategy(ABC):
 
 
     # Template Method: Defines the skeleton of the 'click' operation
-    def click(self, x: int, y: int, duration: float = None, critical: bool = False) -> bool:
+    def click(self, x: int, y: int, duration: float = None, critical: bool = False, delay = 'tap_delay') -> bool:
         """Perform a humanized tap/long press with randomization
         
         Args:
@@ -56,7 +56,8 @@ class ControlStrategy(ABC):
             # Execute long press
             success = self._perform_click(rand_x, rand_y, duration_ms)
             if success:
-                self.human_delay('tap_delay')
+                if delay:
+                    self.human_delay(delay)
                 return True
             return False
             
@@ -73,24 +74,36 @@ class ControlStrategy(ABC):
         pass
 
     # Template Method: Defines the skeleton of the 'swipe' operation
-    def swipe(self, direction: str = "up", num_swipes: int = 1, duration_ms: int = None) -> None:
+    def swipe(
+            self, 
+            direction: str = "up", 
+            num_swipes: int = 1, 
+            duration_ms: int = None, 
+            start = (
+                swipe_cfg['start_x'], 
+                swipe_cfg['start_y']
+            ), 
+            end = (
+                swipe_cfg['end_x'], 
+                swipe_cfg['end_y']
+            )
+        ) -> None:
         """Handle scrolling with swipes"""
         width, height = self.get_screen_size()
         
-        swipe_cfg = CONFIG['ui_elements']['swipe']
         variance_pct = float(CONFIG['randomization']['swipe_variance']['position'].strip('%')) / 100
         
         for i in range(num_swipes):
             if direction == "up":
-                start_x = int(width * float(swipe_cfg['start_x'].strip('%')) / 100)
-                start_y = int(height * float(swipe_cfg['start_y'].strip('%')) / 100)
-                end_x = int(width * float(swipe_cfg['end_x'].strip('%')) / 100)
-                end_y = int(height * float(swipe_cfg['end_y'].strip('%')) / 100)
+                start_x = int(width * float(start[0].strip('%')) / 100)
+                start_y = int(height * float(start[1].strip('%')) / 100)
+                end_x = int(width * float(end[0].strip('%')) / 100)
+                end_y = int(height * float(end[1].strip('%')) / 100)
             else:  # down
-                start_x = int(width * float(swipe_cfg['start_x'].strip('%')) / 100)
-                start_y = int(height * float(swipe_cfg['end_y'].strip('%')) / 100)
-                end_x = int(width * float(swipe_cfg['end_x'].strip('%')) / 100)
-                end_y = int(height * float(swipe_cfg['start_y'].strip('%')) / 100)
+                start_x = int(width * float(start[0].strip('%')) / 100)
+                start_y = int(height * float(end[1].strip('%')) / 100)
+                end_x = int(width * float(end[0].strip('%')) / 100)
+                end_y = int(height * float(start[1].strip('%')) / 100)
             
             # Add slight variance to avoid detection
             start_x += int(width * random.uniform(-variance_pct, variance_pct))
@@ -194,136 +207,17 @@ class ControlStrategy(ABC):
         """Add a human-like delay between actions"""
         time.sleep(final_delay)
 
-    def launch_game(self) -> bool:
-        """Launch the game"""
-        if self.is_app_running:
-            self.force_stop_package()
-            time.sleep(CONFIG['timings']['app_close_wait'])
+    def spam_click(self, x, y, duration=3, delay=0, critical=False):
+        # Define the total duration and the delay between clicks
 
-        self.launch_package()
-        
+        # Get the current time to start the timer
         start_time = time.time()
-        while time.time() - start_time < CONFIG['timings']['launch_max_wait']:
-            app_logger.debug("Running launch_game, looking for 'start' and 'home' icons")
 
-            # Check for start button first
-            start_loc = find_template("start")
-            if start_loc:
-                app_logger.debug("Found start button, clicking it")
-                self.click(start_loc[0], start_loc[1])
-                self.human_delay('menu_animation')
-            
-            # Check for home icon
-            home_loc = find_template("home")
-            if home_loc:
-                app_logger.debug("Found home icon")
-                self.human_delay('menu_animation')
-                self.navigate_home(True)
-                return True
+        # Loop for the specified duration
+        while time.time() - start_time < duration:
+            app_logger.debug(f"'spam_click': {time.time() - start_time}")
+            self.click(x, y, duration=0, delay=delay, critical=critical)
 
-            #small delay between checks    
-            self.human_delay(5)
-        
-        app_logger.error("Could not find home icon after launch")
-        return False
-    
-    def navigate_home(self, force: bool = False) -> bool:
-        """Navigate to home screen"""
-        try:
-            app_logger.info("Navigating home")
-
-            # Check if already at home
-            if not force:
-                home_loc = find_template("home")
-                if home_loc:
-                    app_logger.debug("Already at home screen")
-                    return True
-                
-            # Press back until we find home screen
-            max_attempts = CONFIG.get('max_home_attempts', 10)
-            for attempt in range(max_attempts):
-                # Not found, press back and wait
-                self.press_back()
-                self.human_delay('menu_animation')
-
-                # Take screenshot and look for home
-                quit_loc = find_template(
-                    "quit",                 
-                )
-                if not quit_loc:
-                    # Not found, press back and wait
-                    self.human_delay('menu_animation')
-                    continue
-
-                app_logger.debug("Found quit button")
-
-                # Press back again to get to home
-                while quit_loc:
-                    self.press_back()
-                    self.human_delay('menu_animation')
-                    quit_loc = find_template("quit")
-                    app_logger.debug("Going back until 'quit' will not be on the screen")
-
-                # Take screenshot and look for base icon
-                find_template(
-                    "base",
-                    tap=True,
-                )
-                
-                return True
-                
-            app_logger.error("Failed to find home screen after maximum attempts")
-            return False
-            
-        except Exception as e:
-            app_logger.error(f"Error navigating home: {e}")
-            return False
-    
-    @throttle(1)
-    def check_active_on_another_device(self) -> bool:
-        """Find another device popup"""
-        try:
-            if not self.is_app_running:
-                return False
-            
-            app_logger.debug("Checking if account is active on another device")
-            # Check if notification is on
-            notification = find_template(
-                "another_device",
-                file_name_getter=lambda file_name, success, template_name: 
-                    file_name if success else None,
-                )
-
-            if not notification:
-                return False
-        
-            total_wait_time = CONFIG['timings']['another_device_wait'] or 300
-
-            app_logger.info(f"Account is active on another device, waiting for {total_wait_time}s")
-
-            # The progress step (20% of the total time)
-            step_duration = total_wait_time * 0.20
-            remaining_time = total_wait_time
-
-            # Loop to show progress
-            for i in range(1, 6): # This will loop 5 times for 20%, 40%, 60%, 80%, 100%
-                if not self.is_app_running:
-                    return True
-                self.human_delay(step_duration, multiplier=1.0) # Assuming human_delay takes the duration
-                remaining_time -= step_duration
-
-                app_logger.info(f"App will be restarted. Time remaining: {remaining_time:.1f}s")
-                
-            # The full delay is now complete
-            self.cleanup_temp_files()
-            self.force_stop_package()
-
-            return True
-                
-        except Exception as e:
-            app_logger.error(f"Error check_active_on_another_device: {e}")
-            return False
-              
     @throttle(1)
     def _save_image_to_disk_background(self, filepath: str, image_np: np.ndarray):
         """Helper function to save image to disk, runs in a separate thread."""
@@ -357,6 +251,4 @@ class ControlStrategy(ABC):
                     app_logger.warning(f"Failed to delete tmp directory: {e}")
         except Exception as e:
             app_logger.error(f"Error cleaning temporary files: {e}")
-
-
 

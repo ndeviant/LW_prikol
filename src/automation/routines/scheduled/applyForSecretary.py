@@ -1,10 +1,9 @@
-from src.automation.routines.routineBase import DailyRoutine
+from src.automation.routines import FlexibleRoutine
 from src.core.config import CONFIG
-from src.core.image_processing import find_template
-from src.game.device import controls
+from src.game import controls
 from src.core.logging import app_logger
 
-class ApplyForSecretary(DailyRoutine):
+class ApplyForSecretary(FlexibleRoutine):
     secretary_types = ["strategy", "security", "development", "science", "interior"]
 
     def _execute(self) -> bool:
@@ -19,7 +18,7 @@ class ApplyForSecretary(DailyRoutine):
         self.automation.game_state["is_home"] = False
 
         self.open_profile_menu()
-        if not find_template(
+        if not controls.find_template(
             "capitol_menu",
             tap=True,
             error_msg="Failed to find capitol menu",
@@ -27,10 +26,10 @@ class ApplyForSecretary(DailyRoutine):
         ):  
             return False
         
-        controls.swipe(direction="down")
+        controls.device.swipe(direction="down")
         controls.human_delay(CONFIG['timings']['menu_animation'])
 
-        if not find_template(
+        if not controls.find_template(
             self.options.get("position"),
             tap=True,
             error_msg=f"Could not find {self.options.get("position")} secretary position",
@@ -40,7 +39,7 @@ class ApplyForSecretary(DailyRoutine):
                     
         controls.human_delay(CONFIG['timings']['menu_animation'])
 
-        if not find_template(
+        if not controls.find_template(
             "apply",
             tap=True,
             error_msg=f"Could not find \"Apply\" button",
@@ -54,20 +53,20 @@ class ApplyForSecretary(DailyRoutine):
     def open_profile_menu(self) -> bool:
         """Open the profile menu"""
         try:
-            width, height = controls.get_screen_size()
+            width, height = controls.device.get_screen_size()
             profile = CONFIG['ui_elements']['profile']
             profile_x = int(width * float(profile['x'].strip('%')) / 100)
             profile_y = int(height * float(profile['y'].strip('%')) / 100)
-            controls.click(profile_x, profile_y)
+            controls.device.click(profile_x, profile_y)
 
             # Look for notification indicators
-            notification = find_template(
+            notification = controls.find_template(
                 "awesome",
                 wait=CONFIG['timings']['menu_animation'],
             )
             
             if notification:
-                controls.click(notification[0], notification[1])
+                controls.device.click(notification[0], notification[1])
                 controls.human_delay(CONFIG['timings']['menu_animation'])
 
             return True

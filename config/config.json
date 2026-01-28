@@ -1,13 +1,14 @@
 {
   "env": "windows",
   "debug_mode": false,
-  "sleep_multiplier": 0.8,
+  "sleep_multiplier": 0.7,
   "max_retries": 3,
   "max_home_attempts": 15,
   "retry_delay": 1.0,
   "screenshot_quality": 100,
-  "match_threshold": 0.6,
+  "match_threshold": 0.7,
   "server_reset_utc": 2,
+  "ar_monday_day": 2,
   "ui_elements": {
     "chat": {
       "x": "50%",
@@ -35,9 +36,9 @@
     },
     "swipe": {
       "start_x": "50%",
-      "start_y": "40%",
+      "start_y": "30%",
       "end_x": "50%",
-      "end_y": "70%"
+      "end_y": "60%"
     }
   },
   "timings": {
@@ -138,6 +139,10 @@
     },    
     "another_device": {
       "path": "templates/{env}/ui/another_device.png",
+      "threshold": 0.85
+    },
+    "chat_to_bottom": {
+      "path": "templates/{env}/ui/chat_to_bottom.png",
       "threshold": 0.85
     },
     "alliance": {
@@ -254,7 +259,7 @@
     },
     "assist_constr_task_5": {
       "path": "templates/{env}/secret_task/assist_constr_task_5.png",
-      "threshold": 0.96
+      "threshold": 0.95
     },
     "assist_hero_task_5": {
       "path": "templates/{env}/secret_task/assist_hero_task_5.png",
@@ -275,6 +280,22 @@
     "collect": {
       "path": "templates/{env}/ui/collect.png",
       "threshold": 0.75
+    },    
+    "profession": {
+      "path": "templates/{env}/ui/profession.png",
+      "threshold": 0.8
+    },
+    "skill_bubble": {
+      "path": "templates/{env}/ui/skill_bubble.png",
+      "threshold": 0.8
+    },    
+    "skills": {
+      "path": "templates/{env}/ui/skills.png",
+      "threshold": 0.8
+    },
+    "rapid_production": {
+      "path": "templates/{env}/ui/rapid_production.png",
+      "threshold": 0.8
     },
     "inventory": {
       "path": "templates/{env}/inventory/inventory.png",
@@ -319,14 +340,10 @@
     "dig_dig_radar_icon": {
       "path": "templates/{env}/dig/dig_dig_radar_icon.png",
       "threshold": 0.75
-    },
-    "dig_dig_model_drone": {
-      "path": "templates/{env}/dig/dig_dig_model_drone.png",
-      "threshold": 0.65
-    },
-    "dig_dig_model_exc": {
-      "path": "templates/{env}/dig/dig_dig_model_exc.png",
-      "threshold": 0.65
+    },    
+    "dig_drone_radar_icon": {
+      "path": "templates/{env}/dig/dig_drone_radar_icon.png",
+      "threshold": 0.75
     },
     "dig_dig_dig": {
       "path": "templates/{env}/dig/dig_dig_dig.png",
@@ -336,9 +353,13 @@
       "path": "templates/{env}/dig/dig_dig_dig_drone.png",
       "threshold": 0.75
     },
+    "dig_00": {
+      "path": "templates/{env}/dig/dig_00.png",
+      "threshold": 0.92
+    },
     "dig_claim": {
       "path": "templates/{env}/dig/dig_claim.png",
-      "threshold": 0.75
+      "threshold": 0.85
     },
     "dig_chat_claim": {
       "path": "templates/{env}/dig/dig_chat_claim.png",
@@ -348,9 +369,33 @@
       "path": "templates/{env}/dig/dig_chat_claim_drone.png",
       "threshold": 0.75
     },
-    "dig_claimed": {
-      "path": "templates/{env}/dig/dig_claimed.png",
+    "dig_claimed_list": {
+      "path": "templates/{env}/dig/dig_claimed_list.png",
       "threshold": 0.75
+    },    
+    "dig_claimed_already": {
+      "path": "templates/{env}/dig/dig_claimed_already.png",
+      "threshold": 0.75
+    },
+    "rss_bottom_chat": {
+      "path": "templates/{env}/rss/rss_bottom_chat.png",
+      "threshold": 0.65
+    },
+    "rss_chat": {
+      "path": "templates/{env}/rss/rss_chat.png",
+      "threshold": 0.8
+    },
+    "rss_map": {
+      "path": "templates/{env}/rss/rss_map.png",
+      "threshold": 0.8
+    },
+    "rss_map_arrow": {
+      "path": "templates/{env}/rss/rss_map_arrow.png",
+      "threshold": 0.8
+    },
+    "rss_map_dig": {
+      "path": "templates/{env}/rss/rss_map_dig.png",
+      "threshold": 0.94
     },
     "rss_truck": {
       "path": "templates/{env}/rss/rss_truck.png",
@@ -358,7 +403,7 @@
     },
     "rss_ore": {
       "path": "templates/{env}/rss/ore.png",
-      "threshold": 0.7
+      "threshold": 0.77
     },
     "rss_screw": {
       "path": "templates/{env}/rss/screw.png",
@@ -366,16 +411,20 @@
     },
     "rss_gold": {
       "path": "templates/{env}/rss/gold.png",
-      "threshold": 0.7
+      "threshold": 0.85
     },
     "rss_iron": {
       "path": "templates/{env}/rss/iron.png",
-      "threshold": 0.7
+      "threshold": 0.85
     },
     "rss_food": {
       "path": "templates/{env}/rss/food.png",
-      "threshold": 0.7
+      "threshold": 0.85
     },
+    "rss_oil": {
+      "path": "templates/{env}/rss/oil.png",
+      "threshold": 0.7
+    },    
     "rss_exp": {
       "path": "templates/{env}/rss/exp.png",
       "threshold": 0.7
@@ -392,6 +441,10 @@
       "path": "templates/{env}/rally/rallies_opened.png",
       "threshold": 0.9
     }, 
+    "join_any_rally": {
+      "path": "templates/{env}/rally/join_any_rally.png",
+      "threshold": 0.9
+    },  
     "join_de_rally": {
       "path": "templates/{env}/rally/join_de_rally.png",
       "threshold": 0.9
@@ -399,9 +452,25 @@
     "join_golden_rally": {
       "path": "templates/{env}/rally/join_golden_rally.png",
       "threshold": 0.9
-    },   
+    },    
+    "join_s1_butcher_rally": {
+      "path": "templates/{env}/rally/join_s1_butcher_rally.png",
+      "threshold": 0.9
+    },    
+    "join_s1_guard_rally": {
+      "path": "templates/{env}/rally/join_s1_guard_rally.png",
+      "threshold": 0.9
+    },    
+    "join_s1_gunner_rally": {
+      "path": "templates/{env}/rally/join_s1_gunner_rally.png",
+      "threshold": 0.9
+    },
     "march": {
       "path": "templates/{env}/rally/march.png",
+      "threshold": 0.7
+    },
+    "squad_first": {
+      "path": "templates/{env}/rally/squad_first.png",
       "threshold": 0.7
     },
     "squad_idle": {
@@ -447,6 +516,34 @@
     "alliance_gift_premium": {
       "path": "templates/{env}/alliance/premium.png",
       "threshold": 0.65
+    },
+    "s2_cold_wave": {
+      "path": "templates/{env}/s2/cold_wave.png",
+      "threshold": 0.8
+    },    
+    "s2_furnace": {
+      "path": "templates/{env}/s2/furnace.png",
+      "threshold": 0.7
+    },    
+    "s2_furnace_on_model": {
+      "path": "templates/{env}/s2/furnace_on_model.png",
+      "threshold": 0.7
+    },    
+    "s2_furnace_off_model": {
+      "path": "templates/{env}/s2/furnace_off_model.png",
+      "threshold": 0.7
+    },    
+    "s2_btn_furnace": {
+      "path": "templates/{env}/s2/btn_furnace.png",
+      "threshold": 0.7
+    },
+    "s2_furnace_on": {
+      "path": "templates/{env}/s2/furnace_on.png",
+      "threshold": 0.8
+    },
+    "s2_furnace_off": {
+      "path": "templates/{env}/s2/furnace_off.png",
+      "threshold": 0.8
     }
   },
   "discord": {
@@ -460,7 +557,7 @@
         "embed_color": "0xCC0000"
       },
       "rss": {
-        "content": "<:gold:1301483663250161674> **Rss gathered!**",
+        "content": "<:gold:1301483663250161674> **RSS tile found!**",
         "embed_title": "",
         "embed_value": ":exploding_head: Success!\n",
         "embed_color": "0xFFE599"
@@ -470,7 +567,7 @@
   "windows": {
     "app_name": "Last War-Survival Game",
     "process_name": "LastWar.exe",
-    "executable_path": "C:\\Users\\{device_id}\\AppData\\Local\\TheLastWar\\Launch.exe"
+    "executable_path": "C:\\Users\\{device_id}\\AppData\\Local\\FunFly\\Last War-Survival Game\\LastWarLauncher.exe"
   },
   "adb": {
     "package_name": "com.fun.lastwar.gp",

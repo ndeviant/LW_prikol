@@ -1,13 +1,13 @@
-from src.automation.routines.routineBase import TimeCheckRoutine
-from src.core.image_processing import find_template
+from src.automation.routines import FlexibleRoutine
+from src.game import controls
 
-class HelpRoutine(TimeCheckRoutine):
+class HelpRoutine(FlexibleRoutine):
     def _execute(self) -> bool:
         """Check and click help button if available"""
         return self.execute_with_error_handling(self._execute_internal)
         
     def _execute_internal(self) -> bool:
-        if not find_template(
+        if not controls.find_template(
             "help",
             tap=True,
             error_msg="No help needed at this time",
