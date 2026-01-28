@@ -39,6 +39,8 @@ class SnowStorm(FlexibleRoutine):
                 error_msg=f"Could not find 'furnace_on' button",
                 success_msg="Furnace turned off"
             ):
+                self.state.set('furnace_active', False)
+
                 controls.device.press_back()
                 self.swipe_up()
                 return True

@@ -36,9 +36,9 @@
     },
     "swipe": {
       "start_x": "50%",
-      "start_y": "40%",
+      "start_y": "30%",
       "end_x": "50%",
-      "end_y": "70%"
+      "end_y": "60%"
     }
   },
   "timings": {
@@ -421,6 +421,10 @@
       "path": "templates/{env}/rss/food.png",
       "threshold": 0.85
     },
+    "rss_oil": {
+      "path": "templates/{env}/rss/oil.png",
+      "threshold": 0.7
+    },    
     "rss_exp": {
       "path": "templates/{env}/rss/exp.png",
       "threshold": 0.7

@@ -11,7 +11,7 @@
       "routine_name": "season_resource",
       "handler": "src.automation.routines.seasonResource.SeasonResourceRoutine",
       "schedule": {
-        "interval": 20
+        "interval": null
       }
     },
     {
@@ -39,7 +39,7 @@
       "routine_name": "snow_storm",
       "handler": "src.automation.routines.snowStorm.SnowStorm",
       "schedule": {
-        "interval": 30
+        "interval": null
       }
     },
     {

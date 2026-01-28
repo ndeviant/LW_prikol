@@ -23,6 +23,7 @@ class CollectResourcesRoutine(FlexibleRoutine):
         
     def _execute_internal(self) -> bool:
         for template in [
+            "rss_oil",
             "rss_exp",
             "rss_ore",
             "rss_screw",
