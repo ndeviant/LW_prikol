@@ -272,9 +272,21 @@
     "assist_star_task_5": {
       "path": "templates/{env}/secret_task/assist_star_task_5.png",
       "threshold": 0.96
+    },    
+    "assist_hero_task_6": {
+      "path": "templates/{env}/secret_task/assist_hero_task_6.png",
+      "threshold": 0.96
     },
+    "assist_star_task_6": {
+      "path": "templates/{env}/secret_task/assist_star_task_6.png",
+      "threshold": 0.96
+    },    
     "assisted_max": {
       "path": "templates/{env}/secret_task/assisted_max.png",
+      "threshold": 0.9
+    },    
+    "assisted_max_2": {
+      "path": "templates/{env}/secret_task/assisted_max_2.png",
       "threshold": 0.9
     },
     "collect": {
@@ -424,6 +436,14 @@
     "rss_oil": {
       "path": "templates/{env}/rss/oil.png",
       "threshold": 0.7
+    },        
+    "rss_cog": {
+      "path": "templates/{env}/rss/cog.png",
+      "threshold": 0.7
+    },        
+    "rss_guidebook": {
+      "path": "templates/{env}/rss/guidebook.png",
+      "threshold": 0.7
     },    
     "rss_exp": {
       "path": "templates/{env}/rss/exp.png",
@@ -452,7 +472,15 @@
     "join_golden_rally": {
       "path": "templates/{env}/rally/join_golden_rally.png",
       "threshold": 0.9
-    },    
+    },        
+    "join_golden_t2_rally": {
+      "path": "templates/{env}/rally/join_golden_t2_rally.png",
+      "threshold": 0.9
+    },
+    "join_golden_t3_rally": {
+      "path": "templates/{env}/rally/join_golden_t3_rally.png",
+      "threshold": 0.9
+    },
     "join_s1_butcher_rally": {
       "path": "templates/{env}/rally/join_s1_butcher_rally.png",
       "threshold": 0.9

@@ -130,6 +130,13 @@ class CheckForDigsRoutine(FlexibleRoutine):
                     found_dig = True
 
         if not found_dig:
+            found_dig = controls.find_template(
+                "dig_claim",
+                tap=True,
+                success_msg="Found 'dig_claim' icon before sending squad",
+                wait=1,
+                interval=0.3
+            )
             return True
         
         controls.human_delay(CONFIG['timings']['rally_animation'])

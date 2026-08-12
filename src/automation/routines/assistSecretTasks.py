@@ -24,6 +24,7 @@ class AssistSecretTasks(FlexibleRoutine):
         self.claim_types: List[SecretTaskType] = self.options.get("claim_types", ['star'])
         self.min_star: int = self.options.get("min_star", 4)
         self.num_swipes: int = self.options.get("num_swipes", 1)
+        self.version: int = self.options.get("version", 0)
 
     def _execute(self) -> bool:
         """Check and click help button if available"""
@@ -40,7 +41,7 @@ class AssistSecretTasks(FlexibleRoutine):
         controls.human_delay('menu_animation')
         self.automation.game_state["is_home"] = False
 
-        if (controls.find_template('assisted_max')):
+        if (controls.find_template(f'assisted_max{'' if not self.version else f"_{self.version}"}')):
             self.state.set('assisted_max_date', time.time())
 
         if not controls.find_template(

@@ -1,5 +1,6 @@
 import time
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Dict, Any, List
 from src.automation.routines.routineBase import RoutineBase
@@ -38,7 +39,7 @@ class MainAutomation:
     def run(self):
         """Main run sequence with error handling"""
         try:
-            app_logger.info(f"Starting {self.__class__.__name__}")
+            app_logger.info(f"Starting {self.__class__.__name__}. UTC time: {datetime.fromtimestamp(time.time(), UTC)}")
             if not self.start():
                 app_logger.error("Failed to start automation")
                 return False

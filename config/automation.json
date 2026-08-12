@@ -49,7 +49,8 @@
         "interval": 45
       },
       "options": {
-        "min_star": 5,
+        "version": 2,
+        "min_star": 6,
         "claim_types": [
           "star",
           "hero"
@@ -96,7 +97,9 @@
       },
       "options": {
         "rally_types": [
-          "golden"
+          "golden",
+          "golden_t2",
+          "golden_t3"
         ]
       }
     },
@@ -143,13 +146,12 @@
       "handler": "src.automation.routines.scheduled.applyShield.ApplyShield",
       "schedule": {
         "day": "saturday",
-        "start_time": "02:02"
+        "start_time": "01:57"
       },
       "options": {
         "shields": [
-          8,
           12,
-          24
+          8
         ]
       }
     },
@@ -169,7 +171,7 @@
       "handler": "src.automation.routines.scheduled.applyForSecretary.ApplyForSecretary",
       "schedule": {
         "day": "wednesday",
-        "start_time": "08:50"
+        "start_time": "06:50"
       },
       "options": {
         "position": "science"
